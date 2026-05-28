@@ -1,0 +1,82 @@
+{
+  "models": {
+    "tata_prima_4928": {
+      "label": "Tata Prima 4928.S",
+      "truck_class": "32T_12W",
+      "mileage_kmpl": 3.8,
+      "payload_tons": 28
+    },
+    "al_4923": {
+      "label": "Ashok Leyland 4923",
+      "truck_class": "32T_12W",
+      "mileage_kmpl": 4.1,
+      "payload_tons": 25
+    },
+    "bharatbenz_4228": {
+      "label": "BharatBenz 4228 R",
+      "truck_class": "32T_12W",
+      "mileage_kmpl": 3.9,
+      "payload_tons": 28
+    },
+    "tata_prima_3523": {
+      "label": "Tata Prima 3523.S",
+      "truck_class": "25T_10W",
+      "mileage_kmpl": 4.2,
+      "payload_tons": 21
+    },
+    "eicher_pro_6031": {
+      "label": "Eicher Pro 6031",
+      "truck_class": "25T_10W",
+      "mileage_kmpl": 4.5,
+      "payload_tons": 21
+    },
+    "tata_lpt_2518": {
+      "label": "Tata LPT 2518",
+      "truck_class": "25T_10W",
+      "mileage_kmpl": 3.9,
+      "payload_tons": 16
+    },
+    "al_2518": {
+      "label": "Ashok Leyland 2518",
+      "truck_class": "25T_10W",
+      "mileage_kmpl": 4.0,
+      "payload_tons": 16
+    },
+    "tata_lpt_1613": {
+      "label": "Tata LPT 1613",
+      "truck_class": "16T_6W",
+      "mileage_kmpl": 6.2,
+      "payload_tons": 10
+    },
+    "al_1616": {
+      "label": "Ashok Leyland 1616",
+      "truck_class": "16T_6W",
+      "mileage_kmpl": 5.8,
+      "payload_tons": 10
+    },
+    "eicher_pro_3015": {
+      "label": "Eicher Pro 3015",
+      "truck_class": "16T_6W",
+      "mileage_kmpl": 7.1,
+      "payload_tons": 9
+    },
+    "tata_ace_mega": {
+      "label": "Tata Ace Mega",
+      "truck_class": "9T_4W",
+      "mileage_kmpl": 15.0,
+      "payload_tons": 1
+    },
+    "mahindra_furio_11": {
+      "label": "Mahindra Furio 11",
+      "truck_class": "9T_4W",
+      "mileage_kmpl": 11.2,
+      "payload_tons": 7
+    },
+    "tata_ultra_714": {
+      "label": "Tata Ultra 714",
+      "truck_class": "9T_4W",
+      "mileage_kmpl": 12.5,
+      "payload_tons": 5
+    }
+  }
+}
