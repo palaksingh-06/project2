@@ -132,7 +132,7 @@ export async function POST(request: Request) {
 
     const model = modelId ? getTruckModel(modelId) : null;
     const rateOverrides: RateOverrides | undefined = model
-      ? { mileage_kmpl: model.mileage_kmpl, ...overrides }
+      ? { mileage_kmpl: Math.round(model.mileage_kmpl * 0.7 * 100) / 100, ...overrides }
       : (overrides as RateOverrides | undefined);
 
     const result = calculateZBC({

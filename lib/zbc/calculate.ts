@@ -29,7 +29,7 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
   const profile = { ...baseProfile, ...overrides };
 
   // Fuel
-  const mileage = overrides?.mileage_kmpl ?? profile.mileage_kmpl;
+  const mileage = overrides?.mileage_kmpl ?? profile.mileage_kmpl_considered;
   const dieselLitresConsumed = distance_km / mileage;
   const fuelCostInr = dieselLitresConsumed * diesel_price_inr;
   const fuelCostPerKm = distance_km > 0 ? fuelCostInr / distance_km : 0;

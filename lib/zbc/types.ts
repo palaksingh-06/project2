@@ -16,6 +16,7 @@ export interface TruckProfile {
   wheels: number;
   toll_class: string;
   mileage_kmpl: number;
+  mileage_kmpl_considered: number;
   driver_per_day: number;
   bata_per_trip: number;
   night_halt_per_night: number;

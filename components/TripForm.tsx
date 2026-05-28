@@ -275,7 +275,7 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
             <option value="">Generic / Unknown (use class default)</option>
             {modelOptions.map((m) => (
               <option key={m.id} value={m.id}>
-                {m.label} — {m.mileage_kmpl} km/l
+                {m.label} — {Math.round(m.mileage_kmpl * 0.7 * 10) / 10} km/l
               </option>
             ))}
           </select>
@@ -315,7 +315,7 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
           </div>
 
           <p className="text-xs text-slate-500">Fuel</p>
-          <OverrideField label="Mileage (km/l)" defaultVal={profile.mileage_kmpl} fieldKey="mileage_kmpl" setOverride={setOverride} />
+          <OverrideField label="Effective mileage (km/l)" defaultVal={profile.mileage_kmpl_considered} fieldKey="mileage_kmpl" setOverride={setOverride} />
 
           <p className="text-xs text-slate-500 pt-1">Driver & Crew</p>
           <OverrideField label="Driver ₹/day" defaultVal={profile.driver_per_day} fieldKey="driver_per_day" setOverride={setOverride} />
