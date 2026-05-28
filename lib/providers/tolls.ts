@@ -22,6 +22,8 @@ const TOLLGURU_VEHICLE: Record<string, string> = {
   twoAxle: "2AxlesTruck",
   threeAxle: "3AxlesTruck",
   mav: "4AxlesTruck",
+  fourAxle: "4AxlesTruck",
+  fiveAxle: "5AxlesTruck",
   car: "2AxlesAuto",
 };
 

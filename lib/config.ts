@@ -28,6 +28,21 @@ export function getTruckOptions(): { id: string; label: string }[] {
   }));
 }
 
+export function getTrucksByBodyType(
+  bodyType: "open" | "closed"
+): { id: string; label: string; payload_tons: number; length_ft: number; axles: number }[] {
+  const config = getTruckRatesConfig();
+  return Object.entries(config.trucks)
+    .filter(([, t]) => t.body_type === bodyType)
+    .map(([id, t]) => ({
+      id,
+      label: t.label,
+      payload_tons: t.payload_tons,
+      length_ft: t.length_ft,
+      axles: t.axles,
+    }));
+}
+
 export function getFallbackRates() {
   return fallbackRates;
 }

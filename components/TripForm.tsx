@@ -1,14 +1,7 @@
 "use client";
 
-import {
-  Combobox,
-  ComboboxButton,
-  ComboboxInput,
-  ComboboxOption,
-  ComboboxOptions,
-} from "@headlessui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getTruckModels, getTruckOptions } from "@/lib/config";
+import { getTruckModels, getTrucksByBodyType, getTruckProfile } from "@/lib/config";
 import type { RateOverrides } from "@/lib/zbc/types";
 
 export interface CalculateRequest {
@@ -23,27 +16,7 @@ export interface CalculateRequest {
 interface TripFormProps {
   onSubmit: (data: CalculateRequest) => void;
   loading: boolean;
-  truckRates?: Record<
-    string,
-    {
-      label: string;
-      payload_tons: number;
-      mileage_kmpl: number;
-      driver_per_day: number;
-      bata_per_trip: number;
-      night_halt_per_night: number;
-      depreciation_per_km: number;
-      maintenance_per_km: number;
-      loading_per_ton: number;
-      idle_hours_short_haul: number;
-      idle_hours_medium_haul: number;
-      idle_hours_long_haul: number;
-      idle_cost_per_hour: number;
-      overhead_per_trip: number;
-      risk_pct: number;
-      empty_return_pct: number;
-    }
-  >;
+  truckRates?: Record<string, unknown>;
 }
 
 function CityInput({
@@ -56,23 +29,16 @@ function CityInput({
   onChange: (v: string) => void;
 }) {
   const [query, setQuery] = useState(value);
-  const [suggestions, setSuggestions] = useState<
-    { name: string; label: string }[]
-  >([]);
+  const [suggestions, setSuggestions] = useState<{ name: string; label: string }[]>([]);
 
   useEffect(() => {
     setQuery(value);
   }, [value]);
 
   const fetchSuggestions = useCallback(async (q: string) => {
-    if (q.length < 2) {
-      setSuggestions([]);
-      return;
-    }
+    if (q.length < 2) { setSuggestions([]); return; }
     const res = await fetch(`/api/cities?q=${encodeURIComponent(q)}`);
-    const data = (await res.json()) as {
-      cities: { name: string; label: string }[];
-    };
+    const data = (await res.json()) as { cities: { name: string; label: string }[] };
     setSuggestions(data.cities);
   }, []);
 
@@ -83,34 +49,32 @@ function CityInput({
 
   return (
     <div>
-      <label className="mb-1 block text-sm font-medium text-slate-700">
-        {label}
-      </label>
+      <label className="mb-1 block text-sm font-medium text-slate-700">{label}</label>
       <input
         type="text"
         list={`${label}-list`}
         value={query}
-        onChange={(e) => {
-          setQuery(e.target.value);
-          onChange(e.target.value);
-        }}
+        onChange={(e) => { setQuery(e.target.value); onChange(e.target.value); }}
         placeholder="e.g. Delhi"
         className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
       />
       <datalist id={`${label}-list`}>
-        {suggestions.map((s) => (
-          <option key={s.label} value={s.name} />
-        ))}
+        {suggestions.map((s) => <option key={s.label} value={s.name} />)}
       </datalist>
     </div>
   );
 }
 
-export function TripForm({ onSubmit, loading, truckRates }: TripFormProps) {
-  const truckOptions = useMemo(() => getTruckOptions(), []);
+const inputCls =
+  "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50";
+
+export function TripForm({ onSubmit, loading }: TripFormProps) {
   const allModels = useMemo(() => getTruckModels(), []);
-  const [truckQuery, setTruckQuery] = useState("");
-  const [selectedTruck, setSelectedTruck] = useState(truckOptions[1] ?? truckOptions[0]);
+
+  const [bodyType, setBodyType] = useState<"open" | "closed">("open");
+  const [selectedTons, setSelectedTons] = useState<number | null>(null);
+  const [selectedFeet, setSelectedFeet] = useState<number | null>(null);
+  const [selectedAxles, setSelectedAxles] = useState<number | null>(null);
   const [selectedModelId, setSelectedModelId] = useState<string>("");
   const [origin, setOrigin] = useState("Delhi");
   const [destination, setDestination] = useState("Mumbai");
@@ -118,39 +82,87 @@ export function TripForm({ onSubmit, loading, truckRates }: TripFormProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [overrides, setOverrides] = useState<RateOverrides>({});
 
-  const modelOptions = useMemo(() => {
-    if (!selectedTruck) return [];
-    return Object.entries(allModels)
-      .filter(([, m]) => m.truck_class === selectedTruck.id)
-      .map(([id, m]) => ({ id, label: m.label, mileage_kmpl: m.mileage_kmpl }));
-  }, [selectedTruck, allModels]);
+  // All trucks for the selected body type
+  const bodyTypeTrucks = useMemo(() => getTrucksByBodyType(bodyType), [bodyType]);
 
-  const filteredTrucks = useMemo(() => {
-    const q = truckQuery.toLowerCase();
-    if (!q) return truckOptions;
-    return truckOptions.filter(
-      (t) =>
-        t.label.toLowerCase().includes(q) ||
-        t.id.toLowerCase().includes(q)
-    );
-  }, [truckQuery, truckOptions]);
+  // Cascading filter levels
+  const availableTons = useMemo(
+    () => [...new Set(bodyTypeTrucks.map((t) => t.payload_tons))].sort((a, b) => a - b),
+    [bodyTypeTrucks]
+  );
 
+  const trucksAfterTons = useMemo(
+    () => selectedTons != null ? bodyTypeTrucks.filter((t) => t.payload_tons === selectedTons) : bodyTypeTrucks,
+    [bodyTypeTrucks, selectedTons]
+  );
+
+  const availableFeet = useMemo(
+    () => [...new Set(trucksAfterTons.map((t) => t.length_ft))].sort((a, b) => a - b),
+    [trucksAfterTons]
+  );
+
+  const trucksAfterFeet = useMemo(
+    () => selectedFeet != null ? trucksAfterTons.filter((t) => t.length_ft === selectedFeet) : trucksAfterTons,
+    [trucksAfterTons, selectedFeet]
+  );
+
+  const availableAxles = useMemo(
+    () => [...new Set(trucksAfterFeet.map((t) => t.axles))].sort((a, b) => a - b),
+    [trucksAfterFeet]
+  );
+
+  const matchedTruck = useMemo(
+    () =>
+      selectedTons != null && selectedFeet != null && selectedAxles != null
+        ? (trucksAfterFeet.find((t) => t.axles === selectedAxles) ?? null)
+        : null,
+    [trucksAfterFeet, selectedTons, selectedFeet, selectedAxles]
+  );
+
+  // Reset downstream selections on body type change
   useEffect(() => {
-    if (selectedTruck && truckRates?.[selectedTruck.id]) {
-      setPayloadTons(truckRates[selectedTruck.id].payload_tons);
-    }
+    setSelectedTons(null);
+    setSelectedFeet(null);
+    setSelectedAxles(null);
     setSelectedModelId("");
-  }, [selectedTruck, truckRates]);
+  }, [bodyType]);
 
-  const profile = selectedTruck ? truckRates?.[selectedTruck.id] : null;
+  // Reset feet + axles when tons changes
+  useEffect(() => {
+    setSelectedFeet(null);
+    setSelectedAxles(null);
+  }, [selectedTons]);
+
+  // Reset axles when feet changes
+  useEffect(() => {
+    setSelectedAxles(null);
+  }, [selectedFeet]);
+
+  // Update payload when a truck is matched
+  useEffect(() => {
+    if (matchedTruck) {
+      const p = getTruckProfile(matchedTruck.id);
+      if (p) setPayloadTons(p.payload_tons);
+      setSelectedModelId("");
+    }
+  }, [matchedTruck]);
+
+  const profile = matchedTruck ? getTruckProfile(matchedTruck.id) : null;
+
+  const modelOptions = useMemo(() => {
+    if (!matchedTruck) return [];
+    return Object.entries(allModels)
+      .filter(([, m]) => m.truck_class === matchedTruck.id)
+      .map(([id, m]) => ({ id, label: m.label, mileage_kmpl: m.mileage_kmpl }));
+  }, [matchedTruck, allModels]);
 
   const resetOverrides = () => setOverrides({});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedTruck) return;
+    if (!matchedTruck) return;
     onSubmit({
-      truckId: selectedTruck.id,
+      truckId: matchedTruck.id,
       modelId: selectedModelId || undefined,
       origin,
       destination,
@@ -170,39 +182,86 @@ export function TripForm({ onSubmit, loading, truckRates }: TripFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+
+      {/* Body type toggle */}
       <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">
-          Truck type
-        </label>
-        <Combobox
-          value={selectedTruck}
-          onChange={(v) => v && setSelectedTruck(v)}
-        >
-          <div className="relative">
-            <ComboboxInput
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-              displayValue={(t: { label: string } | null) => t?.label ?? ""}
-              onChange={(e) => setTruckQuery(e.target.value)}
-              placeholder="Search truck type…"
-            />
-            <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
-              <span className="text-slate-400">▾</span>
-            </ComboboxButton>
-            <ComboboxOptions className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
-              {filteredTrucks.map((t) => (
-                <ComboboxOption
-                  key={t.id}
-                  value={t}
-                  className="cursor-pointer px-3 py-2 text-sm data-[focus]:bg-brand-50"
-                >
-                  {t.label}
-                </ComboboxOption>
-              ))}
-            </ComboboxOptions>
-          </div>
-        </Combobox>
+        <label className="mb-2 block text-sm font-medium text-slate-700">Body type</label>
+        <div className="flex gap-2">
+          {(["open", "closed"] as const).map((bt) => (
+            <button
+              key={bt}
+              type="button"
+              onClick={() => setBodyType(bt)}
+              className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                bodyType === bt
+                  ? "border-brand-500 bg-brand-50 text-brand-700"
+                  : "border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              {bt === "open" ? "Open Body" : "Closed Body"}
+            </button>
+          ))}
+        </div>
       </div>
 
+      {/* Cascading truck spec selectors */}
+      <div>
+        <label className="mb-2 block text-sm font-medium text-slate-700">Truck specs</label>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label className="mb-1 block text-xs text-slate-500">Capacity</label>
+            <select
+              value={selectedTons ?? ""}
+              onChange={(e) => setSelectedTons(e.target.value ? Number(e.target.value) : null)}
+              className={inputCls}
+            >
+              <option value="">Tons ▾</option>
+              {availableTons.map((t) => (
+                <option key={t} value={t}>{t} T</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-slate-500">Length</label>
+            <select
+              value={selectedFeet ?? ""}
+              onChange={(e) => setSelectedFeet(e.target.value ? Number(e.target.value) : null)}
+              disabled={selectedTons == null}
+              className={inputCls}
+            >
+              <option value="">Feet ▾</option>
+              {availableFeet.map((f) => (
+                <option key={f} value={f}>{f} ft</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-slate-500">Axles</label>
+            <select
+              value={selectedAxles ?? ""}
+              onChange={(e) => setSelectedAxles(e.target.value ? Number(e.target.value) : null)}
+              disabled={selectedFeet == null}
+              className={inputCls}
+            >
+              <option value="">Axles ▾</option>
+              {availableAxles.map((a) => (
+                <option key={a} value={a}>{a}-Axle</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Matched truck label */}
+        {matchedTruck ? (
+          <div className="mt-2 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-sm font-medium text-brand-700">
+            {matchedTruck.label}
+          </div>
+        ) : (selectedTons != null || selectedFeet != null) && (
+          <p className="mt-1 text-xs text-slate-400">Select all three to identify truck</p>
+        )}
+      </div>
+
+      {/* Optional model selector */}
       {modelOptions.length > 0 && (
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-700">
@@ -211,7 +270,7 @@ export function TripForm({ onSubmit, loading, truckRates }: TripFormProps) {
           <select
             value={selectedModelId}
             onChange={(e) => setSelectedModelId(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            className={inputCls}
           >
             <option value="">Generic / Unknown (use class default)</option>
             {modelOptions.map((m) => (
@@ -227,16 +286,14 @@ export function TripForm({ onSubmit, loading, truckRates }: TripFormProps) {
       <CityInput label="Destination" value={destination} onChange={setDestination} />
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">
-          Payload (tons)
-        </label>
+        <label className="mb-1 block text-sm font-medium text-slate-700">Payload (tons)</label>
         <input
           type="number"
           min={0.1}
           step={0.1}
           value={payloadTons}
           onChange={(e) => setPayloadTons(parseFloat(e.target.value) || 0)}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          className={inputCls}
         />
       </div>
 
@@ -252,11 +309,7 @@ export function TripForm({ onSubmit, loading, truckRates }: TripFormProps) {
         <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
           <div className="flex justify-between">
             <span className="text-sm font-medium text-slate-700">Override defaults</span>
-            <button
-              type="button"
-              onClick={resetOverrides}
-              className="text-xs text-brand-600 hover:underline"
-            >
+            <button type="button" onClick={resetOverrides} className="text-xs text-brand-600 hover:underline">
               Reset to defaults
             </button>
           </div>
@@ -300,10 +353,10 @@ export function TripForm({ onSubmit, loading, truckRates }: TripFormProps) {
 
       <button
         type="submit"
-        disabled={loading || !selectedTruck}
+        disabled={loading || !matchedTruck}
         className="w-full rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? "Calculating…" : "Calculate trip cost"}
+        {loading ? "Calculating…" : !matchedTruck ? "Select truck specs" : "Calculate trip cost"}
       </button>
     </form>
   );
@@ -324,9 +377,7 @@ function OverrideField({
     <div>
       <label className="mb-0.5 block text-xs text-slate-600">
         {label}
-        {defaultVal !== undefined && (
-          <span className="text-slate-400"> (default {defaultVal})</span>
-        )}
+        {defaultVal !== undefined && <span className="text-slate-400"> (default {defaultVal})</span>}
       </label>
       <input
         type="number"

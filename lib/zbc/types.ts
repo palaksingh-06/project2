@@ -9,6 +9,9 @@ export interface ContributionRange {
 
 export interface TruckProfile {
   label: string;
+  body_type: "open" | "closed";
+  length_ft: number;
+  axles: number;
   payload_tons: number;
   wheels: number;
   toll_class: string;
