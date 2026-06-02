@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ContributionBadge } from "@/components/ContributionBadge";
 import type { ContributionCheck } from "@/lib/zbc/types";
 
@@ -228,6 +228,19 @@ export function CostBreakdownTable({
   showContribution: boolean;
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Auto-expand all rows when printing, restore state after print dialog closes
+  useEffect(() => {
+    const expand = () => setExpandedId("__ALL__");
+    const restore = () => setExpandedId(null);
+    window.addEventListener("beforeprint", expand);
+    window.addEventListener("afterprint", restore);
+    return () => {
+      window.removeEventListener("beforeprint", expand);
+      window.removeEventListener("afterprint", restore);
+    };
+  }, []);
+
   const contribMap = new Map(contributions.map((c) => [c.id, c]));
   const colSpan = showContribution ? 6 : 5;
 
@@ -247,7 +260,7 @@ export function CostBreakdownTable({
         <tbody>
           {rows.map((row) => {
             const c = contribMap.get(row.id as ContributionCheck["id"]);
-            const isExpanded = expandedId === row.id;
+            const isExpanded = expandedId === "__ALL__" || expandedId === row.id;
 
             return (
               <>

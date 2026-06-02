@@ -9,6 +9,13 @@ Rules:
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 
 ## Rules:
-- When implementing a feature, test it in the browser (at localhost:3001), if it doesnt work (gives error or undesired output) then state that and keep fixing it.
+-For all code you write, above chunks of code add explanatory comments. 
+- When implementing a feature, test it in the browser (localhost:{the port it is running at}), if it doesnt work (gives error or undesired output) then state that and keep fixing it.
 - When going through the codebase, dont read the folder /node_modules. It just contains node modules.  
 - Don't break existing working code unless the changes are necessary for building a new feature or fixing a bug.
+- While implementing features, dont assume what I want, ask for details. 
+- When an excel is uploaded, ask for data mappings, what field is mapped to what variable and that variable is stored in what place. Clarify these things instead of assuming. 
+- If you encounter one problem that you are stuck in, dont go down a rabit hole and make a lot of changes. Instead, pause and look for an alternate solution. 
+- Always follow best practices. If I suggest somethings thats not the best practice, ask for confirmation while stating the reason. 
+
+

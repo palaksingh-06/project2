@@ -5,3 +5,37 @@
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
 }
+
+/* Print styles: hides interactive elements and expands the results to full width */
+@media print {
+  /* Hide anything tagged as non-printable (tabs, buttons, upload form) */
+  [data-print="hide"] {
+    display: none !important;
+  }
+
+  /* Make the right-column results take the full page width */
+  .lg\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Recharts uses percentage height inside ResponsiveContainer; fix it for print */
+  .recharts-responsive-container {
+    height: 300px !important;
+  }
+
+  /* Force white backgrounds so brand colors don't bleed into PDF */
+  body,
+  * {
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Prevent rows from splitting across pages */
+  table {
+    page-break-inside: avoid;
+  }
+  tr {
+    page-break-inside: avoid;
+  }
+}
