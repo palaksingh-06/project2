@@ -18,4 +18,3 @@ Rules:
 - If you encounter one problem that you are stuck in, dont go down a rabit hole and make a lot of changes. Instead, pause and look for an alternate solution. 
 - Always follow best practices. If I suggest somethings thats not the best practice, ask for confirmation while stating the reason. 
 
-
