@@ -7,7 +7,8 @@ export interface GeocodeResult {
   state: string;
   lat: number;
   lng: number;
-  provenance: Provenance;
+  provenance: Provenance;          // source of lat/lng coordinates
+  name_provenance?: Provenance;    // source of resolved place name
 }
 
 function normalize(s: string): string {
@@ -34,14 +35,18 @@ function parseLatLng(input: string): { lat: number; lng: number } | null {
 async function reverseGeocodeNominatim(
   lat: number,
   lng: number
-): Promise<{ name: string; state: string }> {
+): Promise<{ name: string; state: string; name_provenance: Provenance }> {
   try {
     const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`;
     const res = await fetch(url, {
       headers: { "User-Agent": "ZeroBasedCosting/1.0" },
       signal: AbortSignal.timeout(8000),
     });
-    if (!res.ok) return { name: `${lat},${lng}`, state: "India" };
+    if (!res.ok) return {
+      name: `${lat},${lng}`,
+      state: "India",
+      name_provenance: { kind: "estimate", label: "Coordinate string" },
+    };
     const data = (await res.json()) as {
       address?: {
         city?: string;
@@ -56,9 +61,13 @@ async function reverseGeocodeNominatim(
       addr.city ?? addr.town ?? addr.village ?? addr.suburb ??
       `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
     const state = addr.state ?? "India";
-    return { name, state };
+    return { name, state, name_provenance: { kind: "api", label: "OpenStreetMap Nominatim (reverse)" } };
   } catch {
-    return { name: `${lat.toFixed(4)}, ${lng.toFixed(4)}`, state: "India" };
+    return {
+      name: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+      state: "India",
+      name_provenance: { kind: "estimate", label: "Coordinate string" },
+    };
   }
 }
 
@@ -77,6 +86,7 @@ export function geocodeFromCache(cityName: string): GeocodeResult | null {
       label: "City cache",
       detail: "config/cities-cache.json",
     },
+    name_provenance: { kind: "config", label: "City cache" },
   };
 }
 
@@ -139,6 +149,7 @@ async function geocodeGoogle(cityName: string): Promise<GeocodeResult | null> {
       lat: hit.geometry.location.lat,
       lng: hit.geometry.location.lng,
       provenance: { kind: "api", label: "Google Geocoding" },
+      name_provenance: { kind: "api", label: "Google Geocoding" },
     };
   } catch (err) {
     console.warn(`[geocode] Google exception for "${cityName}":`, err);
@@ -202,6 +213,7 @@ async function geocodeNominatimRaw(
         kind: "api",
         label: "OpenStreetMap Nominatim",
       },
+      name_provenance: { kind: "api", label: "OpenStreetMap Nominatim" },
     };
   } catch {
     return null;
@@ -261,14 +273,15 @@ async function geocodeUncached(cityName: string): Promise<{
   // precise source and never collapses two nearby addresses onto a shared point.
   const latLng = parseLatLng(cityName);
   if (latLng) {
-    const { name, state } = await reverseGeocodeNominatim(latLng.lat, latLng.lng);
+    const { name, state, name_provenance } = await reverseGeocodeNominatim(latLng.lat, latLng.lng);
     return {
       result: {
         name,
         state,
         lat: latLng.lat,
         lng: latLng.lng,
-        provenance: { kind: "api", label: "Coordinates (lat/lng)" },
+        provenance: { kind: "input", label: "Provided coordinates" },
+        name_provenance,
       },
       suggestions: [],
     };
