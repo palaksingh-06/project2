@@ -11,6 +11,7 @@ import {
   type CalculateRequest,
 } from "@/components/TripForm";
 import { downloadSingleTripExcel } from "@/lib/export/excel";
+import { ProvenanceDrawer } from "@/components/ProvenanceDrawer";
 import type { ContributionCheck } from "@/lib/zbc/types";
 import type { BreakdownRow } from "@/components/CostBreakdownTable";
 import type { BatchRowResult } from "@/lib/export/excel";
@@ -77,6 +78,9 @@ export default function HomePage() {
   // Batch state
   const [tab, setTab] = useState<"single" | "batch">("single");
   const [batchResults, setBatchResults] = useState<BatchRowResult[]>([]);
+
+  // Provenance drawer state — holds whichever result row the user clicked "View data sources" on
+  const [provenanceResult, setProvenanceResult] = useState<CalculateResponse | null>(null);
 
   const truckRates = truckRatesJson.trucks;
 
@@ -257,6 +261,15 @@ export default function HomePage() {
                 contributions={result.contributions}
                 showContribution={showContribution}
               />
+
+              {/* Link to open the provenance drawer */}
+              <button
+                onClick={() => setProvenanceResult(result)}
+                className="text-sm text-slate-500 underline hover:text-slate-700"
+                data-print="hide"
+              >
+                View data sources
+              </button>
             </>
           )}
 
@@ -269,7 +282,10 @@ export default function HomePage() {
 
           {/* Batch results */}
           {tab === "batch" && batchResults.length > 0 && (
-            <BatchResultsTable results={batchResults} />
+            <BatchResultsTable
+              results={batchResults}
+              onShowProvenance={(r) => setProvenanceResult(r as unknown as CalculateResponse)}
+            />
           )}
 
           {/* Batch empty state */}
@@ -280,6 +296,13 @@ export default function HomePage() {
           )}
         </section>
       </div>
+
+      {/* Provenance drawer — slides in from the right over any tab */}
+      <ProvenanceDrawer
+        open={provenanceResult !== null}
+        onClose={() => setProvenanceResult(null)}
+        result={provenanceResult}
+      />
     </main>
   );
 }
