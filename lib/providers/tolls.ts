@@ -36,11 +36,16 @@ interface TollGuruToll {
   start?: { name?: string; road?: string; state?: string };
 }
 
+// ── TollGuru API toggle ───────────────────────────────────────────────────────
+// Controlled by TOLLGURU_ENABLED env variable. While off, toll falls through to the
+// ₹/km × distance estimate. Real FASTag rates enabled when set to "true".
 async function tollFromTollGuru(
   origin: { lat: number; lng: number },
   destination: { lat: number; lng: number },
   tollClass: string
 ): Promise<{ total_inr: number; plaza_count: number; plazas_detail: TollPlaza[] } | null> {
+  if (process.env.TOLLGURU_ENABLED !== "true") return null;
+
   const apiKey = process.env.TOLLGURU_API_KEY;
   if (!apiKey) {
     console.warn("[TollGuru] TOLLGURU_API_KEY not set — falling back to estimate");
