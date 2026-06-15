@@ -8,7 +8,7 @@ const TRUCK_CONFIG: Provenance = {
 };
 
 const USER_OVERRIDE: Provenance = {
-  kind: "config",
+  kind: "input",
   label: "User override",
   detail: "Advanced rates form",
 };
@@ -29,29 +29,12 @@ function withOverride(
 }
 
 export function buildCostHeadProvenance(input: {
-  distance: Provenance;
-  fuel: Provenance;
   toll: Provenance;
   overrides?: RateOverrides;
-}): Record<CostHeadId, Provenance> {
-  const { distance, fuel, toll, overrides } = input;
-
-  const fuelProv: Provenance =
-    fuel.kind === "api"
-      ? {
-          kind: "api",
-          label: "Diesel + distance + mileage",
-          detail: `${fuel.label}; distance: ${distance.label}`,
-          updated_at: fuel.updated_at,
-        }
-      : {
-          kind: fuel.kind,
-          label: "Diesel + distance + mileage",
-          detail: `Diesel: ${fuel.detail ?? fuel.label}; distance: ${distance.label}`,
-        };
+}): Omit<Record<CostHeadId, Provenance>, "fuel"> {
+  const { toll, overrides } = input;
 
   return {
-    fuel: withOverride(fuelProv, overrides, ["mileage_kmpl"]),
     driver: withOverride(TRUCK_CONFIG, overrides, [
       "driver_per_day",
       "bata_per_trip",

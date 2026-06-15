@@ -25,8 +25,8 @@ export interface CalculationResponse {
   meta: {
     trip_days: number;
     distance_km: number;
-    origin: { name: string; state: string; provenance: unknown };
-    destination: { name: string; state: string; provenance: unknown };
+    origin: { name: string; state: string; lat: number; lng: number; provenance: unknown };
+    destination: { name: string; state: string; lat: number; lng: number; provenance: unknown };
     inputs: unknown;
     cost_heads: unknown;
     toll: { plazas: number; highway?: string };
@@ -127,8 +127,6 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
 
   const contributions = validateContributions(result);
   const costHeadProvenance = buildCostHeadProvenance({
-    distance: distanceResult.provenance,
-    fuel: fuel.provenance,
     toll: toll.provenance,
     overrides: rateOverrides,
   });
@@ -142,21 +140,7 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
         result.total_inr > 0
           ? Math.round((line.amount_inr / result.total_inr) * 1000) / 10
           : 0,
-      provenance: costHeadProvenance[line.id],
-      sources: {
-        ...(line.id === "fuel"
-          ? {
-              distance: `${distanceResult.provenance.label}${distanceResult.provenance.detail ? ` — ${distanceResult.provenance.detail}` : ""}`,
-              diesel: `${fuel.provenance.label}${fuel.provenance.detail ? ` — ${fuel.provenance.detail}` : ""}`,
-              ...(fuel.provenance.updated_at ? { diesel_updated: fuel.provenance.updated_at } : {}),
-            }
-          : {}),
-        ...(line.id === "toll"
-          ? {
-              toll: `${toll.provenance.label}${toll.provenance.detail ? ` — ${toll.provenance.detail}` : ""}`,
-            }
-          : {}),
-      },
+      provenance: costHeadProvenance[line.id as keyof typeof costHeadProvenance],
       ...(line.id === "toll" && toll.plazas_detail?.length
         ? { toll_plazas: toll.plazas_detail }
         : {}),
@@ -168,11 +152,15 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
       origin: {
         name: o.name,
         state: o.state,
+        lat: o.lat,
+        lng: o.lng,
         provenance: o.provenance,
       },
       destination: {
         name: d.name,
         state: d.state,
+        lat: d.lat,
+        lng: d.lng,
         provenance: d.provenance,
       },
       inputs: {

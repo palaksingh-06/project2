@@ -20,7 +20,6 @@ export interface BreakdownRow {
   pct: number;
   inputs: Record<string, string | number>;
   toll_plazas?: TollPlaza[];
-  sources?: Record<string, string>;
 }
 
 function formatInr(n: number) {
@@ -31,16 +30,8 @@ function formatInr(n: number) {
   }).format(n);
 }
 
-function Source({ label }: { label: string }) {
-  return (
-    <span className="inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] text-slate-500">
-      <span>↗</span>{label}
-    </span>
-  );
-}
-
 function DetailPanel({ row }: { row: BreakdownRow }) {
-  const { id, inputs, toll_plazas, sources } = row;
+  const { id, inputs, toll_plazas } = row;
 
   if (id === "fuel") {
     return (
@@ -48,21 +39,15 @@ function DetailPanel({ row }: { row: BreakdownRow }) {
         <div className="space-y-1">
           <p>
             <span className="text-slate-400">Road distance:</span>{" "}
-            <strong>{inputs.distance_km} km</strong>{" "}
-            {sources?.distance && <Source label={sources.distance} />}
+            <strong>{inputs.distance_km} km</strong>
           </p>
           <p>
             <span className="text-slate-400">Mileage:</span>{" "}
-            <strong>{inputs.mileage_kmpl} km/l</strong>{" "}
-            <Source label="truck-rates.json (ARAI real-world loaded)" />
+            <strong>{inputs.mileage_kmpl} km/l</strong>
           </p>
           <p>
             <span className="text-slate-400">Diesel price:</span>{" "}
-            <strong>₹{inputs.diesel_inr}/L</strong>{" "}
-            {sources?.diesel && <Source label={sources.diesel} />}
-            {sources?.diesel_updated && (
-              <span className="ml-1 text-slate-400">updated {sources.diesel_updated}</span>
-            )}
+            <strong>₹{inputs.diesel_inr}/L</strong>
           </p>
         </div>
         <p className="border-t border-slate-100 pt-2">
@@ -107,7 +92,6 @@ function DetailPanel({ row }: { row: BreakdownRow }) {
         <div className="space-y-2 text-xs">
           <p className="flex items-center gap-2 text-slate-500">
             {toll_plazas.length} FASTag plaza{toll_plazas.length > 1 ? "s" : ""}
-            {sources?.toll && <Source label={sources.toll} />}
           </p>
           <table className="w-full">
             <thead>
@@ -141,7 +125,7 @@ function DetailPanel({ row }: { row: BreakdownRow }) {
     return (
       <div className="space-y-1 text-xs text-slate-600">
         <p className="flex items-center gap-2">
-          Toll estimate {sources?.toll && <Source label={sources.toll} />}
+          Toll estimate
         </p>
         <p>₹{Math.round(row.amount_inr / (Number(inputs.distance_km) || 1))}/km × {Number(inputs.distance_km).toFixed(0)} km = <strong>{formatInr(row.amount_inr)}</strong></p>
         {inputs.permit !== undefined && Number(inputs.permit) > 0 && (
