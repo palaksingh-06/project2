@@ -27,6 +27,7 @@ const bodySchema = z.object({
   modelId: z.string().optional(),
   origin: z.string().min(1),
   destination: z.string().min(1),
+  isRoundTrip: z.boolean(),
   payloadTons: z.number().positive().optional(),
   overrides: overridesSchema,
 });

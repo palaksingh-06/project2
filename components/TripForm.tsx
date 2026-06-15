@@ -9,6 +9,7 @@ export interface CalculateRequest {
   modelId?: string;
   origin: string;
   destination: string;
+  isRoundTrip: boolean;
   payloadTons: number;
   overrides?: RateOverrides;
 }
@@ -78,6 +79,7 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
   const [selectedModelId, setSelectedModelId] = useState<string>("");
   const [origin, setOrigin] = useState("Delhi");
   const [destination, setDestination] = useState("Mumbai");
+  const [isRoundTrip, setIsRoundTrip] = useState(false);
   const [payloadTons, setPayloadTons] = useState(16);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [overrides, setOverrides] = useState<RateOverrides>({});
@@ -166,6 +168,7 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
       modelId: selectedModelId || undefined,
       origin,
       destination,
+      isRoundTrip,
       payloadTons,
       overrides: Object.keys(overrides).length ? overrides : undefined,
     });
@@ -284,6 +287,18 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
 
       <CityInput label="Origin" value={origin} onChange={setOrigin} />
       <CityInput label="Destination" value={destination} onChange={setDestination} />
+
+      <label className="flex items-center gap-2.5 text-sm font-medium text-slate-700 select-none">
+        <input 
+          type="checkbox" 
+          id="round-trip"
+          name="round-trip"
+          checked={isRoundTrip}
+          onChange={(e) => setIsRoundTrip(e.target.checked)}
+          className="h-4 w-4 accent-brand-600 text-brand-600 rounded-lg shadow-sm focus:outline-none cursor-pointer shrink-0"
+        />
+        <span>Round trip</span>
+      </label>
 
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">Payload (tons)</label>
