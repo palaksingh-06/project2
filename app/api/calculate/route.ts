@@ -27,7 +27,9 @@ const bodySchema = z.object({
   modelId: z.string().optional(),
   origin: z.string().min(1),
   destination: z.string().min(1),
-  isRoundTrip: z.boolean(),
+  tripType: z.string().refine((val) => val === "one-way" || val === "two-way", {
+    message: "tripType must be either 'one-way' or 'two-way'",
+  }), 
   payloadTons: z.number().positive().optional(),
   overrides: overridesSchema,
 });

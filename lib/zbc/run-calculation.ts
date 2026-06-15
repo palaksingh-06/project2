@@ -13,7 +13,7 @@ export interface CalculationRequest {
   modelId?: string;
   origin: string;
   destination: string;
-  isRoundTrip: boolean;
+  tripType: string;
   payloadTons?: number;
   overrides?: RateOverrides;
 }
@@ -58,7 +58,7 @@ export class CalculationError extends Error {
 }
 
 export async function runCalculation(req: CalculationRequest): Promise<CalculationResponse> {
-  const { truckId, modelId, origin, destination, isRoundTrip, payloadTons, overrides } = req;
+  const { truckId, modelId, origin, destination, tripType, payloadTons, overrides } = req;
 
   const profile = getTruckProfile(truckId);
   if (!profile) throw new CalculationError(`Unknown truck type: ${truckId}`);
@@ -124,7 +124,7 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
     },
     overrides: rateOverrides,
     avg_speed_kmh: config.avg_speed_kmh,
-    is_round_trip: isRoundTrip,
+    trip_type: tripType,
   });
 
   const contributions = validateContributions(result);

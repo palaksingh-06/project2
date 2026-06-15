@@ -24,7 +24,7 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
     diesel_price_inr,
     toll,
     overrides,
-    is_round_trip,
+    trip_type,
   } = input;
 
   const profile = { ...baseProfile, ...overrides };
@@ -73,7 +73,7 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
     overrides?.overhead_per_trip ?? profile.overhead_per_trip;
 
   // Empty return
-  const emptyReturnFraction = !is_round_trip ? 0 :
+  const emptyReturnFraction = trip_type === "one-way" ? 0 :
     overrides?.empty_return_pct ?? profile.empty_return_pct;
   const emptyReturnDistanceKm = overrides?.empty_km ?? distance_km * emptyReturnFraction;
   const effectiveDepreciationPerKm =
