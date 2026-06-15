@@ -15,6 +15,14 @@ export interface CalculationRequest {
   destination: string;
   payloadTons?: number;
   overrides?: RateOverrides;
+  // Optional provenance from CSV batch parsing — records which resolution tier was used
+  truckResolution?: {
+    truckId: string;
+    truckLabel: string;
+    modelId?: string;
+    modelLabel?: string;
+    tier?: "exact-model" | "alias" | "four-field" | "filtered";
+  };
 }
 
 export interface CalculationResponse {
@@ -31,6 +39,15 @@ export interface CalculationResponse {
     cost_heads: unknown;
     toll: { plazas: number; highway?: string };
     fuel: { price_inr: number; state: string };
+    // Truck resolution provenance — how the truck was identified
+    truck?: {
+      truck_id: string;
+      truck_label: string;
+      model_id?: string;
+      model_label?: string;
+      mileage_used: number;
+      provenance: { kind: string; label: string };
+    };
   };
   warnings: string[];
 }
@@ -109,6 +126,38 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
     ? { mileage_kmpl: Math.round(model.mileage_kmpl * 0.7 * 100) / 100, ...overrides }
     : (overrides as RateOverrides | undefined);
 
+  // Human-readable labels for each resolution tier
+  const TIER_LABELS: Record<string, string> = {
+    "exact-model": "Exact model ID",
+    "alias": "Matched by alias map",
+    "four-field": "4-field match (body/capacity/length/axles)",
+    "filtered": "Filtered match",
+  };
+
+  // mileage from the model override if present, else 0 (unknown until calculate runs)
+  const mileageUsed = rateOverrides?.mileage_kmpl ?? 0;
+
+  // Build truck provenance — from CSV batch (truckResolution present) or from form input
+  const truckMeta = req.truckResolution
+    ? {
+        truck_id: req.truckResolution.truckId,
+        truck_label: req.truckResolution.truckLabel,
+        model_id: req.truckResolution.modelId,
+        model_label: req.truckResolution.modelLabel,
+        mileage_used: mileageUsed,
+        provenance: {
+          kind: "config",
+          label: TIER_LABELS[req.truckResolution.tier ?? "filtered"] ?? "Resolved from CSV",
+        },
+      }
+    : {
+        truck_id: truckId,
+        truck_label: profile.label,
+        model_id: modelId,
+        mileage_used: mileageUsed,
+        provenance: { kind: "input", label: "Selected in form" },
+      };
+
   const result = calculateZBC({
     truckId,
     profile,
@@ -179,6 +228,7 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
         price_inr: fuel.price_inr,
         state: fuel.state,
       },
+      truck: truckMeta,
     },
     warnings,
   };

@@ -32,6 +32,16 @@ const rowSchema = z.object({
       empty_km: z.number().nonnegative().optional(),
     })
     .optional(),
+  // Truck resolution provenance from CSV batch parsing
+  truckResolution: z
+    .object({
+      truckId: z.string(),
+      truckLabel: z.string(),
+      modelId: z.string().optional(),
+      modelLabel: z.string().optional(),
+      tier: z.enum(["exact-model", "alias", "four-field", "filtered"]).optional(),
+    })
+    .optional(),
 });
 
 const batchSchema = z.object({
@@ -69,6 +79,7 @@ export async function POST(request: Request) {
           destination: row.destination,
           payloadTons: row.payloadTons,
           overrides: row.overrides,
+          truckResolution: row.truckResolution,
         });
         results.push({ rowNum: row.rowNum, ...result });
       } catch (e) {

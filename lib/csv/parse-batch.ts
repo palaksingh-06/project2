@@ -1,6 +1,15 @@
 import { getTrucksByBodyType } from "@/lib/config";
 import type { RateOverrides } from "@/lib/zbc/types";
 
+// Tracks how a truck was resolved from CSV fields — which tier of lookup succeeded
+export interface TruckResolution {
+  truckId: string;
+  truckLabel: string;
+  modelId?: string;
+  modelLabel?: string;
+  tier?: "exact-model" | "alias" | "four-field" | "filtered";
+}
+
 export interface ValidatedRow {
   rowNum: number;
   truckId: string;
@@ -9,6 +18,14 @@ export interface ValidatedRow {
   destination: string;
   payloadTons: number;
   overrides?: RateOverrides;
+  // Provenance for how the truck was resolved from CSV fields
+  truckResolution: {
+    truckId: string;
+    truckLabel: string;
+    modelId?: string;
+    modelLabel?: string;
+    tier: "exact-model" | "alias" | "four-field" | "filtered";
+  };
 }
 
 export interface RowFieldError {
@@ -176,7 +193,9 @@ export function parseBatchCsv(csvText: string): {
       fieldErrors.push({ column: "payload_tons", message: `Must be a positive number, got "${payloadRaw}"` });
     }
 
+    // Hoist trucks/match so they are accessible when building truckResolution below
     let truckId: string | null = null;
+    let resolvedMatch: { id: string; label: string } | null = null;
     if (fieldErrors.length === 0 && bodyType && capacityNum !== null && lengthNum !== null && axlesNum !== null) {
       const trucks = getTrucksByBodyType(bodyType);
       const match = trucks.find(
@@ -192,6 +211,7 @@ export function parseBatchCsv(csvText: string): {
         });
       } else {
         truckId = match.id;
+        resolvedMatch = match;
       }
     }
 
@@ -255,6 +275,14 @@ export function parseBatchCsv(csvText: string): {
       destination,
       payloadTons: payloadNum!,
       overrides: hasOverrides ? overrides : undefined,
+      // Provenance: current CSV path always resolves via 4-field match (body/capacity/length/axles)
+      truckResolution: {
+        truckId: truckId!,
+        truckLabel: resolvedMatch?.label ?? truckId!,
+        modelId: modelIdRaw || undefined,
+        modelLabel: undefined,
+        tier: "four-field",
+      },
     });
   }
 
