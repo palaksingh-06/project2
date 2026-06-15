@@ -15,6 +15,13 @@ import type { ContributionCheck } from "@/lib/zbc/types";
 import type { BreakdownRow } from "@/components/CostBreakdownTable";
 import type { BatchRowResult } from "@/lib/export/excel";
 
+interface ProvenanceInfo {
+  kind: string;
+  label: string;
+  detail?: string;
+  updated_at?: string;
+}
+
 interface CalculateResponse {
   total: number;
   subtotal: number;
@@ -23,10 +30,28 @@ interface CalculateResponse {
   meta: {
     trip_days: number;
     distance_km: number;
-    origin: { name: string; state: string };
-    destination: { name: string; state: string };
+    origin: { name: string; state: string; lat?: number; lng?: number; provenance?: ProvenanceInfo; name_provenance?: ProvenanceInfo };
+    destination: { name: string; state: string; lat?: number; lng?: number; provenance?: ProvenanceInfo; name_provenance?: ProvenanceInfo };
+    inputs?: {
+      geocode_origin?: ProvenanceInfo;
+      geocode_origin_name?: ProvenanceInfo;
+      geocode_destination?: ProvenanceInfo;
+      geocode_destination_name?: ProvenanceInfo;
+      distance?: ProvenanceInfo;
+      fuel?: ProvenanceInfo;
+      toll?: ProvenanceInfo;
+    };
+    cost_heads?: Record<string, ProvenanceInfo>;
     toll: { plazas: number; highway?: string };
     fuel: { price_inr: number; state: string };
+    truck?: {
+      truck_id: string;
+      truck_label: string;
+      model_id?: string;
+      model_label?: string;
+      mileage_used: number;
+      provenance: ProvenanceInfo;
+    };
   };
   error?: string;
   suggestions?: string[];
