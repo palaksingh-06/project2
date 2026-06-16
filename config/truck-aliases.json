@@ -1,0 +1,12 @@
+{
+  "_comment": "Maps human-friendly truck_model_id text to a model ID or a truck class. Keys are matched case-insensitively and ignore punctuation (so 'Bolero-Pickup', 'bolero pickup', 'BOLERO/PICKUP' all match the 'bolero pickup' key). Each value is either a model ID from truck-models.json (applies that model's mileage) or a truck-class ID from truck-rates.json. Add your own aliases here anytime.",
+  "aliases": {
+    "bolero pickup": "mahindra-bolero-pikup-es",
+    "bolero": "mahindra-bolero-pikup-es",
+    "intra": "tata-intra-v50",
+    "tata ace carry": "tata-ace-carry",
+    "tata ace": "tata-ace-carry",
+    "ace": "tata-ace-carry",
+    "carry": "tata-ace-carry"
+  }
+}
