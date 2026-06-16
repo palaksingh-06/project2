@@ -13,11 +13,11 @@
 //   Route cost-sharing — all rows that share the same `route_name` are treated
 //   as one physical trip. The per-trip / per-day cost heads (driver, vehicle,
 //   maintenance, loading, idle, overhead, empty return) are counted ONCE for the
-//   whole route and split equally across the number of DISTINCT OUTLETS the route
-//   visits (N = unique origin/destination points, NOT the number of segment
-//   rows), i.e. each row shows its head ÷ N. Fuel stays per-segment (each hop
-//   burns its own diesel). Risk is a % of subtotal, so it is recomputed from the
-//   reduced subtotal automatically (no separate division — that would double-count).
+//   whole route and split equally across N = the number of rows that share that
+//   route_name. Fuel and Toll stay per-segment (each hop burns its own diesel
+//   and crosses its own plazas). Risk is a % of subtotal so it is recomputed from
+//   the reduced subtotal automatically (no separate division — that would
+//   double-count).
 // ════════════════════════════════════════════════════════════════════════════
 
 // Master on/off switch for this whole model-specific behaviour.
@@ -45,23 +45,12 @@ interface AdjustableLine {
   pct: number;
   inputs?: Record<string, unknown>;
 }
-interface AdjustableRow {
+export interface AdjustableRow {
   routeName?: string;
   total: number;
   subtotal: number;
   breakdown: AdjustableLine[];
-  meta: {
-    distance_km: number;
-    // Endpoint coordinates — used to count the distinct outlets on a route.
-    origin: { lat: number; lng: number };
-    destination: { lat: number; lng: number };
-  };
-}
-
-// A stable key for an endpoint so the same physical outlet referenced by several
-// rows is counted once. 4 decimals ≈ 11 m, which collapses tiny coordinate drift.
-function stopKey(p: { lat: number; lng: number }): string {
-  return `${p.lat.toFixed(4)},${p.lng.toFixed(4)}`;
+  meta: { distance_km: number };
 }
 
 function round(n: number, decimals = 0): number {
@@ -87,16 +76,10 @@ export function applyRouteAdjustments<T extends AdjustableRow>(results: T[]): T[
     else groups.set(key, [row]);
   });
 
-  // Divide each route's shared heads by the number of DISTINCT OUTLETS it visits
-  // (not the number of segment rows). All origins and destinations on the route
-  // are pooled and deduped by coordinate to get that outlet count.
+  // Divide each route's shared heads by the number of rows (trips) that share
+  // the same route_name. Each row gets its fixed costs divided by N.
   for (const group of groups.values()) {
-    const stops = new Set<string>();
-    for (const row of group) {
-      stops.add(stopKey(row.meta.origin));
-      stops.add(stopKey(row.meta.destination));
-    }
-    const n = stops.size;
+    const n = group.length;
     for (const row of group) adjustRow(row, n);
   }
 

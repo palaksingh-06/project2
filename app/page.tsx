@@ -11,6 +11,7 @@ import {
   type CalculateRequest,
 } from "@/components/TripForm";
 import { downloadSingleTripExcel } from "@/lib/export/excel";
+import { generateMethodologyMd } from "@/lib/export/methodology";
 import { ProvenanceDrawer } from "@/components/ProvenanceDrawer";
 import type { ContributionCheck } from "@/lib/zbc/types";
 import type { BreakdownRow } from "@/components/CostBreakdownTable";
@@ -124,13 +125,30 @@ export default function HomePage() {
     <main className="min-h-screen">
       {/* Page header */}
       <header className="border-b border-slate-200 bg-white" data-print="hide">
-        <div className="mx-auto max-w-6xl px-4 py-8">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Zero Based Costing Calculator
-          </h1>
-          <p className="mt-1 text-slate-600">
-            Estimate freight trip cost across 10 cost heads.
-          </p>
+        <div className="mx-auto max-w-6xl px-4 py-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              Zero Based Costing Calculator
+            </h1>
+            <p className="mt-1 text-slate-600">
+              Estimate freight trip cost across 10 cost heads.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              const md = generateMethodologyMd();
+              const blob = new Blob([md], { type: "text/markdown" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = "zbc-methodology.md";
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="shrink-0 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
+          >
+            Download methodology ↓
+          </button>
         </div>
       </header>
 

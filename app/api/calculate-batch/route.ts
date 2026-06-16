@@ -3,6 +3,8 @@ import { z } from "zod";
 import { runCalculation, CalculationError } from "@/lib/zbc/run-calculation";
 import type { ValidatedRow } from "@/lib/csv/parse-batch";
 import { MAX_BATCH_ROWS } from "@/lib/csv/parse-batch";
+import { applyRouteAdjustments } from "@/lib/zbc/route-adjustments";
+import type { AdjustableRow } from "@/lib/zbc/route-adjustments";
 
 export const maxDuration = 60;
 
@@ -96,6 +98,10 @@ export async function POST(request: Request) {
         }
       }
     }
+
+    // Apply route cost-sharing: rows that share a route_name divide their fixed
+    // cost heads (driver, vehicle, etc.) by the number of trips on that route.
+    applyRouteAdjustments(results as unknown as AdjustableRow[]);
 
     return NextResponse.json({ results, errors });
   } catch (e) {
