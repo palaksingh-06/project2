@@ -14,6 +14,7 @@ export interface CalculationRequest {
   modelId?: string;
   origin: string;
   destination: string;
+  tripType: string;
   payloadTons?: number;
   overrides?: RateOverrides;
   // Optional provenance from CSV batch parsing — records which resolution tier was used
@@ -82,7 +83,7 @@ export class CalculationError extends Error {
 }
 
 export async function runCalculation(req: CalculationRequest): Promise<CalculationResponse> {
-  const { truckId, modelId, origin, destination, payloadTons, overrides } = req;
+  const { truckId, modelId, origin, destination, tripType, payloadTons, overrides } = req;
 
   const profile = getTruckProfile(truckId);
   if (!profile) throw new CalculationError(`Unknown truck type: ${truckId}`);
@@ -180,6 +181,7 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
     },
     overrides: rateOverrides,
     avg_speed_kmh: config.avg_speed_kmh,
+    trip_type: tripType,
   });
 
   const contributions = validateContributions(result);

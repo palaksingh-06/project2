@@ -3,12 +3,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getTruckModels, getTrucksByBodyType, getTruckProfile } from "@/lib/config";
 import type { RateOverrides } from "@/lib/zbc/types";
+import { ZodUndefined } from "zod";
 
 export interface CalculateRequest {
   truckId: string;
   modelId?: string;
   origin: string;
   destination: string;
+  tripType: string;
   payloadTons: number;
   overrides?: RateOverrides;
 }
@@ -78,7 +80,8 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
   const [selectedModelId, setSelectedModelId] = useState<string>("");
   const [origin, setOrigin] = useState("Delhi");
   const [destination, setDestination] = useState("Mumbai");
-  const [payloadTons, setPayloadTons] = useState(16);
+  const [tripType, setTripType] = useState("one-way");
+  const [payloadTons, setPayloadTons] = useState("0");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [overrides, setOverrides] = useState<RateOverrides>({});
 
@@ -142,7 +145,7 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
   useEffect(() => {
     if (matchedTruck) {
       const p = getTruckProfile(matchedTruck.id);
-      if (p) setPayloadTons(p.payload_tons);
+      if (p) setPayloadTons(p.payload_tons.toString());
       setSelectedModelId("");
     }
   }, [matchedTruck]);
@@ -158,15 +161,25 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
 
   const resetOverrides = () => setOverrides({});
 
+  const [markPayloadInvalid, setMarkPayloadInvalid] = useState(false);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!matchedTruck) return;
+
+    if (!matchedTruck) return; // Just caution
+
+    if((selectedTons != null && Number(payloadTons) > selectedTons)) {
+      setMarkPayloadInvalid(true);
+      return;
+    }
+
     onSubmit({
-      truckId: matchedTruck.id,
+      truckId: matchedTruck?.id ?? "", // placeholder catch
       modelId: selectedModelId || undefined,
       origin,
       destination,
-      payloadTons,
+      tripType,
+      payloadTons: Math.round(Number(payloadTons) * 10) / 10, // Rounds to 1 decimal place
       overrides: Object.keys(overrides).length ? overrides : undefined,
     });
   };
@@ -212,10 +225,10 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
             <label className="mb-1 block text-xs text-slate-500">Capacity</label>
             <select
               value={selectedTons ?? ""}
-              onChange={(e) => setSelectedTons(e.target.value ? Number(e.target.value) : null)}
+              onChange={(e) => setSelectedTons(e.target.value ? Number(e.target.value) : 0)}
               className={inputCls}
             >
-              <option value="">Tons ▾</option>
+              <option value="">None</option>
               {availableTons.map((t) => (
                 <option key={t} value={t}>{t} T</option>
               ))}
@@ -229,7 +242,7 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
               disabled={selectedTons == null}
               className={inputCls}
             >
-              <option value="">Feet ▾</option>
+              <option value="">None</option>
               {availableFeet.map((f) => (
                 <option key={f} value={f}>{f} ft</option>
               ))}
@@ -243,7 +256,7 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
               disabled={selectedFeet == null}
               className={inputCls}
             >
-              <option value="">Axles ▾</option>
+              <option value="">None</option>
               {availableAxles.map((a) => (
                 <option key={a} value={a}>{a}-Axle</option>
               ))}
@@ -286,14 +299,55 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
       <CityInput label="Destination" value={destination} onChange={setDestination} />
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">Payload (tons)</label>
+        <label className="mb-2 block text-sm font-medium text-slate-700">Trip type</label>
+        <div className="flex gap-2">
+          {[{ value: "one-way", label: "One Way" }, { value: "two-way", label: "Two Way" }].map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setTripType(value)}
+              className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                tripType === value
+                  ? "border-brand-500 bg-brand-50 text-brand-700"
+                  : "border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+              }`}
+            > {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">Payload (T)&nbsp;
+          {
+            (() => {
+              if(markPayloadInvalid)
+                return (<span className="text-xs text-red-500 py-1 italic"> - Invalid payload. Must be within truck's capacity!</span>);
+            })()
+          }
+        </label>
+        
         <input
           type="number"
-          min={0.1}
-          step={0.1}
           value={payloadTons}
-          onChange={(e) => setPayloadTons(parseFloat(e.target.value) || 0)}
+          onChange={(e) => {
+            setMarkPayloadInvalid(false);// reset marker
+
+            if(e.target.value === "") {
+              setPayloadTons("");
+              return;
+            }
+
+            setPayloadTons(Math.max(0.1, Number(e.target.value)).toString());
+          }}
+          onBlur={() => {
+            if(payloadTons === "") {
+              setPayloadTons("0.1"); // Make sure user does not leave an empty field
+              return;
+            }
+          }}
           className={inputCls}
+          disabled={selectedTons == null}
         />
       </div>
 
