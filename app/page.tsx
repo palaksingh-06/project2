@@ -79,6 +79,9 @@ export default function HomePage() {
   const [tab, setTab] = useState<"single" | "batch">("single");
   const [batchResults, setBatchResults] = useState<BatchRowResult[]>([]);
 
+  // When true, the left input column collapses so results take the full width
+  const [formMinimized, setFormMinimized] = useState(false);
+
   // Provenance drawer state — holds whichever result row the user clicked "View data sources" on
   const [provenanceResult, setProvenanceResult] = useState<CalculateResponse | null>(null);
 
@@ -131,9 +134,29 @@ export default function HomePage() {
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 lg:grid-cols-2">
-        {/* Left column: tab switcher + form or batch upload */}
+      <div className={`mx-auto grid gap-8 px-4 py-8 ${formMinimized ? "max-w-7xl lg:grid-cols-1" : "max-w-6xl lg:grid-cols-2"}`}>
+        {/* Left column: tab switcher + form or batch upload. Collapses to a slim
+            bar when minimized so the results/table can use the full width. */}
+        {formMinimized ? (
+          <button
+            onClick={() => setFormMinimized(false)}
+            className="flex items-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+            data-print="hide"
+          >
+            ▸ Show input form
+          </button>
+        ) : (
         <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm" data-print="hide">
+          {/* Minimize toggle — widens the results panel */}
+          <div className="mb-3 flex justify-end">
+            <button
+              onClick={() => setFormMinimized(true)}
+              className="text-xs text-slate-400 hover:text-slate-700"
+              title="Minimize form to widen results"
+            >
+              ◂ Minimize
+            </button>
+          </div>
           {/* Tab switcher */}
           <div className="mb-5 flex rounded-lg border border-slate-200 p-1">
             <button
@@ -182,6 +205,7 @@ export default function HomePage() {
             <BatchUpload onResults={(rows) => setBatchResults(rows)} />
           )}
         </section>
+        )}
 
         {/* Right column: results */}
         <section className="space-y-4">
@@ -195,6 +219,16 @@ export default function HomePage() {
           {/* Single trip results */}
           {tab === "single" && result && !loading && (
             <>
+              {/* Provenance button — top of results, opens the right-side drawer */}
+              <div className="flex justify-end" data-print="hide">
+                <button
+                  onClick={() => setProvenanceResult(result)}
+                  className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  View data sources →
+                </button>
+              </div>
+
               {/* Total cost card */}
               <div className="rounded-xl border border-brand-100 bg-brand-50 p-6">
                 <p className="text-sm font-medium text-brand-700">Total trip cost</p>
@@ -261,15 +295,6 @@ export default function HomePage() {
                 contributions={result.contributions}
                 showContribution={showContribution}
               />
-
-              {/* Link to open the provenance drawer */}
-              <button
-                onClick={() => setProvenanceResult(result)}
-                className="text-sm text-slate-500 underline hover:text-slate-700"
-                data-print="hide"
-              >
-                View data sources
-              </button>
             </>
           )}
 

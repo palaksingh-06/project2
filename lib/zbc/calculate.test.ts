@@ -32,6 +32,7 @@ describe("calculateZBC Delhi-Mumbai 16T", () => {
       },
     },
     avg_speed_kmh: 45,
+    trip_type: "one-way",
   });
 
   it("has 10 cost lines", () => {
@@ -78,6 +79,7 @@ describe("calculateZBC with overrides", () => {
         provenance: { kind: "estimate", label: "₹/km × distance" },
       },
       avg_speed_kmh: 45,
+      trip_type: "one-way",
     });
     const highRisk = calculateZBC({
       truckId: "9T_4W",
@@ -93,6 +95,7 @@ describe("calculateZBC with overrides", () => {
       },
       overrides: { risk_pct: 0.05 },
       avg_speed_kmh: 45,
+      trip_type: "one-way",
     });
     expect(highRisk.total_inr).toBeGreaterThan(base.total_inr);
   });

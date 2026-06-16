@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { parseBatchCsv, MAX_BATCH_ROWS } from "@/lib/csv/parse-batch";
+import * as XLSX from "xlsx-js-style";
+import { parseBatchCsv, validateBatchRows, MAX_BATCH_ROWS } from "@/lib/csv/parse-batch";
 import type { ValidatedRow, RowError } from "@/lib/csv/parse-batch";
 import type { BatchRowResult } from "@/lib/export/excel";
 
@@ -50,11 +51,57 @@ export function BatchUpload({ onResults }: BatchUploadProps) {
   const [calculating, setCalculating] = useState(false);
   const [apiErrors, setApiErrors] = useState<Array<{ rowNum: number; error: string }>>([]);
 
-  // Read file, run client-side CSV validation, update state
+  // Read an Excel file, parse it using xlsx-js-style, then validate the rows
+  function handleExcelFile(file: File) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const buffer = e.target?.result as ArrayBuffer;
+      let wb: XLSX.WorkBook;
+      try {
+        wb = XLSX.read(buffer, { type: "array" });
+      } catch {
+        setValidationErrors([
+          { rowNum: 0, fields: [{ column: "file", message: "Could not read Excel file. Ensure it is a valid .xlsx or .xls file." }] },
+        ]);
+        return;
+      }
+      const sheetName = wb.SheetNames[0];
+      if (!sheetName) {
+        setValidationErrors([
+          { rowNum: 0, fields: [{ column: "file", message: "Excel file has no sheets" }] },
+        ]);
+        return;
+      }
+      const ws = wb.Sheets[sheetName];
+      // raw: false → numbers/dates become strings, matching CSV behaviour
+      const raw = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, raw: false, defval: "" }) as unknown[][];
+      if (raw.length < 2) {
+        setValidationErrors([
+          { rowNum: 0, fields: [{ column: "file", message: "Excel must have a header row and at least one data row" }] },
+        ]);
+        return;
+      }
+      const [headerRow, ...dataRows] = raw;
+      const headers = (headerRow as unknown[]).map((h) => String(h ?? "").toLowerCase().trim());
+      const strRows = dataRows.map((r) => (r as unknown[]).map((c) => String(c ?? "").trim()));
+      const { rows, errors } = validateBatchRows(headers, strRows);
+      setValidRows(rows);
+      setValidationErrors(errors);
+      setApiErrors([]);
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  // Read file, run client-side validation, update state
   function handleFile(file: File) {
-    if (!file.name.endsWith(".csv")) {
+    const name = file.name.toLowerCase();
+    if (name.endsWith(".xlsx") || name.endsWith(".xls")) {
+      handleExcelFile(file);
+      return;
+    }
+    if (!name.endsWith(".csv")) {
       setValidationErrors([
-        { rowNum: 0, fields: [{ column: "file", message: "Only .csv files are accepted" }] },
+        { rowNum: 0, fields: [{ column: "file", message: "Only .csv, .xlsx, or .xls files are accepted" }] },
       ]);
       return;
     }
@@ -113,7 +160,7 @@ export function BatchUpload({ onResults }: BatchUploadProps) {
       {/* Download template link */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-slate-600">
-          Upload a CSV with one trip per row (max {MAX_BATCH_ROWS} rows).
+          Upload a CSV or Excel file with one trip per row (max {MAX_BATCH_ROWS} rows).
         </p>
         <a
           href="/api/csv-template"
@@ -140,13 +187,13 @@ export function BatchUpload({ onResults }: BatchUploadProps) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
         </svg>
         <p className="text-sm font-medium text-slate-700">
-          {isDragOver ? "Drop to upload" : "Click or drag CSV here"}
+          {isDragOver ? "Drop to upload" : "Click or drag file here"}
         </p>
-        <p className="mt-0.5 text-xs text-slate-400">.csv files only</p>
+        <p className="mt-0.5 text-xs text-slate-400">.csv, .xlsx, .xls</p>
         <input
           ref={fileInputRef}
           type="file"
-          accept=".csv"
+          accept=".csv,.xlsx,.xls"
           className="hidden"
           onChange={handleFileInput}
         />

@@ -13,6 +13,7 @@ const rowSchema = z.object({
   origin: z.string().min(1),
   destination: z.string().min(1),
   payloadTons: z.number().positive(),
+  routeName: z.string().optional(),
   overrides: z
     .object({
       mileage_kmpl: z.number().positive().optional(),
@@ -81,7 +82,12 @@ export async function POST(request: Request) {
           overrides: row.overrides,
           truckResolution: row.truckResolution,
         });
-        results.push({ rowNum: row.rowNum, ...result });
+        results.push({
+          rowNum: row.rowNum,
+          routeName: row.routeName,
+          truckLabel: row.truckResolution?.truckLabel,
+          ...result,
+        });
       } catch (e) {
         if (e instanceof CalculationError) {
           errors.push({ rowNum: row.rowNum, error: e.message, suggestions: e.suggestions });

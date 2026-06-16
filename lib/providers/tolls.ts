@@ -169,14 +169,25 @@ export async function getTollEstimate(
     fallback.toll_per_km[tollClass as keyof typeof fallback.toll_per_km] ??
     fallback.toll_per_km.twoAxle ??
     2;
-  const plazas = Math.max(
-    1,
-    Math.round((distance_km / 100) * fallback.typical_plazas_per_100km)
-  );
+
+  // Short intra-city hops have no highway toll plazas when using the estimate.
+  // This only applies to the fallback — TollGuru returns actual plaza data
+  // and may legitimately return a non-zero toll even for short distances.
+  if (distance_km < 30) {
+    return {
+      total_inr: 0,
+      plaza_count: 0,
+      provenance: {
+        kind: "estimate",
+        label: "₹/km × distance",
+        detail: "toll-free below 30 km (fallback estimate)",
+      },
+    };
+  }
 
   return {
     total_inr: Math.round(perKm * distance_km),
-    plaza_count: plazas,
+    plaza_count: 0,
     provenance: {
       kind: "estimate",
       label: "₹/km × distance",

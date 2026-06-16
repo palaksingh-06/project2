@@ -102,7 +102,7 @@ export function BatchResultsTable({ results, apiErrors = [], onShowProvenance }:
               <th className="px-4 py-3">Days</th>
               <th className="px-4 py-3 text-right">Total ₹</th>
               {/* Extra column header for provenance button — only rendered when handler is provided */}
-              {onShowProvenance && <th className="px-2 py-3" />}
+              {onShowProvenance && <th className="px-2 py-3 text-right">Sources</th>}
             </tr>
           </thead>
           <tbody>
@@ -130,13 +130,13 @@ export function BatchResultsTable({ results, apiErrors = [], onShowProvenance }:
                     </td>
                     {/* ⓘ button — stops row expand-click propagation */}
                     {onShowProvenance && (
-                      <td className="px-2 py-3">
+                      <td className="px-2 py-3 text-right">
                         <button
                           onClick={(e) => { e.stopPropagation(); onShowProvenance(r); }}
-                          className="text-xs text-slate-400 hover:text-slate-700"
-                          title="View data sources"
+                          className="rounded border border-slate-300 px-2 py-0.5 text-xs text-slate-600 hover:bg-slate-100"
+                          title="View data sources for this row"
                         >
-                          ⓘ
+                          Sources
                         </button>
                       </td>
                     )}

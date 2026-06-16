@@ -301,37 +301,14 @@ function toNum(val: string): number | null {
   return isNaN(n) ? null : n;
 }
 
-// ── Main export ───────────────────────────────────────────────────────────────
+// ── Shared row validator ──────────────────────────────────────────────────────
+// Called by both parseBatchCsv and the Excel parser in BatchUpload.tsx.
+// `headers` must already be lowercased; `dataRows` must be string[][].
 
-export function parseBatchCsv(csvText: string): {
-  rows: ValidatedRow[];
-  errors: RowError[];
-} {
-  const lines = csvText
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0);
-
-  if (lines.length < 2) {
-    return {
-      rows: [],
-      errors: [
-        {
-          rowNum: 0,
-          fields: [
-            {
-              column: "file",
-              message: "CSV must have a header row and at least one data row",
-            },
-          ],
-        },
-      ],
-    };
-  }
-
-  const headers = parseRow(lines[0]).map((h) => h.toLowerCase().trim());
-  const dataLines = lines.slice(1);
-
+export function validateBatchRows(
+  headers: string[],
+  dataRows: string[][]
+): { rows: ValidatedRow[]; errors: RowError[] } {
   const missingRequired = REQUIRED_COLUMNS.filter((c) => !headers.includes(c));
   if (missingRequired.length > 0) {
     return {
@@ -348,7 +325,7 @@ export function parseBatchCsv(csvText: string): {
     };
   }
 
-  if (dataLines.length > MAX_BATCH_ROWS) {
+  if (dataRows.length > MAX_BATCH_ROWS) {
     return {
       rows: [],
       errors: [
@@ -357,7 +334,7 @@ export function parseBatchCsv(csvText: string): {
           fields: [
             {
               column: "file",
-              message: `CSV contains ${dataLines.length} rows. Maximum ${MAX_BATCH_ROWS} rows per batch. Please split into smaller files.`,
+              message: `File contains ${dataRows.length} rows. Maximum ${MAX_BATCH_ROWS} rows per batch. Please split into smaller files.`,
             },
           ],
         },
@@ -373,9 +350,9 @@ export function parseBatchCsv(csvText: string): {
   const validRows: ValidatedRow[] = [];
   const errors: RowError[] = [];
 
-  for (let i = 0; i < dataLines.length; i++) {
+  for (let i = 0; i < dataRows.length; i++) {
     const rowNum = i + 1;
-    const cells = parseRow(dataLines[i]);
+    const cells = dataRows[i];
     const fieldErrors: RowFieldError[] = [];
 
     // ── Origin ────────────────────────────────────────────────────────────────
@@ -569,4 +546,32 @@ export function parseBatchCsv(csvText: string): {
   }
 
   return { rows: validRows, errors };
+}
+
+// ── CSV parser ─────────────────────────────────────────────────────────────────
+
+export function parseBatchCsv(csvText: string): {
+  rows: ValidatedRow[];
+  errors: RowError[];
+} {
+  const lines = csvText
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+
+  if (lines.length < 2) {
+    return {
+      rows: [],
+      errors: [
+        {
+          rowNum: 0,
+          fields: [{ column: "file", message: "File must have a header row and at least one data row" }],
+        },
+      ],
+    };
+  }
+
+  const headers = parseRow(lines[0]).map((h) => h.toLowerCase().trim());
+  const dataRows = lines.slice(1).map(parseRow);
+  return validateBatchRows(headers, dataRows);
 }

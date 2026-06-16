@@ -14,7 +14,7 @@ export interface CalculationRequest {
   modelId?: string;
   origin: string;
   destination: string;
-  tripType: string;
+  tripType?: string;   // single-trip API always sends it; batch defaults to "one-way"
   payloadTons?: number;
   overrides?: RateOverrides;
   // Optional provenance from CSV batch parsing — records which resolution tier was used
@@ -181,7 +181,7 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
     },
     overrides: rateOverrides,
     avg_speed_kmh: config.avg_speed_kmh,
-    trip_type: tripType,
+    trip_type: tripType ?? "one-way",
   });
 
   const contributions = validateContributions(result);

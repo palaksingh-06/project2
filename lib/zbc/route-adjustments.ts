@@ -10,22 +10,18 @@
 //   applyRouteAdjustments(...) in app/api/calculate-batch/route.ts.
 //
 // What it does:
-//   1. Route cost-sharing — all rows that share the same `route_name` are treated
-//      as one physical trip. The per-trip / per-day cost heads (driver, vehicle,
-//      maintenance, loading, idle, overhead, empty return) are counted ONCE for the
-//      whole route and split equally across the number of DISTINCT OUTLETS the route
-//      visits (N = unique origin/destination points, NOT the number of segment
-//      rows), i.e. each row shows its head ÷ N. Fuel stays per-segment (each hop
-//      burns its own diesel). Risk is a % of subtotal, so it is recomputed from the
-//      reduced subtotal automatically (no separate division — that would double-count).
-//   2. Short-hop toll rule — any trip under TOLL_FREE_BELOW_KM pays no toll.
+//   Route cost-sharing — all rows that share the same `route_name` are treated
+//   as one physical trip. The per-trip / per-day cost heads (driver, vehicle,
+//   maintenance, loading, idle, overhead, empty return) are counted ONCE for the
+//   whole route and split equally across the number of DISTINCT OUTLETS the route
+//   visits (N = unique origin/destination points, NOT the number of segment
+//   rows), i.e. each row shows its head ÷ N. Fuel stays per-segment (each hop
+//   burns its own diesel). Risk is a % of subtotal, so it is recomputed from the
+//   reduced subtotal automatically (no separate division — that would double-count).
 // ════════════════════════════════════════════════════════════════════════════
 
 // Master on/off switch for this whole model-specific behaviour.
 export const ROUTE_ADJUSTMENTS_ENABLED = true;
-
-// Trips shorter than this (km) are treated as toll-free.
-const TOLL_FREE_BELOW_KM = 30;
 
 // Cost heads that represent one trip's shared fixed cost and are therefore split
 // equally across the route's stops. Fuel + Toll are intentionally excluded (they
@@ -107,19 +103,15 @@ export function applyRouteAdjustments<T extends AdjustableRow>(results: T[]): T[
   return results;
 }
 
-// Adjusts a single row: applies the short-hop toll rule, splits shared heads by
-// the route size `n`, then recomputes risk, subtotal, total and per-line %.
+// Adjusts a single row: splits shared heads by the route size `n`, then
+// recomputes risk, subtotal, total and per-line %.
 function adjustRow(row: AdjustableRow, n: number): void {
   const lines = row.breakdown;
 
-  // ── 1. Short-hop toll rule ────────────────────────────────────────────────
-  // Trips under the threshold incur no toll (local/intra-city movements).
-  if (row.meta.distance_km < TOLL_FREE_BELOW_KM) {
-    const toll = lines.find((l) => l.id === "toll");
-    if (toll) toll.amount_inr = 0;
-  }
-
-  // ── 2. Split shared per-trip / per-day heads across the route's stops ──────
+  // ── Split shared per-trip / per-day heads across the route's stops ──────────
+  // (The short-hop toll-free rule now lives in lib/providers/tolls.ts so it
+  //  applies consistently to both single and batch trips, and only to the
+  //  fallback estimate — not when TollGuru returns a real value.)
   if (n > 1) {
     for (const line of lines) {
       if (SPLIT_HEAD_IDS.has(line.id)) {

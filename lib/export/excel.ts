@@ -1,4 +1,4 @@
-import * as XLSX from "xlsx";
+import * as XLSX from "xlsx-js-style";
 import outletGeotags from "@/config/outlet-geotags.json";
 
 // ── Outlet name lookup by coordinates ──────────────────────────────────────────
@@ -93,12 +93,61 @@ function buildRow(
   return row;
 }
 
+// Applies presentation styling to a json_to_sheet worksheet:
+//  - bold white-on-slate header row with borders
+//  - thin borders on data cells, right-aligned numbers
+//  - number formats: ₹ columns → #,##0, % columns → 0.0
+//  - column widths sized to the longest cell in each column
+// The `.s` style property is only honoured by xlsx-js-style (plain xlsx ignores it).
+function styleSheet(ws: XLSX.WorkSheet, headers: string[]): void {
+  const range = XLSX.utils.decode_range(ws["!ref"] as string);
+  const thin = { style: "thin", color: { rgb: "D1D5DB" } };
+  const border = { top: thin, bottom: thin, left: thin, right: thin };
+
+  // Start widths from the header text length; grow to fit data cells below.
+  const widths = headers.map((h) => Math.max(10, Math.min(40, h.length + 2)));
+
+  for (let R = range.s.r; R <= range.e.r; R++) {
+    for (let C = range.s.c; C <= range.e.c; C++) {
+      const addr = XLSX.utils.encode_cell({ r: R, c: C });
+      const cell = ws[addr];
+      if (!cell) continue;
+      const header = headers[C] ?? "";
+
+      if (R === 0) {
+        cell.s = {
+          font: { bold: true, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "334155" } },
+          alignment: { horizontal: "center", vertical: "center", wrapText: true },
+          border,
+        };
+      } else {
+        const isMoney = /\(₹\)$/.test(header) || header === "Diesel (₹/L)";
+        const isPct = /\(%\)$/.test(header);
+        cell.s = {
+          border,
+          alignment: { horizontal: typeof cell.v === "number" ? "right" : "left" },
+        };
+        if (isMoney) cell.z = "#,##0";
+        if (isPct) cell.z = "0.0";
+      }
+
+      const len = String(cell.v ?? "").length + 2;
+      if (len > widths[C]) widths[C] = Math.min(40, len);
+    }
+  }
+
+  ws["!cols"] = widths.map((wch) => ({ wch }));
+  ws["!rows"] = [{ hpt: 24 }]; // taller header row
+}
+
 export function downloadSingleTripExcel(
   result: CalculationResult,
   meta: { truckId: string }
 ): void {
   const row = buildRow(result, { "Truck ID": meta.truckId });
   const ws = XLSX.utils.json_to_sheet([row]);
+  styleSheet(ws, Object.keys(row));
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Trip Cost");
   XLSX.writeFile(wb, "zbc-trip.xlsx");
@@ -108,22 +157,26 @@ export function downloadBatchExcel(results: BatchRowResult[]): void {
   const sheetRows = results.map((r) =>
     buildRow(r, {
       "Row #": r.rowNum,
-      // Include the resolved truck label if available so it shows near the front of the sheet
+      // Include route name (route number) and truck label near the front of the sheet
+      ...(r.routeName ? { Route: r.routeName } : {}),
       ...(r.truckLabel ? { Truck: r.truckLabel } : {}),
     })
   );
 
-  // Move Row # and Truck to the front of every row
+  // Move Row #, Route, Truck to the front of every row
   const reordered = sheetRows.map((r) => {
-    const { "Row #": rowNum, Truck: truck, ...rest } = r as Record<string, string | number>;
+    const { "Row #": rowNum, Route: route, Truck: truck, ...rest } =
+      r as Record<string, string | number>;
     return {
       "Row #": rowNum,
+      ...(route !== undefined ? { Route: route } : {}),
       ...(truck !== undefined ? { Truck: truck } : {}),
       ...rest,
     };
   });
 
   const ws = XLSX.utils.json_to_sheet(reordered);
+  styleSheet(ws, Object.keys(reordered[0] ?? {}));
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Batch Trip Cost");
   XLSX.writeFile(wb, "zbc-batch.xlsx");
