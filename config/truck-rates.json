@@ -35,7 +35,7 @@
       "idle_cost_per_hour": 150,
       "overhead_per_trip": 500,
       "risk_pct": 0.015,
-      "empty_return_pct": 0.40
+      "empty_return_pct": 0.80
     },
     "mini_closed": {
       "label": "Mini Van / Tempo · 1.5T · 7ft · 2-Axle",
@@ -59,7 +59,7 @@
       "idle_cost_per_hour": 150,
       "overhead_per_trip": 500,
       "risk_pct": 0.015,
-      "empty_return_pct": 0.40
+      "empty_return_pct": 0.80
     },
     "lcv_open": {
       "label": "LCV 14ft (Open) · 5T · 14ft · 2-Axle",
@@ -83,7 +83,7 @@
       "idle_cost_per_hour": 180,
       "overhead_per_trip": 700,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.42
+      "empty_return_pct": 0.80
     },
     "lcv_closed": {
       "label": "LCV 14ft (Closed) · 5T · 14ft · 2-Axle",
@@ -107,7 +107,7 @@
       "idle_cost_per_hour": 180,
       "overhead_per_trip": 700,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.42
+      "empty_return_pct": 0.80
     },
     "9T_4W": {
       "label": "9T LCV (Open) · 9T · 14ft · 2-Axle",
@@ -131,7 +131,7 @@
       "idle_cost_per_hour": 200,
       "overhead_per_trip": 800,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.45
+      "empty_return_pct": 0.80
     },
     "17ft_open": {
       "label": "17ft SXL (Open) · 9T · 17ft · 2-Axle",
@@ -155,7 +155,7 @@
       "idle_cost_per_hour": 220,
       "overhead_per_trip": 1000,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.45
+      "empty_return_pct": 0.80
     },
     "17ft_closed": {
       "label": "17ft SXL (Closed) · 9T · 17ft · 2-Axle",
@@ -179,7 +179,7 @@
       "idle_cost_per_hour": 220,
       "overhead_per_trip": 1000,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.45
+      "empty_return_pct": 0.80
     },
     "16T_6W": {
       "label": "20ft MXL (Open) · 16T · 20ft · 2-Axle",
@@ -203,7 +203,7 @@
       "idle_cost_per_hour": 300,
       "overhead_per_trip": 1200,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.50
+      "empty_return_pct": 0.80
     },
     "20ft_closed": {
       "label": "20ft MXL (Closed) · 16T · 20ft · 2-Axle",
@@ -227,7 +227,7 @@
       "idle_cost_per_hour": 300,
       "overhead_per_trip": 1200,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.50
+      "empty_return_pct": 0.80
     },
     "25T_10W": {
       "label": "24ft 3-Axle (Open) · 25T · 24ft · 3-Axle",
@@ -251,7 +251,7 @@
       "idle_cost_per_hour": 400,
       "overhead_per_trip": 1800,
       "risk_pct": 0.025,
-      "empty_return_pct": 0.55
+      "empty_return_pct": 0.80
     },
     "24ft_closed": {
       "label": "24ft 3-Axle (Closed) · 25T · 24ft · 3-Axle",
@@ -275,7 +275,7 @@
       "idle_cost_per_hour": 400,
       "overhead_per_trip": 1800,
       "risk_pct": 0.025,
-      "empty_return_pct": 0.55
+      "empty_return_pct": 0.80
     },
     "32T_12W": {
       "label": "32ft 4-Axle (Open) · 32T · 32ft · 4-Axle",
@@ -299,7 +299,7 @@
       "idle_cost_per_hour": 550,
       "overhead_per_trip": 2500,
       "risk_pct": 0.03,
-      "empty_return_pct": 0.60
+      "empty_return_pct": 0.80
     },
     "32ft_closed": {
       "label": "32ft 4-Axle (Closed) · 32T · 32ft · 4-Axle",
@@ -323,7 +323,7 @@
       "idle_cost_per_hour": 550,
       "overhead_per_trip": 2500,
       "risk_pct": 0.03,
-      "empty_return_pct": 0.60
+      "empty_return_pct": 0.80
     },
     "40ft_open": {
       "label": "40ft Trailer (Open) · 40T · 40ft · 5-Axle",
@@ -347,7 +347,7 @@
       "idle_cost_per_hour": 650,
       "overhead_per_trip": 3000,
       "risk_pct": 0.03,
-      "empty_return_pct": 0.65
+      "empty_return_pct": 0.80
     },
     "40ft_closed": {
       "label": "40ft Container · 40T · 40ft · 5-Axle",
@@ -371,7 +371,7 @@
       "idle_cost_per_hour": 650,
       "overhead_per_trip": 3000,
       "risk_pct": 0.03,
-      "empty_return_pct": 0.65
+      "empty_return_pct": 0.80
     },
     "bolero_open": {
       "label": "Bolero Pickup (Open) · 1.5T · 8ft · 2-Axle",
@@ -395,7 +395,7 @@
       "idle_cost_per_hour": 150,
       "overhead_per_trip": 500,
       "risk_pct": 0.015,
-      "empty_return_pct": 0.40
+      "empty_return_pct": 0.80
     },
     "10ft_2T_open": {
       "label": "Open Body · 2T · 10ft · 2-Axle",
@@ -419,7 +419,7 @@
       "idle_cost_per_hour": 160,
       "overhead_per_trip": 550,
       "risk_pct": 0.015,
-      "empty_return_pct": 0.40
+      "empty_return_pct": 0.80
     },
     "14ft_4T_open": {
       "label": "Open Body · 4T · 14ft · 2-Axle",
@@ -443,7 +443,7 @@
       "idle_cost_per_hour": 180,
       "overhead_per_trip": 650,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.42
+      "empty_return_pct": 0.80
     },
     "17ft_5T_open": {
       "label": "Open Body · 5T · 17ft · 2-Axle",
@@ -467,7 +467,7 @@
       "idle_cost_per_hour": 200,
       "overhead_per_trip": 800,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.44
+      "empty_return_pct": 0.80
     },
     "19ft_10T_open": {
       "label": "Open Body · 10T · 19ft · 2-Axle",
@@ -491,7 +491,7 @@
       "idle_cost_per_hour": 250,
       "overhead_per_trip": 1100,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.47
+      "empty_return_pct": 0.80
     },
     "22ft_10T_open": {
       "label": "Open Body · 10T · 22ft · 2-Axle",
@@ -515,7 +515,7 @@
       "idle_cost_per_hour": 260,
       "overhead_per_trip": 1100,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.48
+      "empty_return_pct": 0.80
     },
     "22ft_18T_open": {
       "label": "10-Tyre Open · 18T · 22ft · 3-Axle",
@@ -539,7 +539,7 @@
       "idle_cost_per_hour": 370,
       "overhead_per_trip": 1600,
       "risk_pct": 0.025,
-      "empty_return_pct": 0.52
+      "empty_return_pct": 0.80
     },
     "25ft_25T_open": {
       "label": "12-Tyre Open · 25T · 25ft · 4-Axle",
@@ -563,7 +563,7 @@
       "idle_cost_per_hour": 550,
       "overhead_per_trip": 2500,
       "risk_pct": 0.03,
-      "empty_return_pct": 0.60
+      "empty_return_pct": 0.80
     },
     "28ft_30T_open": {
       "label": "14-Tyre Open · 30T · 28ft · 5-Axle",
@@ -587,7 +587,7 @@
       "idle_cost_per_hour": 630,
       "overhead_per_trip": 2800,
       "risk_pct": 0.03,
-      "empty_return_pct": 0.62
+      "empty_return_pct": 0.80
     },
     "30ft_30T_open": {
       "label": "14-Tyre Open · 30T · 30ft · 5-Axle",
@@ -611,7 +611,7 @@
       "idle_cost_per_hour": 630,
       "overhead_per_trip": 2800,
       "risk_pct": 0.03,
-      "empty_return_pct": 0.62
+      "empty_return_pct": 0.80
     },
     "half_daala": {
       "label": "Half Daala (Open) · 9T · 32ft · 2-Axle",
@@ -635,7 +635,7 @@
       "idle_cost_per_hour": 250,
       "overhead_per_trip": 1100,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.47
+      "empty_return_pct": 0.80
     },
     "7ft_07T_closed": {
       "label": "Container · 0.7T · 7ft · 2-Axle",
@@ -659,7 +659,7 @@
       "idle_cost_per_hour": 140,
       "overhead_per_trip": 480,
       "risk_pct": 0.015,
-      "empty_return_pct": 0.38
+      "empty_return_pct": 0.80
     },
     "10ft_2T_closed": {
       "label": "Container · 2T · 10ft · 2-Axle",
@@ -683,7 +683,7 @@
       "idle_cost_per_hour": 160,
       "overhead_per_trip": 550,
       "risk_pct": 0.015,
-      "empty_return_pct": 0.40
+      "empty_return_pct": 0.80
     },
     "14ft_3_5T_closed": {
       "label": "Container · 3.5T · 14ft · 2-Axle",
@@ -707,7 +707,7 @@
       "idle_cost_per_hour": 180,
       "overhead_per_trip": 650,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.42
+      "empty_return_pct": 0.80
     },
     "19ft_6T_closed": {
       "label": "Container · 6T · 19ft · 2-Axle",
@@ -731,7 +731,7 @@
       "idle_cost_per_hour": 220,
       "overhead_per_trip": 950,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.45
+      "empty_return_pct": 0.80
     },
     "20ft_6_5T_closed": {
       "label": "Container · 6.5T · 20ft · 2-Axle",
@@ -755,7 +755,7 @@
       "idle_cost_per_hour": 230,
       "overhead_per_trip": 980,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.46
+      "empty_return_pct": 0.80
     },
     "32ft_9T_closed": {
       "label": "Container · 9T · 32ft · 2-Axle",
@@ -779,7 +779,7 @@
       "idle_cost_per_hour": 260,
       "overhead_per_trip": 1100,
       "risk_pct": 0.02,
-      "empty_return_pct": 0.48
+      "empty_return_pct": 0.80
     },
     "32ft_18T_closed": {
       "label": "Container · 18T · 32ft · 3-Axle",
@@ -803,7 +803,7 @@
       "idle_cost_per_hour": 380,
       "overhead_per_trip": 1600,
       "risk_pct": 0.025,
-      "empty_return_pct": 0.53
+      "empty_return_pct": 0.80
     },
     "9ft_1T_open": {
       "label": "Mini Truck (Open) · 1T · 9ft · 2-Axle",
@@ -827,7 +827,7 @@
       "idle_cost_per_hour": 140,
       "overhead_per_trip": 450,
       "risk_pct": 0.015,
-      "empty_return_pct": 0.38
+      "empty_return_pct": 0.80
     },
     "14ft_lcv_3T_open": {
       "label": "LCV 14ft Light (Open) · 3T · 14ft · 2-Axle",
@@ -851,7 +851,7 @@
       "idle_cost_per_hour": 170,
       "overhead_per_trip": 600,
       "risk_pct": 0.015,
-      "empty_return_pct": 0.40
+      "empty_return_pct": 0.80
     }
   }
 }

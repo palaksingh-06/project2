@@ -86,6 +86,7 @@ export interface CalculateInput {
   toll: TollData;
   overrides?: RateOverrides;
   avg_speed_kmh: number;
+  trip_type: string;
 }
 
 export type CostHeadId =
