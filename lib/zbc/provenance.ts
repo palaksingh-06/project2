@@ -1,6 +1,6 @@
 /** How a value was obtained — never use vague "live" for config data */
 
-export type ProvenanceKind = "api" | "config" | "estimate" | "input";
+export type ProvenanceKind = "api" | "config" | "estimate" | "input" | "error";
 
 export interface Provenance {
   kind: ProvenanceKind;
@@ -37,6 +37,11 @@ export const PROVENANCE_LEGEND: {
     title: "Provided",
     description: "Supplied in the request / CSV — not fetched or assumed",
   },
+  {
+    kind: "error",
+    title: "Fallback",
+    description: "Google limit reached or unavailable — fell back to OSM/estimate",
+  },
 ];
 
 export function provenanceBadgeClass(kind: ProvenanceKind): string {
@@ -49,6 +54,8 @@ export function provenanceBadgeClass(kind: ProvenanceKind): string {
       return "bg-amber-100 text-amber-800";
     case "input":
       return "bg-sky-100 text-sky-800";
+    case "error":
+      return "bg-red-100 text-red-800";
   }
 }
 

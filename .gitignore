@@ -7,3 +7,5 @@ node_modules
 CLAUDE.md
 .graphify-out
 HANDOFF.md
+.google-usage.json
+.google-usage.test.json

@@ -1,12 +1,14 @@
 import { getCitiesCache } from "@/lib/config";
 import type { Provenance } from "@/lib/zbc/provenance";
 import { suggestCities } from "@/lib/utils/spellcheck";
+import { canCallGoogle, recordGoogleCall } from "@/lib/providers/google-quota";
 
 export interface GeocodeResult {
   name: string;
   state: string;
   lat: number;
   lng: number;
+  resolved_address?: string;       // the exact address/place string the geocoder matched
   provenance: Provenance;          // source of lat/lng coordinates
   name_provenance?: Provenance;    // source of resolved place name
 }
@@ -93,20 +95,37 @@ export function geocodeFromCache(cityName: string): GeocodeResult | null {
 // ── Google Geocoding API toggle ───────────────────────────────────────────────
 // Controlled by GOOGLE_GEOCODE_ENABLED env variable. While off, geocoding falls
 // through to the city cache + Nominatim. Enabled when set to "true".
-async function geocodeGoogle(cityName: string): Promise<GeocodeResult | null> {
-  if (process.env.GOOGLE_GEOCODE_ENABLED !== "true") return null;
+//
+// Result of a Google geocode attempt:
+//  - "ok": resolved
+//  - "blocked": we did NOT (or should not) call Google — monthly cap hit or the
+//    API returned OVER_QUERY_LIMIT/429. Callers fall back to OSM and flag it.
+//  - "miss": Google ran but found nothing (or is disabled / no key)
+type GoogleGeocodeOutcome =
+  | { kind: "ok"; result: GeocodeResult }
+  | { kind: "blocked" }
+  | { kind: "miss" };
 
+async function geocodeGoogle(query: string): Promise<GoogleGeocodeOutcome> {
+  if (process.env.GOOGLE_GEOCODE_ENABLED !== "true") return { kind: "miss" };
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-  if (!apiKey) return null;
+  if (!apiKey) return { kind: "miss" };
+
+  // Airtight cap: once the monthly free tier is reached, never call Google again.
+  if (!canCallGoogle("geocode")) return { kind: "blocked" };
+
   const url = new URL("https://maps.googleapis.com/maps/api/geocode/json");
-  url.searchParams.set("address", `${cityName}, India`);
+  url.searchParams.set("address", `${query}, India`);
   url.searchParams.set("components", "country:IN");
   url.searchParams.set("key", apiKey);
   try {
     const res = await fetch(url.toString(), { signal: AbortSignal.timeout(8000) });
+    // Every dispatched request is billable — count it before inspecting the body.
+    recordGoogleCall("geocode");
+    if (res.status === 429) return { kind: "blocked" };
     if (!res.ok) {
-      console.warn(`[geocode] Google HTTP ${res.status} for "${cityName}"`);
-      return null;
+      console.warn(`[geocode] Google HTTP ${res.status} for "${query}"`);
+      return { kind: "miss" };
     }
     const data = (await res.json()) as {
       status: string;
@@ -117,15 +136,16 @@ async function geocodeGoogle(cityName: string): Promise<GeocodeResult | null> {
         address_components: { long_name: string; types: string[] }[];
       }[];
     };
+    if (data.status === "OVER_QUERY_LIMIT") return { kind: "blocked" };
     if (data.status !== "OK" || !data.results.length) {
       console.warn(
-        `[geocode] Google status="${data.status}" for "${cityName}"` +
+        `[geocode] Google status="${data.status}" for "${query}"` +
           (data.error_message ? ` — ${data.error_message}` : "") +
           (data.status === "REQUEST_DENIED"
             ? " (check: Geocoding API enabled? key has HTTP-referrer restriction?)"
             : "")
       );
-      return null;
+      return { kind: "miss" };
     }
     const hit = data.results[0];
     const comps = hit.address_components;
@@ -144,16 +164,20 @@ async function geocodeGoogle(cityName: string): Promise<GeocodeResult | null> {
     );
 
     return {
-      name: localityComp?.long_name ?? cityName,
-      state: stateComp?.long_name ?? "India",
-      lat: hit.geometry.location.lat,
-      lng: hit.geometry.location.lng,
-      provenance: { kind: "api", label: "Google Geocoding" },
-      name_provenance: { kind: "api", label: "Google Geocoding" },
+      kind: "ok",
+      result: {
+        name: localityComp?.long_name ?? query,
+        state: stateComp?.long_name ?? "India",
+        lat: hit.geometry.location.lat,
+        lng: hit.geometry.location.lng,
+        resolved_address: hit.formatted_address,
+        provenance: { kind: "api", label: "Google Geocoding" },
+        name_provenance: { kind: "api", label: "Google Geocoding" },
+      },
     };
   } catch (err) {
-    console.warn(`[geocode] Google exception for "${cityName}":`, err);
-    return null;
+    console.warn(`[geocode] Google exception for "${query}":`, err);
+    return { kind: "miss" };
   }
 }
 
@@ -209,6 +233,7 @@ async function geocodeNominatimRaw(
       state,
       lat: parseFloat(hit.lat),
       lng: parseFloat(hit.lon),
+      resolved_address: hit.display_name,
       provenance: {
         kind: "api",
         label: "OpenStreetMap Nominatim",
@@ -220,31 +245,14 @@ async function geocodeNominatimRaw(
   }
 }
 
-// Extracts city-like candidates from a full street address, in priority order.
-// For "SCO-101, Ground Floor, Nabha Gate, New Leela Bhawan Market, Patiala, Punjab 147001"
-// this returns ["Punjab", "Patiala", "New Leela Bhawan Market", ...]
-// The caller tries each against the city cache; first hit wins.
-function extractCityCandidates(address: string): string[] {
-  const parts = address
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  if (parts.length < 2) return [];
-
-  const candidates: string[] = [];
-  // Walk from the end — city/state/pincode are usually last
-  for (const part of [...parts].reverse()) {
-    const clean = part
-      .replace(/\b\d{6}\b/g, "")   // strip 6-digit pincodes
-      .replace(/\b\d+\b/g, "")     // strip stray numbers
-      .replace(/\b(ground floor|first floor|second floor|upper ground|floor|shop no\.?|kiosk|sco|scf|block|sector|phase|unit|no\.?|plot|near|opp\.?|opposite)\b/gi, "")
-      .replace(/[-]/g, " ")
-      .trim();
-    if (clean.length >= 3 && /[a-zA-Z]/.test(clean)) {
-      candidates.push(clean);
-    }
-  }
-  return candidates;
+// Drops the leftmost comma-separated segment so a too-specific prefix (house
+// number, floor) can be removed and the rest retried. Returns null when no comma
+// remains. "B-45, Ground Floor, Royal Palm, Zirakpur" → "Ground Floor, Royal Palm, Zirakpur"
+export function stripLeftmostSegment(address: string): string | null {
+  const idx = address.indexOf(",");
+  if (idx === -1) return null;
+  const rest = address.slice(idx + 1).trim();
+  return rest.length > 0 ? rest : null;
 }
 
 // Public entry point — adds caching around the actual provider chain so
@@ -264,14 +272,27 @@ export async function geocode(cityName: string): Promise<{
   return out;
 }
 
-async function geocodeUncached(cityName: string): Promise<{
+// Wraps an OSM/cache result to flag that Google was skipped because its monthly
+// cap (or live quota) was hit. Surfaces as a red "Fallback" badge in provenance.
+function asGoogleFallback(result: GeocodeResult): GeocodeResult {
+  return {
+    ...result,
+    provenance: {
+      kind: "error",
+      label: "Google limit reached → OSM fallback",
+      detail: result.provenance.label,
+    },
+  };
+}
+
+async function geocodeUncached(input: string): Promise<{
   result: GeocodeResult | null;
   suggestions: string[];
 }> {
-  // ── 1. lat/lng coordinates (HIGHEST PRIORITY) ──────────────────────────────
+  // ── 1. Explicit coordinates (highest priority) ─────────────────────────────
   // If the input is already a coordinate pair, use it directly. This is the most
   // precise source and never collapses two nearby addresses onto a shared point.
-  const latLng = parseLatLng(cityName);
+  const latLng = parseLatLng(input);
   if (latLng) {
     const { name, state, name_provenance } = await reverseGeocodeNominatim(latLng.lat, latLng.lng);
     return {
@@ -287,36 +308,39 @@ async function geocodeUncached(cityName: string): Promise<{
     };
   }
 
-  // ── 2. OSM / Nominatim (precise per-address) ───────────────────────────────
-  // Tried before the city cache because OSM returns the actual address location,
-  // whereas the cache only has city centroids — which would make two outlets in
-  // the same city resolve to identical coordinates (0 km distance between them).
-  const nominatim = await geocodeNominatim(cityName);
-  if (nominatim) return { result: nominatim, suggestions: [] };
+  // ── 2. Progressive resolve: Google → OSM → city cache, stripping the leftmost
+  //       comma segment on failure and retrying the shorter address. ───────────
+  // Google is tried first because it resolves full Indian street addresses to the
+  // actual location; OSM/Nominatim often returns only a city centroid. If Google
+  // is blocked (monthly cap reached), the OSM/cache result is flagged as a fallback.
+  let current = input.trim();
+  let googleBlocked = false;
+  while (current.length > 0) {
+    const g = await geocodeGoogle(current);
+    if (g.kind === "ok") return { result: g.result, suggestions: [] };
+    if (g.kind === "blocked") googleBlocked = true;
 
-  // ── 3. City cache (coarse centroid fallback) ───────────────────────────────
-  // Only reached if OSM couldn't resolve the address. Returns a city-level
-  // centroid, so it's a last-resort approximation.
-  const cached = geocodeFromCache(cityName);
-  if (cached) return { result: cached, suggestions: [] };
-
-  // ── 4. Google Maps (currently disabled — returns null) ─────────────────────
-  const google = await geocodeGoogle(cityName);
-  if (google) return { result: google, suggestions: [] };
-
-  // ── 5. City extraction fallback (for full street addresses) ────────────────
-  // When OSM couldn't resolve a full address, extract candidate city names from
-  // the end (e.g. "Nabha Gate, Patiala, Punjab 147001" → "Punjab", then
-  // "Patiala") and retry each against OSM, then the cache.
-  if (cityName.includes(",")) {
-    for (const candidate of extractCityCandidates(cityName)) {
-      const nomCity = await geocodeNominatim(candidate);
-      if (nomCity) return { result: nomCity, suggestions: [] };
-      const cachedCity = geocodeFromCache(candidate);
-      if (cachedCity) return { result: cachedCity, suggestions: [] };
+    const nominatim = await geocodeNominatim(current);
+    if (nominatim) {
+      return {
+        result: googleBlocked ? asGoogleFallback(nominatim) : nominatim,
+        suggestions: [],
+      };
     }
+
+    const cached = geocodeFromCache(current);
+    if (cached) {
+      return {
+        result: googleBlocked ? asGoogleFallback(cached) : cached,
+        suggestions: [],
+      };
+    }
+
+    const next = stripLeftmostSegment(current);
+    if (next === null) break;
+    current = next;
   }
 
-  const suggestions = suggestCities(cityName, getCitiesCache());
+  const suggestions = suggestCities(input, getCitiesCache());
   return { result: null, suggestions };
 }

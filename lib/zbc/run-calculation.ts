@@ -34,8 +34,8 @@ export interface CalculationResponse {
   meta: {
     trip_days: number;
     distance_km: number;
-    origin: { name: string; state: string; lat: number; lng: number; provenance: Provenance; name_provenance?: Provenance };
-    destination: { name: string; state: string; lat: number; lng: number; provenance: Provenance; name_provenance?: Provenance };
+    origin: { name: string; state: string; lat: number; lng: number; resolved_address?: string; provenance: Provenance; name_provenance?: Provenance };
+    destination: { name: string; state: string; lat: number; lng: number; resolved_address?: string; provenance: Provenance; name_provenance?: Provenance };
     inputs: {
       geocode_origin: Provenance;
       geocode_origin_name?: Provenance;
@@ -211,6 +211,7 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
         state: o.state,
         lat: o.lat,
         lng: o.lng,
+        resolved_address: o.resolved_address,
         provenance: o.provenance,
         name_provenance: o.name_provenance,
       },
@@ -219,6 +220,7 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
         state: d.state,
         lat: d.lat,
         lng: d.lng,
+        resolved_address: d.resolved_address,
         provenance: d.provenance,
         name_provenance: d.name_provenance,
       },

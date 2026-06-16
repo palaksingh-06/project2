@@ -13,6 +13,8 @@ interface ProvenanceInfo {
 
 interface ProvenanceData {
   meta: {
+    origin?: { name: string; lat: number; lng: number; resolved_address?: string };
+    destination?: { name: string; lat: number; lng: number; resolved_address?: string };
     inputs?: {
       geocode_origin?: ProvenanceInfo;
       geocode_origin_name?: ProvenanceInfo;
@@ -77,6 +79,37 @@ function ProvenanceRow({ name, p }: { name: string; p: ProvenanceInfo }) {
   );
 }
 
+// Shows the exact address string + decimal coordinates the geocoder resolved to,
+// so the user can verify whether a full address mapped to the real shop or just a
+// city center.
+function ResolvedLocation({
+  lat,
+  lng,
+  resolvedAddress,
+}: {
+  lat?: number;
+  lng?: number;
+  resolvedAddress?: string;
+}) {
+  if (lat == null && !resolvedAddress) return null;
+  return (
+    <div className="mt-1 rounded bg-slate-50 px-2 py-1 text-[10px] leading-relaxed text-slate-500">
+      {resolvedAddress && (
+        <div title={resolvedAddress}>
+          <span className="font-medium text-slate-600">Resolved: </span>
+          {resolvedAddress}
+        </div>
+      )}
+      {lat != null && lng != null && (
+        <div>
+          <span className="font-medium text-slate-600">Coordinates: </span>
+          {lat.toFixed(4)}, {lng.toFixed(4)}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ProvenancePanel({ result }: { result: ProvenanceData }) {
   const { meta } = result;
 
@@ -110,13 +143,33 @@ export function ProvenancePanel({ result }: { result: ProvenanceData }) {
       <SectionHeader title="Route inputs" />
       <div>
         {meta.inputs?.geocode_origin && (
-          <ProvenanceRow name="Origin coordinates" p={meta.inputs.geocode_origin} />
+          <div className="border-b border-slate-50 py-2">
+            <div className="flex items-start justify-between gap-3">
+              <span className="text-xs text-slate-700">Origin coordinates</span>
+              <ProvenanceBadge p={meta.inputs.geocode_origin as Provenance} showDetail />
+            </div>
+            <ResolvedLocation
+              lat={meta.origin?.lat}
+              lng={meta.origin?.lng}
+              resolvedAddress={meta.origin?.resolved_address}
+            />
+          </div>
         )}
         {meta.inputs?.geocode_origin_name && (
           <ProvenanceRow name="Origin name" p={meta.inputs.geocode_origin_name} />
         )}
         {meta.inputs?.geocode_destination && (
-          <ProvenanceRow name="Destination coordinates" p={meta.inputs.geocode_destination} />
+          <div className="border-b border-slate-50 py-2">
+            <div className="flex items-start justify-between gap-3">
+              <span className="text-xs text-slate-700">Destination coordinates</span>
+              <ProvenanceBadge p={meta.inputs.geocode_destination as Provenance} showDetail />
+            </div>
+            <ResolvedLocation
+              lat={meta.destination?.lat}
+              lng={meta.destination?.lng}
+              resolvedAddress={meta.destination?.resolved_address}
+            />
+          </div>
         )}
         {meta.inputs?.geocode_destination_name && (
           <ProvenanceRow name="Destination name" p={meta.inputs.geocode_destination_name} />

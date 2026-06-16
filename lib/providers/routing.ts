@@ -1,6 +1,7 @@
 import { getFallbackRates } from "@/lib/config";
 import type { Provenance } from "@/lib/zbc/provenance";
 import { haversineKm } from "@/lib/utils/haversine";
+import { canCallGoogle, recordGoogleCall } from "@/lib/providers/google-quota";
 
 export interface DistanceResult {
   distance_km: number;
@@ -15,8 +16,11 @@ async function routeGoogle(
   origin: { lat: number; lng: number },
   destination: { lat: number; lng: number },
   apiKey: string
-): Promise<DistanceResult | null> {
+): Promise<DistanceResult | "blocked" | null> {
   if (process.env.GOOGLE_ROUTES_ENABLED !== "true") return null;
+
+  // Airtight cap: stop calling Google once the monthly free tier is reached.
+  if (!canCallGoogle("routes")) return "blocked";
 
   try {
     const res = await fetch(
@@ -36,6 +40,8 @@ async function routeGoogle(
         signal: AbortSignal.timeout(10000),
       }
     );
+    recordGoogleCall("routes"); // billable request dispatched
+    if (res.status === 429) return "blocked";
     if (!res.ok) return null;
     const data = (await res.json()) as {
       routes?: { distanceMeters?: number; duration?: string }[];
@@ -101,16 +107,24 @@ export async function getRouteDistance(
   origin: { lat: number; lng: number },
   destination: { lat: number; lng: number }
 ): Promise<DistanceResult> {
+  let googleBlocked = false;
+
   const googleKey = process.env.GOOGLE_MAPS_API_KEY;
   if (googleKey) {
     const g = await routeGoogle(origin, destination, googleKey);
-    if (g) return g;
+    if (g === "blocked") googleBlocked = true;
+    else if (g) return g;
   }
 
   const orsKey = process.env.OPENROUTESERVICE_API_KEY;
   if (orsKey) {
     const o = await routeORS(origin, destination, orsKey);
-    if (o) return o;
+    if (o) {
+      // Flag as a fallback (red badge) only if Google was blocked by its cap.
+      return googleBlocked
+        ? { ...o, provenance: { kind: "error", label: "Google Routes limit reached → OpenRouteService", detail: o.provenance.label } }
+        : o;
+    }
   }
 
   const fallback = getFallbackRates();
@@ -122,10 +136,16 @@ export async function getRouteDistance(
   );
   return {
     distance_km: Math.round(straight * fallback.road_factor),
-    provenance: {
-      kind: "estimate",
-      label: "Straight-line × road factor",
-      detail: `config/fallback-rates.json (factor ${fallback.road_factor})`,
-    },
+    provenance: googleBlocked
+      ? {
+          kind: "error",
+          label: "Google Routes limit reached → estimate",
+          detail: `straight-line × ${fallback.road_factor}`,
+        }
+      : {
+          kind: "estimate",
+          label: "Straight-line × road factor",
+          detail: `config/fallback-rates.json (factor ${fallback.road_factor})`,
+        },
   };
 }

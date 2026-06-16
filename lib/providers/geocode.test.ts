@@ -1,5 +1,19 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { geocodeFromCache } from "@/lib/providers/geocode";
+import { geocodeFromCache, stripLeftmostSegment } from "@/lib/providers/geocode";
+
+describe("stripLeftmostSegment", () => {
+  it("drops the leftmost comma segment", () => {
+    expect(stripLeftmostSegment("B-45, Ground Floor, Royal Palm, Zirakpur, Punjab 140603"))
+      .toBe("Ground Floor, Royal Palm, Zirakpur, Punjab 140603");
+  });
+  it("strips progressively", () => {
+    expect(stripLeftmostSegment("Ground Floor, Royal Palm, Zirakpur, Punjab 140603"))
+      .toBe("Royal Palm, Zirakpur, Punjab 140603");
+  });
+  it("returns null when no comma remains", () => {
+    expect(stripLeftmostSegment("Zirakpur")).toBeNull();
+  });
+});
 
 describe("geocode", () => {
   afterEach(() => {
