@@ -5,4 +5,5 @@ node_modules
 *.log
 .DS_Store
 CLAUDE.md
-graphify-out
+.graphify-out
+HANDOFF.md

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CostBreakdownTable } from "@/components/CostBreakdownTable";
 import { downloadBatchExcel } from "@/lib/export/excel";
 import type { BatchRowResult } from "@/lib/export/excel";
+import { generateRouteMapHtml } from "@/lib/export/map";
 import type { ContributionCheck } from "@/lib/zbc/types";
 import type { BreakdownRow } from "@/components/CostBreakdownTable";
 
@@ -21,15 +22,32 @@ function formatInr(n: number) {
 interface BatchResultsTableProps {
   results: BatchRowResult[];
   apiErrors?: Array<{ rowNum: number; error: string }>;
+  onShowProvenance?: (result: BatchRowResult) => void;
 }
 
-export function BatchResultsTable({ results, apiErrors = [] }: BatchResultsTableProps) {
+export function BatchResultsTable({ results, apiErrors = [], onShowProvenance }: BatchResultsTableProps) {
   // Track which row is expanded to show the full CostBreakdownTable
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [showContribution, setShowContribution] = useState(true);
 
   // Grand total across all successfully calculated trips
   const grandTotal = results.reduce((sum, r) => sum + r.total, 0);
+
+  // Download the route map — only enabled when at least one result has a routeName and lat/lng
+  const hasMapData = results.some(
+    (r) => r.routeName && r.meta.origin.lat != null && r.meta.destination.lat != null
+  );
+
+  function handleDownloadMap() {
+    const html = generateRouteMapHtml(results);
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "route-map.html";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   return (
     <div className="space-y-4">
@@ -50,6 +68,15 @@ export function BatchResultsTable({ results, apiErrors = [] }: BatchResultsTable
             className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
           >
             Print / PDF
+          </button>
+          {/* Download Map — only visible when at least one row has a route_name and geocoded coordinates */}
+          <button
+            onClick={handleDownloadMap}
+            disabled={!hasMapData}
+            title={hasMapData ? "Download an interactive route map" : "Add route_name column to your CSV to enable this"}
+            className="rounded-lg border border-violet-400 bg-violet-50 px-3 py-1.5 text-sm text-violet-700 hover:bg-violet-100 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Download Map
           </button>
         </div>
       </div>
@@ -74,6 +101,8 @@ export function BatchResultsTable({ results, apiErrors = [] }: BatchResultsTable
               <th className="px-4 py-3">Distance</th>
               <th className="px-4 py-3">Days</th>
               <th className="px-4 py-3 text-right">Total ₹</th>
+              {/* Extra column header for provenance button — only rendered when handler is provided */}
+              {onShowProvenance && <th className="px-2 py-3" />}
             </tr>
           </thead>
           <tbody>
@@ -99,6 +128,18 @@ export function BatchResultsTable({ results, apiErrors = [] }: BatchResultsTable
                     <td className="px-4 py-3 text-right font-semibold tabular-nums">
                       {formatInr(r.total)}
                     </td>
+                    {/* ⓘ button — stops row expand-click propagation */}
+                    {onShowProvenance && (
+                      <td className="px-2 py-3">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onShowProvenance(r); }}
+                          className="text-xs text-slate-400 hover:text-slate-700"
+                          title="View data sources"
+                        >
+                          ⓘ
+                        </button>
+                      </td>
+                    )}
                   </tr>
 
                   {/* Expanded detail row — full 10-cost-head breakdown */}

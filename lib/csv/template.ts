@@ -5,7 +5,14 @@ export function getBatchCsvTemplate(): string {
     "length_ft",
     "axles",
     "origin",
+    "origin_lat_lng",
+    "origin_lat",
+    "origin_lng",
     "destination",
+    "destination_lat_lng",
+    "destination_lat",
+    "destination_lng",
+    "route_name",
     "payload_tons",
     "truck_model_id",
     "mileage_kmpl",
@@ -30,7 +37,14 @@ export function getBatchCsvTemplate(): string {
     "20",     // length_ft
     "2",      // axles
     "Delhi",  // origin
+    "",       // origin_lat_lng  (optional — e.g. 28.6139,77.2090)
+    "",       // origin_lat      (optional — use instead of origin_lat_lng)
+    "",       // origin_lng      (optional — use instead of origin_lat_lng)
     "Mumbai", // destination
+    "",       // destination_lat_lng  (optional — e.g. 19.0760,72.8777)
+    "",       // destination_lat      (optional — use instead of destination_lat_lng)
+    "",       // destination_lng      (optional — use instead of destination_lat_lng)
+    "",       // route_name           (optional — e.g. "Route 1" or "1"; rows sharing a value are connected on the map)
     "14",     // payload_tons
     "",       // truck_model_id (optional)
     "",       // mileage_kmpl (optional override)

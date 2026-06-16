@@ -6,7 +6,8 @@ import { getTollEstimate } from "@/lib/providers/tolls";
 import { buildCostHeadProvenance } from "@/lib/zbc/cost-head-provenance";
 import { calculateZBC, tripDays } from "@/lib/zbc/calculate";
 import { validateContributions } from "@/lib/zbc/validate";
-import type { RateOverrides } from "@/lib/zbc/types";
+import type { RateOverrides, CostHeadId } from "@/lib/zbc/types";
+import type { Provenance } from "@/lib/zbc/provenance";
 
 export interface CalculationRequest {
   truckId: string;
@@ -16,6 +17,14 @@ export interface CalculationRequest {
   tripType: string;
   payloadTons?: number;
   overrides?: RateOverrides;
+  // Optional provenance from CSV batch parsing — records which resolution tier was used
+  truckResolution?: {
+    truckId: string;
+    truckLabel: string;
+    modelId?: string;
+    modelLabel?: string;
+    tier?: "exact-model" | "alias" | "four-field" | "filtered";
+  };
 }
 
 export interface CalculationResponse {
@@ -26,12 +35,28 @@ export interface CalculationResponse {
   meta: {
     trip_days: number;
     distance_km: number;
-    origin: { name: string; state: string; provenance: unknown };
-    destination: { name: string; state: string; provenance: unknown };
-    inputs: unknown;
-    cost_heads: unknown;
+    origin: { name: string; state: string; lat: number; lng: number; provenance: Provenance; name_provenance?: Provenance };
+    destination: { name: string; state: string; lat: number; lng: number; provenance: Provenance; name_provenance?: Provenance };
+    inputs: {
+      geocode_origin: Provenance;
+      geocode_origin_name?: Provenance;
+      geocode_destination: Provenance;
+      geocode_destination_name?: Provenance;
+      distance: Provenance;
+      fuel: Provenance;
+      toll: Provenance;
+    };
+    cost_heads: Omit<Record<CostHeadId, Provenance>, "fuel">;
     toll: { plazas: number; highway?: string };
     fuel: { price_inr: number; state: string };
+    truck?: {
+      truck_id: string;
+      truck_label: string;
+      model_id?: string;
+      model_label?: string;
+      mileage_used: number;
+      provenance: Provenance;
+    };
   };
   warnings: string[];
 }
@@ -110,6 +135,38 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
     ? { mileage_kmpl: Math.round(model.mileage_kmpl * 0.7 * 100) / 100, ...overrides }
     : (overrides as RateOverrides | undefined);
 
+  // Human-readable labels for each resolution tier
+  const TIER_LABELS: Record<string, string> = {
+    "exact-model": "Exact model ID",
+    "alias": "Matched by alias map",
+    "four-field": "4-field match (body/capacity/length/axles)",
+    "filtered": "Filtered match",
+  };
+
+  // mileage from the model override if present, else 0 (unknown until calculate runs)
+  const mileageUsed = rateOverrides?.mileage_kmpl ?? 0;
+
+  // Build truck provenance — from CSV batch (truckResolution present) or from form input
+  const truckMeta = req.truckResolution
+    ? {
+        truck_id: req.truckResolution.truckId,
+        truck_label: req.truckResolution.truckLabel,
+        model_id: req.truckResolution.modelId,
+        model_label: req.truckResolution.modelLabel,
+        mileage_used: mileageUsed,
+        provenance: {
+          kind: "config" as const,
+          label: TIER_LABELS[req.truckResolution.tier ?? "filtered"] ?? "Resolved from CSV",
+        },
+      }
+    : {
+        truck_id: truckId,
+        truck_label: profile.label,
+        model_id: modelId,
+        mileage_used: mileageUsed,
+        provenance: { kind: "input" as const, label: "Selected in form" },
+      };
+
   const result = calculateZBC({
     truckId,
     profile,
@@ -129,8 +186,6 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
 
   const contributions = validateContributions(result);
   const costHeadProvenance = buildCostHeadProvenance({
-    distance: distanceResult.provenance,
-    fuel: fuel.provenance,
     toll: toll.provenance,
     overrides: rateOverrides,
   });
@@ -144,21 +199,7 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
         result.total_inr > 0
           ? Math.round((line.amount_inr / result.total_inr) * 1000) / 10
           : 0,
-      provenance: costHeadProvenance[line.id],
-      sources: {
-        ...(line.id === "fuel"
-          ? {
-              distance: `${distanceResult.provenance.label}${distanceResult.provenance.detail ? ` — ${distanceResult.provenance.detail}` : ""}`,
-              diesel: `${fuel.provenance.label}${fuel.provenance.detail ? ` — ${fuel.provenance.detail}` : ""}`,
-              ...(fuel.provenance.updated_at ? { diesel_updated: fuel.provenance.updated_at } : {}),
-            }
-          : {}),
-        ...(line.id === "toll"
-          ? {
-              toll: `${toll.provenance.label}${toll.provenance.detail ? ` — ${toll.provenance.detail}` : ""}`,
-            }
-          : {}),
-      },
+      provenance: costHeadProvenance[line.id as keyof typeof costHeadProvenance],
       ...(line.id === "toll" && toll.plazas_detail?.length
         ? { toll_plazas: toll.plazas_detail }
         : {}),
@@ -170,16 +211,24 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
       origin: {
         name: o.name,
         state: o.state,
+        lat: o.lat,
+        lng: o.lng,
         provenance: o.provenance,
+        name_provenance: o.name_provenance,
       },
       destination: {
         name: d.name,
         state: d.state,
+        lat: d.lat,
+        lng: d.lng,
         provenance: d.provenance,
+        name_provenance: d.name_provenance,
       },
       inputs: {
         geocode_origin: o.provenance,
+        geocode_origin_name: o.name_provenance,
         geocode_destination: d.provenance,
+        geocode_destination_name: d.name_provenance,
         distance: distanceResult.provenance,
         fuel: fuel.provenance,
         toll: toll.provenance,
@@ -193,6 +242,7 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
         price_inr: fuel.price_inr,
         state: fuel.state,
       },
+      truck: truckMeta,
     },
     warnings,
   };

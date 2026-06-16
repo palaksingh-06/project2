@@ -1,4 +1,40 @@
 import * as XLSX from "xlsx";
+import outletGeotags from "@/config/outlet-geotags.json";
+
+// ── Outlet name lookup by coordinates ──────────────────────────────────────────
+// The geocoder resolves coordinates to a coarse city name (e.g. "New Delhi").
+// For the Excel output we instead want the actual outlet name from the geotag
+// database. We match each origin/destination's lat/lng to the nearest known
+// outlet within a small tolerance, and fall back to the geocoded name otherwise.
+const OUTLETS = outletGeotags.outlets as { name: string; lat: number; lng: number }[];
+
+// ~0.0025° ≈ 275m. Wide enough to absorb the 4-decimal rounding in the CSV
+// coordinates, tight enough that two different outlets never collide.
+const OUTLET_MATCH_TOLERANCE_DEG = 0.0025;
+
+// Returns the name of the nearest outlet to the given coordinates, or null if
+// none is within tolerance. Uses a cheap squared-degree distance (no need for
+// true haversine at this scale — we only care about "is this the same point").
+function lookupOutletName(lat?: number, lng?: number): string | null {
+  if (lat === undefined || lng === undefined) return null;
+  let best: { name: string; dist: number } | null = null;
+  for (const o of OUTLETS) {
+    const dLat = o.lat - lat;
+    const dLng = o.lng - lng;
+    const dist = dLat * dLat + dLng * dLng;
+    if (best === null || dist < best.dist) best = { name: o.name, dist };
+  }
+  if (best && best.dist <= OUTLET_MATCH_TOLERANCE_DEG * OUTLET_MATCH_TOLERANCE_DEG) {
+    return best.name;
+  }
+  return null;
+}
+
+// Resolves the display name for a trip endpoint: prefer the matched outlet name,
+// otherwise fall back to whatever the geocoder resolved (city name).
+function endpointName(endpoint: { name: string; lat?: number; lng?: number }): string {
+  return lookupOutletName(endpoint.lat, endpoint.lng) ?? endpoint.name;
+}
 
 interface BreakdownRow {
   id: string;
@@ -17,8 +53,8 @@ interface CalculationResult {
   meta: {
     distance_km: number;
     trip_days: number;
-    origin: { name: string };
-    destination: { name: string };
+    origin: { name: string; lat?: number; lng?: number };
+    destination: { name: string; lat?: number; lng?: number };
     fuel: { price_inr: number; state: string };
     toll: { plazas: number };
   };
@@ -26,6 +62,8 @@ interface CalculationResult {
 
 export interface BatchRowResult extends CalculationResult {
   rowNum: number;
+  routeName?: string;
+  truckLabel?: string;
 }
 
 function buildRow(
@@ -33,8 +71,8 @@ function buildRow(
   extra: Record<string, string | number> = {}
 ): Record<string, string | number> {
   const row: Record<string, string | number> = {
-    Origin: result.meta.origin.name,
-    Destination: result.meta.destination.name,
+    Origin: endpointName(result.meta.origin),
+    Destination: endpointName(result.meta.destination),
     "Distance (km)": result.meta.distance_km,
     "Trip Days": result.meta.trip_days,
     "Diesel (₹/L)": result.meta.fuel.price_inr,
@@ -68,13 +106,21 @@ export function downloadSingleTripExcel(
 
 export function downloadBatchExcel(results: BatchRowResult[]): void {
   const sheetRows = results.map((r) =>
-    buildRow(r, { "Row #": r.rowNum })
+    buildRow(r, {
+      "Row #": r.rowNum,
+      // Include the resolved truck label if available so it shows near the front of the sheet
+      ...(r.truckLabel ? { Truck: r.truckLabel } : {}),
+    })
   );
 
-  // Move Row # to front
+  // Move Row # and Truck to the front of every row
   const reordered = sheetRows.map((r) => {
-    const { "Row #": rowNum, ...rest } = r;
-    return { "Row #": rowNum, ...rest };
+    const { "Row #": rowNum, Truck: truck, ...rest } = r as Record<string, string | number>;
+    return {
+      "Row #": rowNum,
+      ...(truck !== undefined ? { Truck: truck } : {}),
+      ...rest,
+    };
   });
 
   const ws = XLSX.utils.json_to_sheet(reordered);

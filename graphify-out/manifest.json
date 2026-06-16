@@ -1,0 +1,192 @@
+{
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\eslint.config.mjs": {
+    "mtime": 1779701992.416754,
+    "ast_hash": "2f26ccff4835259923101fd135752c03",
+    "semantic_hash": "2f26ccff4835259923101fd135752c03"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\next-env.d.ts": {
+    "mtime": 1779702341.7078993,
+    "ast_hash": "90426577ad8f38459f3e566411c85589",
+    "semantic_hash": "90426577ad8f38459f3e566411c85589"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\next.config.ts": {
+    "mtime": 1779701722.7028549,
+    "ast_hash": "7b720ff2e4f61ab0c06d69da8101dd12",
+    "semantic_hash": "7b720ff2e4f61ab0c06d69da8101dd12"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\package.json": {
+    "mtime": 1779702015.3804798,
+    "ast_hash": "79fc1d029eb6dde6c0eab3355964e6f4",
+    "semantic_hash": "79fc1d029eb6dde6c0eab3355964e6f4"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\postcss.config.mjs": {
+    "mtime": 1779701725.4320686,
+    "ast_hash": "d1283e7566e136247b268494a6a545eb",
+    "semantic_hash": "d1283e7566e136247b268494a6a545eb"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\tailwind.config.ts": {
+    "mtime": 1779701725.4439895,
+    "ast_hash": "50ac9076c7c18041f998dc8df03afbe6",
+    "semantic_hash": "50ac9076c7c18041f998dc8df03afbe6"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\tsconfig.json": {
+    "mtime": 1779701722.7068496,
+    "ast_hash": "a91a6bdac865397a8af6fdc55c8f924a",
+    "semantic_hash": "a91a6bdac865397a8af6fdc55c8f924a"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\vitest.config.ts": {
+    "mtime": 1779701728.9547906,
+    "ast_hash": "5cab661f85dbd25b839e36021723f95b",
+    "semantic_hash": "5cab661f85dbd25b839e36021723f95b"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\app\\layout.tsx": {
+    "mtime": 1779705559.569795,
+    "ast_hash": "ce8de63a30f43331f6f9b654dd483d8b",
+    "semantic_hash": "ce8de63a30f43331f6f9b654dd483d8b"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\app\\page.tsx": {
+    "mtime": 1779708112.315873,
+    "ast_hash": "0f25a9e193e0dbaefdf91a27a9298694",
+    "semantic_hash": "0f25a9e193e0dbaefdf91a27a9298694"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\app\\api\\calculate\\route.ts": {
+    "mtime": 1779708086.1758578,
+    "ast_hash": "bb7e1b2789e8d3a2214ddf2f25f4c9fd",
+    "semantic_hash": "bb7e1b2789e8d3a2214ddf2f25f4c9fd"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\app\\api\\cities\\route.ts": {
+    "mtime": 1779701926.7608466,
+    "ast_hash": "408cfac3e6833a6975f885d3663ac074",
+    "semantic_hash": "408cfac3e6833a6975f885d3663ac074"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\components\\BreakdownChart.tsx": {
+    "mtime": 1779701922.6028316,
+    "ast_hash": "f72efcf6015b634887095dff6c667d5d",
+    "semantic_hash": "f72efcf6015b634887095dff6c667d5d"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\components\\ContributionBadge.tsx": {
+    "mtime": 1779701913.4251182,
+    "ast_hash": "7d260d15f39fe73b57908dd755de9fd0",
+    "semantic_hash": "7d260d15f39fe73b57908dd755de9fd0"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\components\\CostBreakdownTable.tsx": {
+    "mtime": 1779708095.0229504,
+    "ast_hash": "2a77849d0efa5053fe45222ea62b8798",
+    "semantic_hash": "2a77849d0efa5053fe45222ea62b8798"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\components\\DataSourcesPanel.tsx": {
+    "mtime": 1779708064.794152,
+    "ast_hash": "6618ac3f29ab98fbf56e3b6ed25f822f",
+    "semantic_hash": "6618ac3f29ab98fbf56e3b6ed25f822f"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\components\\ProvenanceBadge.tsx": {
+    "mtime": 1779708038.1792514,
+    "ast_hash": "58f354d2abb1a227d1324eba57e2a1d0",
+    "semantic_hash": "58f354d2abb1a227d1324eba57e2a1d0"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\components\\TripForm.tsx": {
+    "mtime": 1779701954.0892787,
+    "ast_hash": "a15a5fd55c281a0c0699be7dfcc4fddc",
+    "semantic_hash": "a15a5fd55c281a0c0699be7dfcc4fddc"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\config\\cities-cache.json": {
+    "mtime": 1779701777.8072395,
+    "ast_hash": "a44ddc13d362e7945a3c1605fc13ffb0",
+    "semantic_hash": "a44ddc13d362e7945a3c1605fc13ffb0"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\config\\fallback-rates.json": {
+    "mtime": 1779701757.6684475,
+    "ast_hash": "b5e7487ac1c0e4ce180a1bfa28f2faf6",
+    "semantic_hash": "b5e7487ac1c0e4ce180a1bfa28f2faf6"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\config\\truck-rates.json": {
+    "mtime": 1779701751.2457628,
+    "ast_hash": "2bcd3f9eff1b9d11aec716e9f72d57b1",
+    "semantic_hash": "2bcd3f9eff1b9d11aec716e9f72d57b1"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\lib\\config.ts": {
+    "mtime": 1779701784.9170673,
+    "ast_hash": "5d5828f3ef8db3035ef9d24fc5964b50",
+    "semantic_hash": "5d5828f3ef8db3035ef9d24fc5964b50"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\lib\\providers\\fuel.test.ts": {
+    "mtime": 1779706593.0040405,
+    "ast_hash": "d1c04d115e90141f2752e63956ad01f4",
+    "semantic_hash": "d1c04d115e90141f2752e63956ad01f4"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\lib\\providers\\fuel.ts": {
+    "mtime": 1779708017.1024663,
+    "ast_hash": "12fc91ea971dafbcca54d77cd91c82d5",
+    "semantic_hash": "12fc91ea971dafbcca54d77cd91c82d5"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\lib\\providers\\geocode.ts": {
+    "mtime": 1779707991.8965921,
+    "ast_hash": "c83ce774741aca5f137d50d8c3a2083b",
+    "semantic_hash": "c83ce774741aca5f137d50d8c3a2083b"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\lib\\providers\\routing.ts": {
+    "mtime": 1779708000.717521,
+    "ast_hash": "69d0d3882f0b661bcc847ce60c62e619",
+    "semantic_hash": "69d0d3882f0b661bcc847ce60c62e619"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\lib\\providers\\tolls.ts": {
+    "mtime": 1779708020.3622065,
+    "ast_hash": "58702a8581a92c070f29e35a8069e7c4",
+    "semantic_hash": "58702a8581a92c070f29e35a8069e7c4"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\lib\\utils\\haversine.ts": {
+    "mtime": 1779701853.717417,
+    "ast_hash": "017a39c57519c2a16fe53d2938f81bf8",
+    "semantic_hash": "017a39c57519c2a16fe53d2938f81bf8"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\lib\\utils\\spellcheck.test.ts": {
+    "mtime": 1779702007.117759,
+    "ast_hash": "b25d1730839f057d3cdb1f5ff15e9018",
+    "semantic_hash": "b25d1730839f057d3cdb1f5ff15e9018"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\lib\\utils\\spellcheck.ts": {
+    "mtime": 1779702290.0511951,
+    "ast_hash": "b84a82a97b5aad0c72ca7c4961af2ed1",
+    "semantic_hash": "b84a82a97b5aad0c72ca7c4961af2ed1"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\lib\\zbc\\calculate.test.ts": {
+    "mtime": 1779708118.1860585,
+    "ast_hash": "22d324b83e0ee04500c040c5d0a80c2b",
+    "semantic_hash": "22d324b83e0ee04500c040c5d0a80c2b"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\lib\\zbc\\calculate.ts": {
+    "mtime": 1779701850.3678436,
+    "ast_hash": "1478010efc21ec06579c259f9a89f7b2",
+    "semantic_hash": "1478010efc21ec06579c259f9a89f7b2"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\lib\\zbc\\cost-head-provenance.ts": {
+    "mtime": 1779708035.0725665,
+    "ast_hash": "3e42208c52172b1d5aafde69cbf8dc03",
+    "semantic_hash": "3e42208c52172b1d5aafde69cbf8dc03"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\lib\\zbc\\provenance.ts": {
+    "mtime": 1779707981.5718253,
+    "ast_hash": "2d7c177e7a1d533b011462fc1e0f2cb7",
+    "semantic_hash": "2d7c177e7a1d533b011462fc1e0f2cb7"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\lib\\zbc\\types.ts": {
+    "mtime": 1779707982.7584429,
+    "ast_hash": "ae7b859f1bdd36103bb2ed239522c064",
+    "semantic_hash": "ae7b859f1bdd36103bb2ed239522c064"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\lib\\zbc\\validate.ts": {
+    "mtime": 1779701827.9694586,
+    "ast_hash": "4e0e56f345e3593e788547585a7452be",
+    "semantic_hash": "4e0e56f345e3593e788547585a7452be"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\README.md": {
+    "mtime": 1779706596.256635,
+    "ast_hash": "bd934c4b9fa9ca9deef14e4b95e6a60d",
+    "semantic_hash": "bd934c4b9fa9ca9deef14e4b95e6a60d"
+  },
+  "C:\\Users\\bhavika.garg\\Desktop\\zero-based-costing\\config\\README.md": {
+    "mtime": 1779706598.3817828,
+    "ast_hash": "679fb8566419e6b7faef191fcef9525b",
+    "semantic_hash": "679fb8566419e6b7faef191fcef9525b"
+  }
+}

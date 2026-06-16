@@ -383,6 +383,60 @@
       "truck_class": "40ft_closed",
       "mileage_kmpl": 3.2,
       "payload_tons": 35.0
+    },
+    "tata-ace-carry": {
+      "label": "Tata Ace Carry",
+      "truck_class": "9ft_1T_open",
+      "mileage_kmpl": 22.0,
+      "payload_tons": 0.8
+    },
+    "maruti-super-carry-diesel": {
+      "label": "Maruti Suzuki Super Carry Diesel",
+      "truck_class": "7ft_07T_closed",
+      "mileage_kmpl": 22.07,
+      "payload_tons": 0.7
+    },
+    "mahindra-bolero-pikup-es": {
+      "label": "Mahindra Bolero Pik-Up ExtraStrong",
+      "truck_class": "bolero_open",
+      "mileage_kmpl": 14.3,
+      "payload_tons": 1.5
+    },
+    "mahindra-veero": {
+      "label": "Mahindra Veero Diesel",
+      "truck_class": "bolero_open",
+      "mileage_kmpl": 18.4,
+      "payload_tons": 1.4
+    },
+    "tata-intra-v30": {
+      "label": "Tata Intra V30",
+      "truck_class": "bolero_open",
+      "mileage_kmpl": 15.5,
+      "payload_tons": 1.3
+    },
+    "tata-intra-v50": {
+      "label": "Tata Intra V50",
+      "truck_class": "bolero_open",
+      "mileage_kmpl": 19.5,
+      "payload_tons": 1.5
+    },
+    "ashok-leyland-dost-plus": {
+      "label": "Ashok Leyland Dost Plus",
+      "truck_class": "bolero_open",
+      "mileage_kmpl": 19.6,
+      "payload_tons": 1.25
+    },
+    "eicher-pro-1059": {
+      "label": "Eicher Pro 1059",
+      "truck_class": "14ft_lcv_3T_open",
+      "mileage_kmpl": 11.5,
+      "payload_tons": 3.5
+    },
+    "tata-ultra-814": {
+      "label": "Tata Ultra 814",
+      "truck_class": "14ft_lcv_3T_open",
+      "mileage_kmpl": 12.5,
+      "payload_tons": 3.5
     }
   }
 }

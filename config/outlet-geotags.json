@@ -1,0 +1,444 @@
+{
+  "outlets": [
+    {
+      "name": "ZIRAKPUR",
+      "lat": 30.6425,
+      "lng": 76.8265
+    },
+    {
+      "name": "WORLD STREET",
+      "lat": 28.4116,
+      "lng": 77.3493
+    },
+    {
+      "name": "VEDANTAM RAJ NAGAR",
+      "lat": 28.6811,
+      "lng": 77.4538
+    },
+    {
+      "name": "VATIKA CITY CENTER, AMBALA",
+      "lat": 30.3442,
+      "lng": 76.8402
+    },
+    {
+      "name": "VASUNDHARA",
+      "lat": 28.6608,
+      "lng": 77.3573
+    },
+    {
+      "name": "VASANT VIHAR",
+      "lat": 28.5604,
+      "lng": 77.1616
+    },
+    {
+      "name": "VAISHALI NAGAR JAIPUR",
+      "lat": 26.9076,
+      "lng": 75.7481
+    },
+    {
+      "name": "V3S MALL",
+      "lat": 28.6385,
+      "lng": 77.2917
+    },
+    {
+      "name": "URBANA GURGAON",
+      "lat": 28.4022,
+      "lng": 77.0673
+    },
+    {
+      "name": "SULTANPUR",
+      "lat": 28.4988,
+      "lng": 77.1423
+    },
+    {
+      "name": "SUKHMANI SQUARE",
+      "lat": 30.6942,
+      "lng": 76.8617
+    },
+    {
+      "name": "SUBHASH NAGAR ROHTAK",
+      "lat": 28.8955,
+      "lng": 76.6066
+    },
+    {
+      "name": "SOUTH EX",
+      "lat": 28.5693,
+      "lng": 77.2194
+    },
+    {
+      "name": "Sonipat QC",
+      "lat": 28.9948,
+      "lng": 77.0194
+    },
+    {
+      "name": "SELECT CITY MALL",
+      "lat": 28.5287,
+      "lng": 77.2195
+    },
+    {
+      "name": "Sector-10A Gurgaon",
+      "lat": 28.4552,
+      "lng": 77.0161
+    },
+    {
+      "name": "SECTOR-10 PANCHKULA",
+      "lat": 30.6865,
+      "lng": 76.8521
+    },
+    {
+      "name": "SECTOR 9 - CHD",
+      "lat": 30.7466,
+      "lng": 76.7914
+    },
+    {
+      "name": "SECTOR 77 NOIDA",
+      "lat": 28.5696,
+      "lng": 77.386
+    },
+    {
+      "name": "SECTOR 35C - CHD",
+      "lat": 30.7247,
+      "lng": 76.7642
+    },
+    {
+      "name": "SECTOR 21C FARIDABAD",
+      "lat": 28.4239,
+      "lng": 77.2974
+    },
+    {
+      "name": "Sector 150, Noida",
+      "lat": 28.4419,
+      "lng": 77.4697
+    },
+    {
+      "name": "SECTOR 14, GURGAON",
+      "lat": 28.4731,
+      "lng": 77.0425
+    },
+    {
+      "name": "SECTOR 11 ROHINI",
+      "lat": 28.7214,
+      "lng": 77.1132
+    },
+    {
+      "name": "SECTOR 104, NOIDA",
+      "lat": 28.5348,
+      "lng": 77.3735
+    },
+    {
+      "name": "SDA",
+      "lat": 28.5463,
+      "lng": 77.2023
+    },
+    {
+      "name": "ROHINI",
+      "lat": 28.7095,
+      "lng": 77.12
+    },
+    {
+      "name": "RDC RAJ NAGAR",
+      "lat": 28.6791,
+      "lng": 77.4491
+    },
+    {
+      "name": "RANIPUR MORE,HARIDWAR",
+      "lat": 29.9372,
+      "lng": 78.1407
+    },
+    {
+      "name": "RAJPUR ROAD, DEHRADUN",
+      "lat": 30.3472,
+      "lng": 78.0583
+    },
+    {
+      "name": "RAJOURI GARDEN",
+      "lat": 28.6415,
+      "lng": 77.1209
+    },
+    {
+      "name": "PUNJABI BAGH",
+      "lat": 28.6675,
+      "lng": 77.1325
+    },
+    {
+      "name": "PALAM VIHAR",
+      "lat": 28.5085,
+      "lng": 77.0315
+    },
+    {
+      "name": "NSP",
+      "lat": 28.6921,
+      "lng": 77.1515
+    },
+    {
+      "name": "NFC",
+      "lat": 28.5621,
+      "lng": 77.2731
+    },
+    {
+      "name": "NAJAFGARH",
+      "lat": 28.609,
+      "lng": 76.9855
+    },
+    {
+      "name": "MORNA CLK",
+      "lat": 28.5772,
+      "lng": 77.3444
+    },
+    {
+      "name": "MODEL TOWN, PANIPAT",
+      "lat": 29.3905,
+      "lng": 76.9635
+    },
+    {
+      "name": "MODEL TOWN JALANDHAR",
+      "lat": 31.3113,
+      "lng": 75.5876
+    },
+    {
+      "name": "MODEL TOWN",
+      "lat": 28.697,
+      "lng": 77.1934
+    },
+    {
+      "name": "MAYUR VIHAR",
+      "lat": 28.6041,
+      "lng": 77.2941
+    },
+    {
+      "name": "MANSAROVAR JAIPUR",
+      "lat": 26.8529,
+      "lng": 75.7588
+    },
+    {
+      "name": "MALVIYA NAGAR",
+      "lat": 28.5367,
+      "lng": 77.2081
+    },
+    {
+      "name": "MALL OF INDIA",
+      "lat": 28.5677,
+      "lng": 77.3214
+    },
+    {
+      "name": "LOGIX MALL",
+      "lat": 28.5742,
+      "lng": 77.3411
+    },
+    {
+      "name": "LEELA BHAWAN PATIALA",
+      "lat": 30.3391,
+      "lng": 76.3869
+    },
+    {
+      "name": "KUNJPURA ROAD, KARNAL",
+      "lat": 29.6864,
+      "lng": 76.9942
+    },
+    {
+      "name": "KIPPS MARKET LUDHIANA",
+      "lat": 30.8926,
+      "lng": 75.8156
+    },
+    {
+      "name": "Kharar",
+      "lat": 30.7416,
+      "lng": 76.6521
+    },
+    {
+      "name": "KASHMERE GATE",
+      "lat": 28.6675,
+      "lng": 77.2284
+    },
+    {
+      "name": "KAMLA NAGAR",
+      "lat": 28.6811,
+      "lng": 77.2031
+    },
+    {
+      "name": "JANAKPURI",
+      "lat": 28.6219,
+      "lng": 77.0878
+    },
+    {
+      "name": "JAGATPURA",
+      "lat": 26.8242,
+      "lng": 75.8647
+    },
+    {
+      "name": "IRIS BROADWAY",
+      "lat": 28.4005,
+      "lng": 76.9614
+    },
+    {
+      "name": "INDIRAPURAM",
+      "lat": 28.6364,
+      "lng": 77.3661
+    },
+    {
+      "name": "INDIRA NAGAR COLONY",
+      "lat": 30.3386,
+      "lng": 77.9944
+    },
+    {
+      "name": "IGI DELHI AIRPORT T1",
+      "lat": 28.5638,
+      "lng": 77.1211
+    },
+    {
+      "name": "IGI AIRPORT T3 METRO STATION",
+      "lat": 28.5562,
+      "lng": 77.0852
+    },
+    {
+      "name": "IGI AIRPORT T3 DEPARTURE",
+      "lat": 28.5569,
+      "lng": 77.0855
+    },
+    {
+      "name": "IGI AIRPORT T3 ARRIVAL M&G AREA",
+      "lat": 28.5555,
+      "lng": 77.0841
+    },
+    {
+      "name": "IGI AIRPORT T3 ARRIVAL",
+      "lat": 28.5552,
+      "lng": 77.0838
+    },
+    {
+      "name": "GOLDEN I NOIDA",
+      "lat": 28.5714,
+      "lng": 77.4572
+    },
+    {
+      "name": "GK2",
+      "lat": 28.5303,
+      "lng": 77.2432
+    },
+    {
+      "name": "GK1",
+      "lat": 28.5424,
+      "lng": 77.2343
+    },
+    {
+      "name": "GAUR CITY MALL",
+      "lat": 28.6084,
+      "lng": 77.4304
+    },
+    {
+      "name": "GARH ROAD, MEERUT",
+      "lat": 28.9826,
+      "lng": 77.7275
+    },
+    {
+      "name": "GALLERIA",
+      "lat": 28.4669,
+      "lng": 77.0805
+    },
+    {
+      "name": "FATEHABAD RD AGRA",
+      "lat": 27.1612,
+      "lng": 78.0462
+    },
+    {
+      "name": "FARIDABAD SECTOR 15",
+      "lat": 28.4111,
+      "lng": 77.3168
+    },
+    {
+      "name": "ELANTE MALL",
+      "lat": 30.7056,
+      "lng": 76.8013
+    },
+    {
+      "name": "EAST PATEL NAGAR",
+      "lat": 28.6444,
+      "lng": 77.1718
+    },
+    {
+      "name": "DWARKA",
+      "lat": 28.5921,
+      "lng": 77.0622
+    },
+    {
+      "name": "DURGAPURI SHAHADRA",
+      "lat": 28.6892,
+      "lng": 77.2911
+    },
+    {
+      "name": "DEFENCE COLONY",
+      "lat": 28.5742,
+      "lng": 77.2244
+    },
+    {
+      "name": "CYBER HUB",
+      "lat": 28.4951,
+      "lng": 77.0886
+    },
+    {
+      "name": "CONSCIENT ONE MALL",
+      "lat": 28.5135,
+      "lng": 77.0142
+    },
+    {
+      "name": "CONNAUGHT PLACE",
+      "lat": 28.6304,
+      "lng": 77.2177
+    },
+    {
+      "name": "CHURCH ROAD, AGRA",
+      "lat": 27.1979,
+      "lng": 78.0076
+    },
+    {
+      "name": "CHI 5 CLK",
+      "lat": 28.4411,
+      "lng": 77.5115
+    },
+    {
+      "name": "CHANDER NAGAR GHAZIABAD",
+      "lat": 28.6653,
+      "lng": 77.3371
+    },
+    {
+      "name": "CENTRAL PLAZA",
+      "lat": 28.4402,
+      "lng": 77.0963
+    },
+    {
+      "name": "C SCHEME JAIPUR",
+      "lat": 26.9116,
+      "lng": 75.8022
+    },
+    {
+      "name": "BAANI SQUARE",
+      "lat": 28.4138,
+      "lng": 77.0658
+    },
+    {
+      "name": "ASSOTECH NOIDA",
+      "lat": 28.5289,
+      "lng": 77.3894
+    },
+    {
+      "name": "ARDEE MALL",
+      "lat": 28.4447,
+      "lng": 77.0789
+    },
+    {
+      "name": "ALPHA-II",
+      "lat": 28.4735,
+      "lng": 77.5054
+    },
+    {
+      "name": "3B2 MOHALI",
+      "lat": 30.7093,
+      "lng": 76.7226
+    },
+    {
+      "name": "Theobroma Warehouse (Noida)",
+      "lat": 28.516164547960138,
+      "lng": 77.42016145299019
+    }
+  ]
+}

@@ -11,9 +11,17 @@ import {
   type CalculateRequest,
 } from "@/components/TripForm";
 import { downloadSingleTripExcel } from "@/lib/export/excel";
+import { ProvenanceDrawer } from "@/components/ProvenanceDrawer";
 import type { ContributionCheck } from "@/lib/zbc/types";
 import type { BreakdownRow } from "@/components/CostBreakdownTable";
 import type { BatchRowResult } from "@/lib/export/excel";
+
+interface ProvenanceInfo {
+  kind: string;
+  label: string;
+  detail?: string;
+  updated_at?: string;
+}
 
 interface CalculateResponse {
   total: number;
@@ -23,10 +31,28 @@ interface CalculateResponse {
   meta: {
     trip_days: number;
     distance_km: number;
-    origin: { name: string; state: string };
-    destination: { name: string; state: string };
+    origin: { name: string; state: string; lat?: number; lng?: number; provenance?: ProvenanceInfo; name_provenance?: ProvenanceInfo };
+    destination: { name: string; state: string; lat?: number; lng?: number; provenance?: ProvenanceInfo; name_provenance?: ProvenanceInfo };
+    inputs?: {
+      geocode_origin?: ProvenanceInfo;
+      geocode_origin_name?: ProvenanceInfo;
+      geocode_destination?: ProvenanceInfo;
+      geocode_destination_name?: ProvenanceInfo;
+      distance?: ProvenanceInfo;
+      fuel?: ProvenanceInfo;
+      toll?: ProvenanceInfo;
+    };
+    cost_heads?: Record<string, ProvenanceInfo>;
     toll: { plazas: number; highway?: string };
     fuel: { price_inr: number; state: string };
+    truck?: {
+      truck_id: string;
+      truck_label: string;
+      model_id?: string;
+      model_label?: string;
+      mileage_used: number;
+      provenance: ProvenanceInfo;
+    };
   };
   error?: string;
   suggestions?: string[];
@@ -52,6 +78,9 @@ export default function HomePage() {
   // Batch state
   const [tab, setTab] = useState<"single" | "batch">("single");
   const [batchResults, setBatchResults] = useState<BatchRowResult[]>([]);
+
+  // Provenance drawer state — holds whichever result row the user clicked "View data sources" on
+  const [provenanceResult, setProvenanceResult] = useState<CalculateResponse | null>(null);
 
   const truckRates = truckRatesJson.trucks;
 
@@ -232,6 +261,15 @@ export default function HomePage() {
                 contributions={result.contributions}
                 showContribution={showContribution}
               />
+
+              {/* Link to open the provenance drawer */}
+              <button
+                onClick={() => setProvenanceResult(result)}
+                className="text-sm text-slate-500 underline hover:text-slate-700"
+                data-print="hide"
+              >
+                View data sources
+              </button>
             </>
           )}
 
@@ -244,7 +282,10 @@ export default function HomePage() {
 
           {/* Batch results */}
           {tab === "batch" && batchResults.length > 0 && (
-            <BatchResultsTable results={batchResults} />
+            <BatchResultsTable
+              results={batchResults}
+              onShowProvenance={(r) => setProvenanceResult(r as unknown as CalculateResponse)}
+            />
           )}
 
           {/* Batch empty state */}
@@ -255,6 +296,13 @@ export default function HomePage() {
           )}
         </section>
       </div>
+
+      {/* Provenance drawer — slides in from the right over any tab */}
+      <ProvenanceDrawer
+        open={provenanceResult !== null}
+        onClose={() => setProvenanceResult(null)}
+        result={provenanceResult}
+      />
     </main>
   );
 }

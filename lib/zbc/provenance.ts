@@ -1,6 +1,6 @@
 /** How a value was obtained — never use vague "live" for config data */
 
-export type ProvenanceKind = "api" | "config" | "estimate";
+export type ProvenanceKind = "api" | "config" | "estimate" | "input";
 
 export interface Provenance {
   kind: ProvenanceKind;
@@ -32,6 +32,11 @@ export const PROVENANCE_LEGEND: {
     title: "Estimate",
     description: "Formula or benchmark when no API/config corridor exists",
   },
+  {
+    kind: "input",
+    title: "Provided",
+    description: "Supplied in the request / CSV — not fetched or assumed",
+  },
 ];
 
 export function provenanceBadgeClass(kind: ProvenanceKind): string {
@@ -42,6 +47,8 @@ export function provenanceBadgeClass(kind: ProvenanceKind): string {
       return "bg-slate-200 text-slate-800";
     case "estimate":
       return "bg-amber-100 text-amber-800";
+    case "input":
+      return "bg-sky-100 text-sky-800";
   }
 }
 

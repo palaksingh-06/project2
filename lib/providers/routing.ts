@@ -8,11 +8,16 @@ export interface DistanceResult {
   duration_hours?: number;
 }
 
+// ── Google Routes API toggle ──────────────────────────────────────────────────
+// Controlled by GOOGLE_ROUTES_ENABLED env variable. While off, distance falls
+// through to OpenRouteService (if keyed) then the straight-line × road-factor estimate.
 async function routeGoogle(
   origin: { lat: number; lng: number },
   destination: { lat: number; lng: number },
   apiKey: string
 ): Promise<DistanceResult | null> {
+  if (process.env.GOOGLE_ROUTES_ENABLED !== "true") return null;
+
   try {
     const res = await fetch(
       "https://routes.googleapis.com/directions/v2:computeRoutes",

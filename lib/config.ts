@@ -2,6 +2,7 @@ import citiesCache from "@/config/cities-cache.json";
 import fallbackRates from "@/config/fallback-rates.json";
 import truckModels from "@/config/truck-models.json";
 import truckRates from "@/config/truck-rates.json";
+import truckAliases from "@/config/truck-aliases.json";
 import type { TruckProfile, TruckRatesConfig } from "@/lib/zbc/types";
 
 export interface TruckModel {
@@ -57,4 +58,10 @@ export function getTruckModels(): Record<string, TruckModel> {
 
 export function getTruckModel(modelId: string): TruckModel | null {
   return (truckModels.models as Record<string, TruckModel>)[modelId] ?? null;
+}
+
+// Returns the editable alias map: human-friendly keyword → model ID or truck-class ID.
+// Used to resolve freeform truck_model_id text like "Bolero-Pickup" or "Intra".
+export function getTruckAliases(): Record<string, string> {
+  return truckAliases.aliases as Record<string, string>;
 }

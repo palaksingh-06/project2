@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theobroma Outlets Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+:root{
+  --bg:#f4f6fa; --surface:#ffffff; --surface2:#eef1f6;
+  --border:rgba(0,0,0,0.10); --text:#1a2235; --muted:#64748b;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:'DM Sans',system-ui,sans-serif;}
+body{display:flex;flex-direction:column;}
+
+/* ── Header ── */
+header{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 20px;min-height:56px;display:flex;align-items:center;gap:12px;
+  z-index:1000;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,0.08);
+  flex-wrap:wrap;
+}
+header h1{font-size:15px;font-weight:700;letter-spacing:0.5px;color:var(--text);}
+header .sub{font-size:12px;color:var(--muted);margin-top:1px;}
+.header-title{display:flex;align-items:center;gap:10px;margin-right:auto;}
+
+/* ── Cluster dropdown ── */
+#clusterSelect{
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:5px 10px;font-size:12px;color:var(--text);cursor:pointer;
+  box-shadow:0 1px 3px rgba(0,0,0,0.07);
+}
+#clusterSelect:focus{outline:none;border-color:#1565C0;}
+
+/* ── Show-names toggle ── */
+.toggle-label{
+  display:flex;align-items:center;gap:6px;cursor:pointer;
+  user-select:none;font-size:12px;color:var(--muted);
+}
+.toggle-label input[type=checkbox]{width:14px;height:14px;accent-color:#7c3aed;}
+
+/* ── Counter badge ── */
+.counter-badge{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:5px 12px;font-size:12px;color:var(--muted);
+  white-space:nowrap;
+}
+.counter-badge span{font-weight:700;color:var(--text);font-size:13px;}
+
+#map{flex:1;}
+
+/* ── Legend ── */
+.legend{
+  background:rgba(255,255,255,0.97);border:1px solid var(--border);
+  border-radius:10px;padding:12px 16px;min-width:185px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.10);
+}
+.legend-title{font-size:10px;font-weight:700;letter-spacing:1.2px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:12px;
+  color:var(--text);margin-bottom:7px;}
+.legend-item:last-child{margin-bottom:0;}
+.leg-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.leg-tri{width:0;height:0;border-left:7px solid transparent;
+  border-right:7px solid transparent;border-bottom:13px solid #1565C0;flex-shrink:0;}
+.leg-sep{margin:8px 0;border-top:1px solid #e2e8f0;padding-top:8px;}
+
+/* ── Popup ── */
+.leaflet-popup-content-wrapper{
+  background:#fff;color:var(--text);border:1px solid var(--border);
+  border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.12);padding:0;
+}
+.leaflet-popup-tip{background:#fff;}
+.leaflet-popup-content{margin:0;}
+.popup-inner{padding:12px 14px;min-width:190px;}
+.popup-name{font-weight:700;font-size:13px;margin-bottom:3px;}
+.popup-cluster{font-size:11px;color:var(--muted);margin-bottom:6px;}
+.popup-dist{display:inline-block;font-size:12px;font-weight:600;
+  padding:2px 8px;border-radius:12px;color:#fff;}
+.popup-addr{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4;}
+.popup-ck-name{font-weight:700;font-size:13px;color:#1565C0;margin-bottom:2px;}
+.popup-ck-sub{font-size:11px;color:var(--muted);}
+
+/* ── Name label tooltips ── */
+.leaflet-tooltip.name-label{
+  background:rgba(255,255,255,0.93);border:1px solid #cbd5e1;
+  border-radius:5px;color:#1a2235;font-size:10px;padding:2px 6px;
+  white-space:nowrap;box-shadow:none;
+}
+.leaflet-tooltip.name-label::before{display:none;}
+</style>
+</head>
+<body>
+<header>
+  <!-- Brand -->
+  <div class="header-title">
+    <img src="data:image/png;base64,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" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;" alt="Logo">
+    <div>
+      <h1>Theobroma — Outlet Network Map</h1>
+      <div class="sub">NCR outlets colour-coded by road distance from Central Kitchen · Non-NCR in purple</div>
+    </div>
+  </div>
+
+  <!-- Cluster filter dropdown (replaces the old button strip) -->
+  <select id="clusterSelect">
+    <option value="all">All clusters</option>
+  </select>
+
+  <!-- Show outlet name labels toggle -->
+  <label class="toggle-label">
+    <input type="checkbox" id="showNames">
+    Show names
+  </label>
+
+  <!-- Live outlet counter -->
+  <div class="counter-badge"><span id="cnt">0</span> outlets</div>
+</header>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── Data ─────────────────────────────────────────────────────────────────────
+// Add "route" field to any marker to group it into an animated route line.
+// Values like "1", "Route 1", "2" etc. Markers sharing the same value will
+// be connected in shortest-path order when you click on any of them.
+var CK      = {"lat": 28.493, "lng": 77.382, "name": "Central Kitchen", "sub": "Sector-140, Noida"};
+var MARKERS = [
+  {"name": "ZIRAKPUR", "cluster": "Chandigarh Region", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "B-45, Ground Floor, Royal Palm High Street Market, VIP Road, Zirakpur, Punjab 140603", "lat": 30.6425, "lng": 76.8265, "route": ""},
+  {"name": "WORLD STREET", "cluster": "Ghaziabad & Faridabad", "dist_km": 22.8, "dist_str": "22.8 km from CK", "color": "#d97706", "address": "Omaxe World Street, Sector 79, Faridabad - 121002", "lat": 28.4116, "lng": 77.3493, "route": ""},
+  {"name": "VEDANTAM RAJ NAGAR", "cluster": "Ghaziabad & Faridabad", "dist_km": 34.6, "dist_str": "34.6 km from CK", "color": "#d97706", "address": "Shop UGF 05, Raj Nagar Extension, Ghaziabad - 201017", "lat": 28.6811, "lng": 77.4538, "route": ""},
+  {"name": "VATIKA CITY CENTER, AMBALA", "cluster": "Haryana / Punjab", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Shop No. Unit No. 02, Ground Floor, Urban Village, Vatika City Center, Sector 23, Ambala, Haryana 134003", "lat": 30.3442, "lng": 76.8402, "route": ""},
+  {"name": "VASUNDHARA", "cluster": "Ghaziabad & Faridabad", "dist_km": 25.1, "dist_str": "25.1 km from CK", "color": "#d97706", "address": "Sector 12, Vasundhara, Ghaziabad - 201012", "lat": 28.6608, "lng": 77.3573, "route": ""},
+  {"name": "VASANT VIHAR", "cluster": "Delhi", "dist_km": 37.9, "dist_str": "37.9 km from CK", "color": "#d97706", "address": "Basant Lok Market, Vasant Vihar, New Delhi - 110057", "lat": 28.5604, "lng": 77.1616, "route": ""},
+  {"name": "VAISHALI NAGAR JAIPUR", "cluster": "Jaipur", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "GF, G-1, Near KFC, G Block, Vaishali Nagar, Jaipur, Rajasthan 302021", "lat": 26.9076, "lng": 75.7481, "route": ""},
+  {"name": "V3S MALL", "cluster": "Delhi", "dist_km": 28.8, "dist_str": "28.8 km from CK", "color": "#d97706", "address": "V3S East Centre Mall, Laxmi Nagar, Vikas Marg, Delhi - 110092", "lat": 28.6385, "lng": 77.2917, "route": ""},
+  {"name": "URBANA GURGAON", "cluster": "Gurugram", "dist_km": 48.0, "dist_str": "48.0 km from CK", "color": "#dc2626", "address": "M3M Urbana, Golf Course Road Extension, Sector 67, Gurugram - 122102", "lat": 28.4022, "lng": 77.0673, "route": ""},
+  {"name": "SULTANPUR", "cluster": "Delhi", "dist_km": 35.8, "dist_str": "35.8 km from CK", "color": "#d97706", "address": "Mehrauli-Gurgaon Rd, Sultanpur, New Delhi - 110030", "lat": 28.4988, "lng": 77.1423, "route": ""},
+  {"name": "SUKHMANI SQUARE", "cluster": "Haryana / Punjab", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "SCO 16, Ground Floor, Sukhmani Square, Barewal Awana, Canal Road, Aggar Nagar, Ludhiana, Punjab 141012", "lat": 30.6942, "lng": 76.8617, "route": ""},
+  {"name": "SUBHASH NAGAR ROHTAK", "cluster": "Haryana", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Front Shop No. 139, Rohtak - Delhi Rd, Subhash Nagar, Rohtak, Haryana 124001", "lat": 28.8955, "lng": 76.6066, "route": ""},
+  {"name": "SOUTH EX", "cluster": "Delhi", "dist_km": 28.7, "dist_str": "28.7 km from CK", "color": "#d97706", "address": "South Extension Part 2, New Delhi - 110049", "lat": 28.5693, "lng": 77.2194, "route": ""},
+  {"name": "Sonipat QC", "cluster": "Delhi", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Shop No. 34, Ground Floor, TDI City, Kundli, Sonipat, Haryana 131028", "lat": 28.9948, "lng": 77.0194, "route": ""},
+  {"name": "SELECT CITY MALL", "cluster": "Delhi", "dist_km": 28.5, "dist_str": "28.5 km from CK", "color": "#d97706", "address": "Ground Floor, Select Citywalk Mall, Saket, New Delhi - 110017", "lat": 28.5287, "lng": 77.2195, "route": ""},
+  {"name": "Sector-10A Gurgaon", "cluster": "Gurugram", "dist_km": 49.3, "dist_str": "49.3 km from CK", "color": "#dc2626", "address": "15A, Chaudhary Complex, Opposite Sec 10A Market, Gurugram - 122001", "lat": 28.4552, "lng": 77.0161, "route": ""},
+  {"name": "SECTOR-10 PANCHKULA", "cluster": "Chandigarh Region", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Ground Floor, SCO-13, Sector 10, Budanpur, Panchkula, Haryana 134109", "lat": 30.6865, "lng": 76.8521, "route": ""},
+  {"name": "SECTOR 9 - CHD", "cluster": "Chandigarh Region", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "SCO 4, Ground Floor, Sector 9D, Chandigarh 160009", "lat": 30.7466, "lng": 76.7914, "route": ""},
+  {"name": "SECTOR 77 NOIDA", "cluster": "Noida & Gr. Noida", "dist_km": 12.2, "dist_str": "12.2 km from CK", "color": "#16a34a", "address": "Shop No. G-5, Civitech Central, Civitech Sampriti, Sector 77, Noida - 201304", "lat": 28.5696, "lng": 77.386, "route": ""},
+  {"name": "SECTOR 35C - CHD", "cluster": "Chandigarh Region", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "SCO 441-442, Ground Floor, Sector 35C, Chandigarh 160035", "lat": 30.7247, "lng": 76.7642, "route": ""},
+  {"name": "SECTOR 21C FARIDABAD", "cluster": "Ghaziabad & Faridabad", "dist_km": 23.2, "dist_str": "23.2 km from CK", "color": "#d97706", "address": "Huda Market, Sector 21C Road, Faridabad - 121001", "lat": 28.4239, "lng": 77.2974, "route": ""},
+  {"name": "Sector 150, Noida", "cluster": "Noida & Gr. Noida", "dist_km": 8.8, "dist_str": "8.8 km from CK", "color": "#16a34a", "address": "Sector 150, Noida, Uttar Pradesh - 201310", "lat": 28.4419, "lng": 77.4697, "route": ""},
+  {"name": "SECTOR 14, GURGAON", "cluster": "Gurugram", "dist_km": 46.5, "dist_str": "46.5 km from CK", "color": "#dc2626", "address": "ISI 165, Ground Floor, Sector 14, Gurugram - 122001", "lat": 28.4731, "lng": 77.0425, "route": ""},
+  {"name": "SECTOR 11 ROHINI", "cluster": "Delhi", "dist_km": 51.0, "dist_str": "51.0 km from CK", "color": "#dc2626", "address": "Sector 11, Rohini, New Delhi - 110085", "lat": 28.7214, "lng": 77.1132, "route": ""},
+  {"name": "SECTOR 104, NOIDA", "cluster": "Noida & Gr. Noida", "dist_km": 10.3, "dist_str": "10.3 km from CK", "color": "#16a34a", "address": "Main Road, Sector 104, Noida - 201304", "lat": 28.5348, "lng": 77.3735, "route": ""},
+  {"name": "SDA", "cluster": "Delhi", "dist_km": 32.3, "dist_str": "32.3 km from CK", "color": "#d97706", "address": "Shop No. 2, C-11, SDA Community Centre, Opposite IIT Delhi, New Delhi - 110016", "lat": 28.5463, "lng": 77.2023, "route": ""},
+  {"name": "ROHINI", "cluster": "Delhi", "dist_km": 49.3, "dist_str": "49.3 km from CK", "color": "#dc2626", "address": "Shop No. 29, Plot No.15, NN Mall, Mangalam Place, Sector-3, Rohini, New Delhi - 110085", "lat": 28.7095, "lng": 77.12, "route": ""},
+  {"name": "RDC RAJ NAGAR", "cluster": "Ghaziabad & Faridabad", "dist_km": 31.8, "dist_str": "31.8 km from CK", "color": "#d97706", "address": "Astoria Boulevard, Raj Nagar, Ghaziabad - 201002", "lat": 28.6791, "lng": 77.4491, "route": ""},
+  {"name": "RANIPUR MORE,HARIDWAR", "cluster": "UP / Uttarakhand", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Ground Floor, New Haridwar Road, Near Ranipur More, Haridwar, Uttarakhand 249401", "lat": 29.9372, "lng": 78.1407, "route": ""},
+  {"name": "RAJPUR ROAD, DEHRADUN", "cluster": "UP / Uttarakhand", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Ground Floor, Rajpur Road, Jakhan, Dehradun, Uttarakhand 248001", "lat": 30.3472, "lng": 78.0583, "route": ""},
+  {"name": "RAJOURI GARDEN", "cluster": "Delhi", "dist_km": 44.7, "dist_str": "44.7 km from CK", "color": "#dc2626", "address": "Kiosk No. R-02, Plot No. 10, Eros Mall, Shivaji Place, District Center, Rajouri Garden, New Delhi - 110027", "lat": 28.6415, "lng": 77.1209, "route": ""},
+  {"name": "PUNJABI BAGH", "cluster": "Delhi", "dist_km": 45.8, "dist_str": "45.8 km from CK", "color": "#dc2626", "address": "Property No. 17, Upper Ground Floor, Main Club Road, Punjabi Bagh Extension, New Delhi - 110026", "lat": 28.6675, "lng": 77.1325, "route": ""},
+  {"name": "PALAM VIHAR", "cluster": "Gurugram", "dist_km": 45.6, "dist_str": "45.6 km from CK", "color": "#dc2626", "address": "Shop No. 9, Global Foyer Mall, Palam Vihar, Sector 22, Gurugram - 122017", "lat": 28.5085, "lng": 77.0315, "route": ""},
+  {"name": "NSP", "cluster": "Delhi", "dist_km": 44.0, "dist_str": "44.0 km from CK", "color": "#dc2626", "address": "Shop No. G-7, Ground Floor, Tower II, HB Twin Towers, Netaji Subhash Place, New Delhi - 110034", "lat": 28.6921, "lng": 77.1515, "route": ""},
+  {"name": "NFC", "cluster": "Delhi", "dist_km": 20.1, "dist_str": "20.1 km from CK", "color": "#d97706", "address": "New Friends Colony Community Centre, New Delhi - 110025", "lat": 28.5621, "lng": 77.2731, "route": ""},
+  {"name": "NAJAFGARH", "cluster": "Delhi", "dist_km": 60.1, "dist_str": "60.1 km from CK", "color": "#dc2626", "address": "Main Najafgarh Road, New Delhi - 110043", "lat": 28.609, "lng": 76.9855, "route": ""},
+  {"name": "MORNA CLK", "cluster": "Noida & Gr. Noida", "dist_km": 12.9, "dist_str": "12.9 km from CK", "color": "#16a34a", "address": "Shop 5, Ground Floor, Mukhiya Complex, Sector 34, Village Morna, Noida - 201310", "lat": 28.5772, "lng": 77.3444, "route": ""},
+  {"name": "MODEL TOWN, PANIPAT", "cluster": "Haryana", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Shop No. 504, Ground Floor, Model Town, Panipat, Haryana 132103", "lat": 29.3905, "lng": 76.9635, "route": ""},
+  {"name": "MODEL TOWN JALANDHAR", "cluster": "Haryana / Punjab", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "SCO 27, Ground Floor, Model Town Market, Jalandhar, Punjab 144003", "lat": 31.3113, "lng": 75.5876, "route": ""},
+  {"name": "MODEL TOWN", "cluster": "Delhi", "dist_km": 43.8, "dist_str": "43.8 km from CK", "color": "#dc2626", "address": "Shop No. 1 & 2, Ground floor, H-4/9, Model Town Part 2, New Delhi - 110009", "lat": 28.697, "lng": 77.1934, "route": ""},
+  {"name": "MAYUR VIHAR", "cluster": "Delhi", "dist_km": 21.8, "dist_str": "21.8 km from CK", "color": "#d97706", "address": "Phase 1, Mayur Vihar, New Delhi - 110091", "lat": 28.6041, "lng": 77.2941, "route": ""},
+  {"name": "MANSAROVAR JAIPUR", "cluster": "Jaipur", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Shop No. 71/04, Ground Floor, Madhyam Marg, Mansarovar, Jaipur, Rajasthan 302020", "lat": 26.8529, "lng": 75.7588, "route": ""},
+  {"name": "MALVIYA NAGAR", "cluster": "Delhi", "dist_km": 30.7, "dist_str": "30.7 km from CK", "color": "#d97706", "address": "Main Market, Malviya Nagar, New Delhi - 110017", "lat": 28.5367, "lng": 77.2081, "route": ""},
+  {"name": "MALL OF INDIA", "cluster": "Noida & Gr. Noida", "dist_km": 16.2, "dist_str": "16.2 km from CK", "color": "#16a34a", "address": "DLF Mall Of India, Sector 18, Noida - 201301", "lat": 28.5677, "lng": 77.3214, "route": ""},
+  {"name": "LOGIX MALL", "cluster": "Noida & Gr. Noida", "dist_km": 13.0, "dist_str": "13.0 km from CK", "color": "#16a34a", "address": "Plot No-58, Logix City Centre Mall, Sector 32, Noida - 201303", "lat": 28.5742, "lng": 77.3411, "route": ""},
+  {"name": "LEELA BHAWAN PATIALA", "cluster": "Chandigarh Region", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "SCO-101, Ground Floor, Nabha Gate, New Leela Bhawan Market, Patiala, Punjab 147001", "lat": 30.3391, "lng": 76.3869, "route": ""},
+  {"name": "KUNJPURA ROAD, KARNAL", "cluster": "Haryana", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Ground Floor, Kunjpura Road, Near Committee Chowk, Karnal, Haryana 132001", "lat": 29.6864, "lng": 76.9942, "route": ""},
+  {"name": "KIPPS MARKET LUDHIANA", "cluster": "Haryana / Punjab", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Shop No. 12, Ground Floor, Kipps Market, Sarabha Nagar, Ludhiana, Punjab 141001", "lat": 30.8926, "lng": 75.8156, "route": ""},
+  {"name": "Kharar", "cluster": "Chandigarh Region", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Ground Floor, Landran Road / NH 21, Kharar, Greater Mohali, Punjab 140301", "lat": 30.7416, "lng": 76.6521, "route": ""},
+  {"name": "KASHMERE GATE", "cluster": "Delhi", "dist_km": 36.3, "dist_str": "36.3 km from CK", "color": "#d97706", "address": "Kashmere Gate Metro Station Food Court, Delhi - 110006", "lat": 28.6675, "lng": 77.2284, "route": ""},
+  {"name": "KAMLA NAGAR", "cluster": "Delhi", "dist_km": 41.7, "dist_str": "41.7 km from CK", "color": "#dc2626", "address": "47, Bunglow Road, Mandelia Road, Kamla Nagar North, Delhi - 110007", "lat": 28.6811, "lng": 77.2031, "route": ""},
+  {"name": "JANAKPURI", "cluster": "Delhi", "dist_km": 48.9, "dist_str": "48.9 km from CK", "color": "#dc2626", "address": "A-5B/109A Janakpuri, Lal Sai Mandir Marg, LIG, Janakpuri, New Delhi - 110058", "lat": 28.6219, "lng": 77.0878, "route": ""},
+  {"name": "JAGATPURA", "cluster": "Jaipur", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Shop No. 230/CS-30 & 31, 1st floor, Sector-23, Zone-230, Pratap Nagar, Jagatpura, Jaipur, Rajasthan 302017", "lat": 26.8242, "lng": 75.8647, "route": ""},
+  {"name": "IRIS BROADWAY", "cluster": "Gurugram", "dist_km": 58.4, "dist_str": "58.4 km from CK", "color": "#dc2626", "address": "Iris Broadway Mall, Sector 85, Gurugram - 122051", "lat": 28.4005, "lng": 76.9614, "route": ""},
+  {"name": "INDIRAPURAM", "cluster": "Ghaziabad & Faridabad", "dist_km": 22.1, "dist_str": "22.1 km from CK", "color": "#d97706", "address": "GC Grand Street, Vaibhav Khand, Indirapuram, Ghaziabad - 201014", "lat": 28.6364, "lng": 77.3661, "route": ""},
+  {"name": "INDIRA NAGAR COLONY", "cluster": "UP / Uttarakhand", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Ground Floor, Vasant Vihar / Indira Nagar Colony, Dehradun, Uttarakhand 248006", "lat": 30.3386, "lng": 77.9944, "route": ""},
+  {"name": "IGI DELHI AIRPORT T1", "cluster": "Delhi Airports", "dist_km": 42.1, "dist_str": "42.1 km from CK", "color": "#dc2626", "address": "Domestic Departure Terminal 1, IGI Airport, New Delhi - 110037", "lat": 28.5638, "lng": 77.1211, "route": ""},
+  {"name": "IGI AIRPORT T3 METRO STATION", "cluster": "Delhi Airports", "dist_km": 45.2, "dist_str": "45.2 km from CK", "color": "#dc2626", "address": "T3 Metro Station Level, IGI Airport, New Delhi - 110037", "lat": 28.5562, "lng": 77.0852, "route": ""},
+  {"name": "IGI AIRPORT T3 DEPARTURE", "cluster": "Delhi Airports", "dist_km": 45.2, "dist_str": "45.2 km from CK", "color": "#dc2626", "address": "International Departure, Terminal 3, IGI Airport, New Delhi - 110037", "lat": 28.5569, "lng": 77.0855, "route": ""},
+  {"name": "IGI AIRPORT T3 ARRIVAL M&G AREA", "cluster": "Delhi Airports", "dist_km": 45.3, "dist_str": "45.3 km from CK", "color": "#dc2626", "address": "Meet & Greet Area, T3 Arrival, IGI Airport, New Delhi - 110037", "lat": 28.5555, "lng": 77.0841, "route": ""},
+  {"name": "IGI AIRPORT T3 ARRIVAL", "cluster": "Delhi Airports", "dist_km": 45.3, "dist_str": "45.3 km from CK", "color": "#dc2626", "address": "Terminal 3 Arrival Hall, IGI Airport, New Delhi - 110037", "lat": 28.5552, "lng": 77.0838, "route": ""},
+  {"name": "GOLDEN I NOIDA", "cluster": "Noida & Gr. Noida", "dist_km": 17.5, "dist_str": "17.5 km from CK", "color": "#16a34a", "address": "Shop No. 2A, Block D & E, Golden I, TechZone 4, Greater Noida West - 201306", "lat": 28.5714, "lng": 77.4572, "route": ""},
+  {"name": "GK2", "cluster": "Delhi", "dist_km": 24.3, "dist_str": "24.3 km from CK", "color": "#d97706", "address": "M-22, Ground Floor, M-Block Market, Greater Kailash 2, New Delhi - 110048", "lat": 28.5303, "lng": 77.2432, "route": ""},
+  {"name": "GK1", "cluster": "Delhi", "dist_km": 26.6, "dist_str": "26.6 km from CK", "color": "#d97706", "address": "M2, M Block Market, Greater Kailash 1, New Delhi - 110048", "lat": 28.5424, "lng": 77.2343, "route": ""},
+  {"name": "GAUR CITY MALL", "cluster": "Noida & Gr. Noida", "dist_km": 18.0, "dist_str": "18.0 km from CK", "color": "#16a34a", "address": "Gaur City Mall, Sector 4, Greater Noida West - 201318", "lat": 28.6084, "lng": 77.4304, "route": ""},
+  {"name": "GARH ROAD, MEERUT", "cluster": "UP / Uttarakhand", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Ground Floor, Mangal Pandey Nagar, Near Garh Road, Meerut, Uttar Pradesh 250004", "lat": 28.9826, "lng": 77.7275, "route": ""},
+  {"name": "GALLERIA", "cluster": "Gurugram", "dist_km": 43.4, "dist_str": "43.4 km from CK", "color": "#dc2626", "address": "DLF Galleria Commercial Complex, DLF City Phase 4, Gurugram - 122002", "lat": 28.4669, "lng": 77.0805, "route": ""},
+  {"name": "FATEHABAD RD AGRA", "cluster": "Agra", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Shop No. 4 & 5, Ground Floor, Imperial Block, Fatehabad Road, Agra, Uttar Pradesh 282001", "lat": 27.1612, "lng": 78.0462, "route": ""},
+  {"name": "FARIDABAD SECTOR 15", "cluster": "Ghaziabad & Faridabad", "dist_km": 19.8, "dist_str": "19.8 km from CK", "color": "#16a34a", "address": "Main Market, Sector 15, Faridabad - 121007", "lat": 28.4111, "lng": 77.3168, "route": ""},
+  {"name": "ELANTE MALL", "cluster": "Chandigarh Region", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Kiosk No. K-4, Third Floor, Elante Mall, Industrial Area Phase 1, Chandigarh 160002", "lat": 30.7056, "lng": 76.8013, "route": ""},
+  {"name": "EAST PATEL NAGAR", "cluster": "Delhi", "dist_km": 39.5, "dist_str": "39.5 km from CK", "color": "#d97706", "address": "Shop No 18/28, East Patel Nagar Market, New Delhi - 110008", "lat": 28.6444, "lng": 77.1718, "route": ""},
+  {"name": "DWARKA", "cluster": "Delhi", "dist_km": 45.4, "dist_str": "45.4 km from CK", "color": "#dc2626", "address": "Sector 12 (or Sector 5), Dwarka, New Delhi - 110075", "lat": 28.5921, "lng": 77.0622, "route": ""},
+  {"name": "DURGAPURI SHAHADRA", "cluster": "Delhi", "dist_km": 52.8, "dist_str": "52.8 km from CK", "color": "#dc2626", "address": "Durgapuri, Shahdara, Delhi - 110032", "lat": 28.6892, "lng": 77.2911, "route": ""},
+  {"name": "DEFENCE COLONY", "cluster": "Delhi", "dist_km": 27.5, "dist_str": "27.5 km from CK", "color": "#d97706", "address": "Shop 2, Main Market, Defence Colony, New Delhi - 110024", "lat": 28.5742, "lng": 77.2244, "route": ""},
+  {"name": "CYBER HUB", "cluster": "Gurugram", "dist_km": 41.3, "dist_str": "41.3 km from CK", "color": "#dc2626", "address": "K-1A, Ground Floor, DLF Cyberhub, DLF Cybercity, Phase 2, Gurugram - 122002", "lat": 28.4951, "lng": 77.0886, "route": ""},
+  {"name": "CONSCIENT ONE MALL", "cluster": "Gurugram", "dist_km": 50.1, "dist_str": "50.1 km from CK", "color": "#dc2626", "address": "Unit No. CG-128, Block-C, Conscient One, Sector 109, Gurugram - 122017", "lat": 28.5135, "lng": 77.0142, "route": ""},
+  {"name": "CONNAUGHT PLACE", "cluster": "Delhi", "dist_km": 32.4, "dist_str": "32.4 km from CK", "color": "#d97706", "address": "Mezzanine, D-28, Ground Floor, D-27, Connaught Place, New Delhi - 110001", "lat": 28.6304, "lng": 77.2177, "route": ""},
+  {"name": "CHURCH ROAD, AGRA", "cluster": "Agra", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Ground Floor, Civil Lines, Church Road, Near Ram Raghu Arcade, Agra, Uttar Pradesh 282002", "lat": 27.1979, "lng": 78.0076, "route": ""},
+  {"name": "CHI 5 CLK", "cluster": "Noida & Gr. Noida", "dist_km": 18.5, "dist_str": "18.5 km from CK", "color": "#16a34a", "address": "Sector CHI 5, Greater Noida, Uttar Pradesh - 201310", "lat": 28.4411, "lng": 77.5115, "route": ""},
+  {"name": "CHANDER NAGAR GHAZIABAD", "cluster": "Ghaziabad & Faridabad", "dist_km": 27.6, "dist_str": "27.6 km from CK", "color": "#d97706", "address": "Block D, Sector 12, Chander Nagar, Ghaziabad - 201011", "lat": 28.6653, "lng": 77.3371, "route": ""},
+  {"name": "CENTRAL PLAZA", "cluster": "Gurugram", "dist_km": 42.7, "dist_str": "42.7 km from CK", "color": "#dc2626", "address": "Central Plaza Mall, Golf Course Road, Sector 53, Gurugram - 122003", "lat": 28.4402, "lng": 77.0963, "route": ""},
+  {"name": "C SCHEME JAIPUR", "cluster": "Jaipur", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "Shop No. G5A, Ground Floor, City Mall, C-21-B, Bhagwan Das Road, C-Scheme, Jaipur, Rajasthan 302001", "lat": 26.9116, "lng": 75.8022, "route": ""},
+  {"name": "BAANI SQUARE", "cluster": "Gurugram", "dist_km": 46.8, "dist_str": "46.8 km from CK", "color": "#dc2626", "address": "Shop G-6, Ground Floor, Block A, Baani Square, Sector 50, Gurugram - 122018", "lat": 28.4138, "lng": 77.0658, "route": ""},
+  {"name": "ASSOTECH NOIDA", "cluster": "Noida & Gr. Noida", "dist_km": 1.5, "dist_str": "1.5 km from CK", "color": "#16a34a", "address": "Tower Sandal Street, Assotech Business Crestera, Sector 135, Noida - 201304", "lat": 28.5289, "lng": 77.3894, "route": ""},
+  {"name": "ARDEE MALL", "cluster": "Gurugram", "dist_km": 45.4, "dist_str": "45.4 km from CK", "color": "#dc2626", "address": "Ground Floor, Ardee Mall, Ardee City, Sector 52, Gurugram - 122003", "lat": 28.4447, "lng": 77.0789, "route": ""},
+  {"name": "ALPHA-II", "cluster": "Noida & Gr. Noida", "dist_km": 22.5, "dist_str": "22.5 km from CK", "color": "#d97706", "address": "1st Cross Avenue, Alpha 2, Greater Noida - 201310", "lat": 28.4735, "lng": 77.5054, "route": ""},
+  {"name": "3B2 MOHALI", "cluster": "Chandigarh Region", "dist_km": null, "dist_str": "Outside NCR", "color": "#7c3aed", "address": "SCF 38, Ground Floor, Phase 3B2, Sector 60, Mohali, Punjab 160059", "lat": 30.7093, "lng": 76.7226, "route": ""}
+];
+var RANGES        = [{"max": 20, "color": "#16a34a", "label": "≤ 20 km (NCR)"}, {"max": 40, "color": "#d97706", "label": "21–40 km (NCR)"}, {"max": 9999, "color": "#dc2626", "label": "> 40 km (NCR)"}];
+var COLOR_OUTSIDE = "#7c3aed";
+
+// Route colour palette — cycles for each unique route name
+var ROUTE_COLOURS = ["#7c3aed","#2563eb","#059669","#d97706","#dc2626","#0891b2","#9333ea","#16a34a"];
+
+// ── Inline haversine (no import needed) ──────────────────────────────────────
+function haversineKm(lat1, lng1, lat2, lng2) {
+  var R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLng = (lng2-lng1)*Math.PI/180;
+  var a = Math.sin(dLat/2)*Math.sin(dLat/2)
+        + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)
+        * Math.sin(dLng/2)*Math.sin(dLng/2);
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+// ── Nearest-neighbour path ordering ─────────────────────────────────────────
+function nearestNeighbour(pts) {
+  if (pts.length <= 1) return pts;
+  var rem = pts.slice(), ordered = rem.splice(0,1);
+  while (rem.length) {
+    var last = ordered[ordered.length-1], bi = 0, bd = Infinity;
+    for (var i = 0; i < rem.length; i++) {
+      var d = haversineKm(last.lat, last.lng, rem[i].lat, rem[i].lng);
+      if (d < bd) { bd = d; bi = i; }
+    }
+    ordered.push(rem.splice(bi,1)[0]);
+  }
+  return ordered;
+}
+
+// ── Build cluster list and populate dropdown ─────────────────────────────────
+var ncrClusters = [], otherClusters = [];
+MARKERS.forEach(function(m) {
+  var list = (m.dist_km !== null) ? ncrClusters : otherClusters;
+  if (list.indexOf(m.cluster) === -1) list.push(m.cluster);
+});
+ncrClusters.sort(); otherClusters.sort();
+var allClusters = ncrClusters.concat(otherClusters);
+var sel = document.getElementById('clusterSelect');
+allClusters.forEach(function(c) {
+  var o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o);
+});
+
+// ── Map init ─────────────────────────────────────────────────────────────────
+var map = L.map('map', {center:[29.2, 77.5], zoom:7});
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom:19
+}).addTo(map);
+
+// ── State ────────────────────────────────────────────────────────────────────
+var currentCluster = 'all';
+var showNames      = false;
+var outletLayer    = L.layerGroup().addTo(map);
+var routeLayer     = L.layerGroup().addTo(map); // route polylines below outlet dots
+var activeRoutePoly = null;
+var routePolyMap   = {};  // routeName → L.Polyline
+
+// ── Build route polylines from MARKERS data ──────────────────────────────────
+// Groups markers by route name, orders them with nearest-neighbour,
+// then creates a hidden Leaflet polyline for each route.
+function buildRoutePolylines() {
+  routeLayer.clearLayers();
+  routePolyMap = {};
+
+  // Group markers by non-empty route name
+  var groups = {};
+  MARKERS.forEach(function(m) {
+    if (!m.route) return;
+    if (!groups[m.route]) groups[m.route] = [];
+    groups[m.route].push(m);
+  });
+
+  var colIdx = 0;
+  Object.keys(groups).sort().forEach(function(rName) {
+    var ordered = nearestNeighbour(groups[rName]);
+    var colour = ROUTE_COLOURS[colIdx++ % ROUTE_COLOURS.length];
+    var latlngs = ordered.map(function(p) { return [p.lat, p.lng]; });
+
+    var poly = L.polyline(latlngs, {
+      color: colour, weight: 4, opacity: 0, interactive: true
+    });
+
+    // Click on the polyline → show per-segment distances in a popup
+    poly.on('click', function(e) {
+      L.DomEvent.stopPropagation(e);
+      var html = '<div style="font-size:12px;line-height:1.8"><b>' + rName + '</b><br/>';
+      for (var i = 0; i < ordered.length-1; i++) {
+        var d = haversineKm(ordered[i].lat, ordered[i].lng, ordered[i+1].lat, ordered[i+1].lng);
+        html += ordered[i].name + ' → ' + ordered[i+1].name + ': <b>' + d.toFixed(1) + ' km</b><br/>';
+      }
+      html += '</div>';
+      L.popup().setLatLng(e.latlng).setContent(html).openOn(map);
+    });
+
+    poly.addTo(routeLayer);
+    routePolyMap[rName] = { poly: poly, colour: colour, ordered: ordered };
+  });
+}
+
+buildRoutePolylines();
+
+// ── Animate a named route (SVG stroke-dash trick) ────────────────────────────
+function animateRoute(rName) {
+  // Hide the previously active route
+  if (activeRoutePoly) {
+    activeRoutePoly.setStyle({ opacity: 0 });
+    var oldPath = activeRoutePoly.getElement();
+    if (oldPath) { oldPath.style.transition = 'none'; oldPath.style.strokeDashoffset = oldPath.style.strokeDasharray; }
+    activeRoutePoly = null;
+  }
+  var entry = routePolyMap[rName];
+  if (!entry) return;
+
+  entry.poly.setStyle({ opacity: 0.9 });
+  var path = entry.poly.getElement();
+  if (path) {
+    var len = path.getTotalLength ? path.getTotalLength() : 8000;
+    path.style.transition = 'none';
+    path.style.strokeDasharray = len;
+    path.style.strokeDashoffset = len;
+    // Force reflow so the initial dashoffset registers before the transition
+    path.getBoundingClientRect();
+    path.style.transition = 'stroke-dashoffset 1.4s ease';
+    path.style.strokeDashoffset = 0;
+  }
+  activeRoutePoly = entry.poly;
+}
+
+// ── CK triangle marker ────────────────────────────────────────────────────────
+function mkTriIcon(color, size) {
+  var s = size || 20;
+  var svg = '<svg width="' + s + '" height="' + s + '" viewBox="0 0 20 20">'
+    + '<polygon points="10,2 19,18 1,18" fill="' + color + '" stroke="#fff" stroke-width="1.5"/></svg>';
+  return L.divIcon({className:'', html:svg, iconSize:[s,s], iconAnchor:[s/2,s], popupAnchor:[0,-s]});
+}
+
+L.marker([CK.lat, CK.lng], {icon: mkTriIcon('#1565C0', 28), zIndexOffset:1000})
+  .bindPopup(
+    '<div class="popup-inner"><div class="popup-ck-name">&#9650; ' + CK.name + '</div>'
+    + '<div class="popup-ck-sub">' + CK.sub + '</div></div>',
+    {maxWidth:220}
+  ).addTo(map);
+
+// ── Outlet circle icon factory ────────────────────────────────────────────────
+function mkCircleIcon(color) {
+  var svg = '<svg width="14" height="14" viewBox="0 0 14 14">'
+    + '<circle cx="7" cy="7" r="5.5" fill="' + color + '" stroke="#fff" stroke-width="1.5"/></svg>';
+  return L.divIcon({className:'', html:svg, iconSize:[14,14], iconAnchor:[7,7], popupAnchor:[0,-8]});
+}
+
+// ── Refresh outlet markers ───────────────────────────────────────────────────
+function refreshMarkers() {
+  outletLayer.clearLayers();
+  var shown = 0;
+  MARKERS.forEach(function(m) {
+    if (currentCluster !== 'all' && m.cluster !== currentCluster) return;
+    shown++;
+    var distHtml = '<span class="popup-dist" style="background:' + m.color + '">' + m.dist_str + '</span>';
+    var popup = '<div class="popup-inner">'
+      + '<div class="popup-name">' + m.name + '</div>'
+      + '<div class="popup-cluster">&#128205; ' + m.cluster + '</div>'
+      + distHtml
+      + (m.address ? '<div class="popup-addr">' + m.address + '</div>' : '')
+      + '</div>';
+
+    var lm = L.marker([m.lat, m.lng], {icon: mkCircleIcon(m.color)});
+
+    // Clicking a marker animates its route (if it has one)
+    lm.on('click', function(e) {
+      L.DomEvent.stopPropagation(e);
+      lm.bindPopup(popup, {maxWidth:280, minWidth:190}).openPopup();
+      if (m.route) animateRoute(m.route);
+    });
+
+    // Show permanent name label when toggle is on
+    if (showNames) {
+      lm.bindTooltip(m.name, {
+        permanent: true, direction: 'right', offset: [10, 0], className: 'name-label'
+      });
+    }
+
+    lm.addTo(outletLayer);
+  });
+  document.getElementById('cnt').textContent = shown;
+}
+
+// ── Hide active route when clicking blank map ────────────────────────────────
+map.on('click', function() {
+  if (activeRoutePoly) {
+    activeRoutePoly.setStyle({ opacity: 0 });
+    var path = activeRoutePoly.getElement();
+    if (path) { path.style.transition = 'none'; path.style.strokeDashoffset = path.style.strokeDasharray; }
+    activeRoutePoly = null;
+  }
+});
+
+// ── Control wiring ────────────────────────────────────────────────────────────
+document.getElementById('clusterSelect').addEventListener('change', function(e) {
+  currentCluster = e.target.value;
+  refreshMarkers();
+});
+
+document.getElementById('showNames').addEventListener('change', function(e) {
+  showNames = e.target.checked;
+  refreshMarkers();
+});
+
+refreshMarkers();
+
+// ── Legend ────────────────────────────────────────────────────────────────────
+var legendCtrl = L.control({position:'bottomright'});
+legendCtrl.onAdd = function() {
+  var d = L.DomUtil.create('div', 'legend');
+  var html = '<div class="legend-title">NCR Distance from CK</div>';
+  RANGES.forEach(function(r) {
+    html += '<div class="legend-item"><div class="leg-dot" style="background:' + r.color + '"></div>' + r.label + '</div>';
+  });
+  html += '<div class="leg-sep">'
+    + '<div class="legend-item"><div class="leg-dot" style="background:' + COLOR_OUTSIDE + '"></div>Outside NCR</div>'
+    + '<div class="legend-item"><div class="leg-tri"></div>Central Kitchen</div>'
+    + '</div>';
+  d.innerHTML = html;
+  return d;
+};
+legendCtrl.addTo(map);
+</script>
+</body>
+</html>
