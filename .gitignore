@@ -4,5 +4,6 @@ node_modules
 .env.local
 *.log
 .DS_Store
-.CLAUDE.md
+CLAUDE.md
 .graphify-out
+HANDOFF.md
