@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { ContributionBadge } from "@/components/ContributionBadge";
 import type { ContributionCheck } from "@/lib/zbc/types";
 
@@ -247,7 +247,7 @@ export function CostBreakdownTable({
             const isExpanded = expandedId === "__ALL__" || expandedId === row.id;
 
             return (
-              <>
+              <Fragment key={row.id}>
                 <tr
                   key={row.id}
                   onClick={() => setExpandedId(isExpanded ? null : row.id)}
@@ -277,7 +277,7 @@ export function CostBreakdownTable({
                     </td>
                   </tr>
                 )}
-              </>
+              </Fragment>
             );
           })}
         </tbody>

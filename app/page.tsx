@@ -74,6 +74,7 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showContribution, setShowContribution] = useState(true);
+  const [showChart, setShowChart] = useState(false);
   const [lastRequest, setLastRequest] = useState<CalculateRequest | null>(null);
 
   // Batch state
@@ -299,13 +300,23 @@ export default function HomePage() {
                 Show benchmark check
               </label>
 
-              {/* Cost breakdown bar chart */}
-              <BreakdownChart
-                data={result.breakdown.map((r) => ({
-                  name: r.name.replace(/ \(.*\)/, ""),
-                  amount: r.amount_inr,
-                }))}
-              />
+              {/* Cost breakdown pie chart toggle */}
+              <label className="flex items-center gap-2 text-sm text-slate-600" data-print="hide">
+                <input
+                  type="checkbox"
+                  checked={showChart}
+                  onChange={(e) => setShowChart(e.target.checked)}
+                />
+                Show cost breakdown chart
+              </label>
+              {showChart && (
+                <BreakdownChart
+                  data={result.breakdown.map((r) => ({
+                    name: r.name.replace(/ \(.*\)/, ""),
+                    amount: r.amount_inr,
+                  }))}
+                />
+              )}
 
               {/* Detailed cost breakdown table with expandable rows */}
               <CostBreakdownTable
