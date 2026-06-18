@@ -185,7 +185,7 @@ function DetailPanel({ row }: { row: BreakdownRow }) {
       <div className="space-y-1 text-xs text-slate-600">
         <p>{(Number(inputs.empty_pct) * 100).toFixed(0)}% of {inputs.distance_km} km = <strong>{inputs.empty_km} km driven back empty</strong></p>
         <p>{inputs.empty_km} km × ₹{inputs.variable_per_km}/km variable cost = <strong>{formatInr(row.amount_inr)}</strong></p>
-        <p className="text-slate-400">Variable cost = fuel + maintenance + depreciation per km</p>
+        <p className="text-slate-400">Variable cost = fuel + maintenance + depreciation + overhead + toll + waiting</p>
       </div>
     );
   }
