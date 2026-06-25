@@ -3,13 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getTruckModels, getTrucksByBodyType, getTruckProfile } from "@/lib/config";
 import type { RateOverrides } from "@/lib/zbc/types";
-import { ZodUndefined } from "zod";
 
 export interface CalculateRequest {
   truckId: string;
   modelId?: string;
   origin: string;
-  destination: string;
+  destinations: string[];
   tripType: string;
   payloadTons: number;
   overrides?: RateOverrides;
@@ -25,10 +24,12 @@ function CityInput({
   label,
   value,
   onChange,
+  showLabel = true,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
+  showLabel?: boolean;
 }) {
   const [query, setQuery] = useState(value);
   const [suggestions, setSuggestions] = useState<{ name: string; label: string }[]>([]);
@@ -51,7 +52,7 @@ function CityInput({
 
   return (
     <div>
-      <label className="mb-1 block text-sm font-medium text-slate-700">{label}</label>
+      {showLabel && <label className="mb-1 block text-sm font-medium text-slate-700">{label}</label>}
       <input
         type="text"
         list={`${label}-list`}
@@ -70,6 +71,8 @@ function CityInput({
 const inputCls =
   "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50";
 
+const MAX_STOPS = 10;
+
 export function TripForm({ onSubmit, loading }: TripFormProps) {
   const allModels = useMemo(() => getTruckModels(), []);
 
@@ -79,7 +82,17 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
   const [selectedAxles, setSelectedAxles] = useState<number | null>(null);
   const [selectedModelId, setSelectedModelId] = useState<string>("");
   const [origin, setOrigin] = useState("Delhi");
-  const [destination, setDestination] = useState("Mumbai");
+  const [stops, setStops] = useState<string[]>(["Mumbai"]);
+
+  const addStop = () => {
+    if (stops.length < MAX_STOPS) setStops((s) => [...s, ""]);
+  };
+  const removeStop = (i: number) => {
+    setStops((s) => s.filter((_, idx) => idx !== i));
+  };
+  const updateStop = (i: number, v: string) => {
+    setStops((s) => { const n = [...s]; n[i] = v; return n; });
+  };
   const [tripType, setTripType] = useState("one-way");
   const [payloadTons, setPayloadTons] = useState("0");
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -177,7 +190,7 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
       truckId: matchedTruck?.id ?? "", // placeholder catch
       modelId: selectedModelId || undefined,
       origin,
-      destination,
+      destinations: stops,
       tripType,
       payloadTons: Math.round(Number(payloadTons) * 10) / 10, // Rounds to 1 decimal place
       overrides: Object.keys(overrides).length ? overrides : undefined,
@@ -296,7 +309,39 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
       )}
 
       <CityInput label="Origin" value={origin} onChange={setOrigin} />
-      <CityInput label="Destination" value={destination} onChange={setDestination} />
+
+      {stops.length !== 1 && <label className="mb-1 block text-sm font-medium text-slate-700">Stops</label>}
+      {stops.map((stop, i) => (
+        <div key={i} className="flex items-end gap-2">
+          <div className="flex-1">
+            <CityInput
+              label={stops.length === 1 ? "Destination" : `Stop ${i + 1}`} // To keep unique data lists
+              value={stop}
+              showLabel={stops.length === 1}
+              onChange={(v) => updateStop(i, v)}
+            />
+          </div>
+          {stops.length > 1 && (
+            <button
+              type="button"
+              onClick={() => removeStop(i)}
+              title="Remove stop"
+              className="mb-0.5 rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500"
+            >
+              ×
+            </button>
+          )}
+        </div>
+      ))}
+
+      <button
+          type="button"
+          onClick={addStop}
+          className="text-sm font-medium text-brand-600 hover:text-brand-700"
+          disabled={stops.length >= MAX_STOPS}
+        >
+          + Add stop
+      </button>
 
       <div>
         <label className="mb-2 block text-sm font-medium text-slate-700">Trip type</label>

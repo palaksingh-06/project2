@@ -98,7 +98,7 @@ export default function HomePage() {
     setLastRequest(req);
 
     try {
-      const res = await fetch("/api/calculate", {
+      const res = await fetch("/api/newcalculate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(req),
