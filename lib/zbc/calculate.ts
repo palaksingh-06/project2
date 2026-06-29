@@ -66,7 +66,13 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
   const effectiveDepreciationPerKm =
     distance_km > 0 ? depreciationCostInr / distance_km : depreciationPerKm;
   const variableCostPerKm =
-    fuelCostPerKm + maintenanceCostPerKm + effectiveDepreciationPerKm;
+    fuelCostPerKm + 
+    maintenanceCostPerKm + 
+    effectiveDepreciationPerKm +
+    maintenanceCostPerKm +
+    overheadCostInr / distance_km + 
+    tollAndPermitCostInr / distance_km +
+    idleWaitingCostInr / distance_km;
     
   const emptyReturnCostInr = emptyReturnDistanceKm * variableCostPerKm;
 
