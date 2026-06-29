@@ -47,6 +47,7 @@ const REQUIRED_COLUMNS = [
 
 const OVERRIDE_COLUMNS = [
   "truck_model_id",
+  "distance_km",
   "mileage_kmpl",
   "driver_per_day",
   "bata_per_trip",
@@ -56,8 +57,6 @@ const OVERRIDE_COLUMNS = [
   "state_permit",
   "maintenance_per_km",
   "loading_per_ton",
-  "idle_hours",
-  "idle_cost_per_hour",
   "overhead_per_trip",
   "risk_pct",
   "empty_return_pct",
@@ -477,6 +476,7 @@ export function validateBatchRows(
       max?: number;
       positive?: boolean;
     }> = [
+      { key: "distance_km", col: "distance_km", positive: true },
       { key: "mileage_kmpl", col: "mileage_kmpl", positive: true },
       { key: "driver_per_day", col: "driver_per_day", min: 0 },
       { key: "bata_per_trip", col: "bata_per_trip", min: 0 },
@@ -486,8 +486,6 @@ export function validateBatchRows(
       { key: "state_permit", col: "state_permit", min: 0 },
       { key: "maintenance_per_km", col: "maintenance_per_km", min: 0 },
       { key: "loading_per_ton", col: "loading_per_ton", min: 0 },
-      { key: "idle_hours", col: "idle_hours", min: 0 },
-      { key: "idle_cost_per_hour", col: "idle_cost_per_hour", min: 0 },
       { key: "overhead_per_trip", col: "overhead_per_trip", min: 0 },
       { key: "risk_pct", col: "risk_pct", min: 0, max: 1 },
       { key: "empty_return_pct", col: "empty_return_pct", min: 0, max: 1 },

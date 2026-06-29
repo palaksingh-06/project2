@@ -9,12 +9,6 @@ export function tripDays(distance_km: number, avg_speed_kmh: number): number {
   return Math.max(1, Math.ceil(distance_km / avg_speed_kmh / 24));
 }
 
-function defaultIdleHours(profile: TruckProfile, distance_km: number): number {
-  if (distance_km < 300) return profile.idle_hours_short_haul;
-  if (distance_km < 800) return profile.idle_hours_medium_haul;
-  return profile.idle_hours_long_haul;
-}
-
 export function calculateZBC(input: CalculateInput): CalculateResult {
   const {
     profile: baseProfile,
@@ -60,13 +54,6 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
   // Loading
   const loadingCostInr =
     (overrides?.loading_per_ton ?? profile.loading_per_ton) * payloadTons;
-
-  // Idle / waiting
-  const idleWaitingHours =
-    overrides?.idle_hours ?? defaultIdleHours(baseProfile, distance_km);
-  const idleWaitingCostInr =
-    idleWaitingHours *
-    (overrides?.idle_cost_per_hour ?? profile.idle_cost_per_hour);
 
   // Overheads
   const overheadCostInr =
@@ -155,17 +142,6 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
     },
     {
       sno: 7,
-      id: "idle",
-      name: "Idle / Waiting Cost",
-      formula: "Time × cost/hour",
-      amount_inr: round(idleWaitingCostInr),
-      inputs: {
-        hours: idleWaitingHours,
-        per_hour: profile.idle_cost_per_hour,
-      },
-    },
-    {
-      sno: 8,
       id: "overhead",
       name: "Overheads",
       formula: "Allocated per trip",
@@ -173,7 +149,7 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
       inputs: { per_trip: overheadCostInr },
     },
     {
-      sno: 10,
+      sno: 9,
       id: "empty_return",
       name: "Empty Return (Backhaul)",
       formula: "% of empty distance × variable ₹/km",
@@ -200,9 +176,9 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
   };
 
   const lines: CostLine[] = [
-    ...linesBeforeRisk.slice(0, 8),
+    ...linesBeforeRisk.slice(0, 7),
     riskLine,
-    linesBeforeRisk[8],
+    linesBeforeRisk[7],
   ].map((l, i) => ({ ...l, sno: i + 1 }));
 
   const total = subtotal + riskCostInr;

@@ -23,10 +23,6 @@ export interface TruckProfile {
   depreciation_per_km: number;
   maintenance_per_km: number;
   loading_per_ton: number;
-  idle_hours_short_haul: number;   // < 300 km
-  idle_hours_medium_haul: number;  // 300–800 km
-  idle_hours_long_haul: number;    // > 800 km
-  idle_cost_per_hour: number;
   overhead_per_trip: number;
   risk_pct: number;
   empty_return_pct: number;
@@ -39,6 +35,7 @@ export interface TruckRatesConfig {
 }
 
 export interface RateOverrides {
+  distance_km?: number;
   mileage_kmpl?: number;
   driver_per_day?: number;
   bata_per_trip?: number;
@@ -48,8 +45,6 @@ export interface RateOverrides {
   state_permit?: number;
   maintenance_per_km?: number;
   loading_per_ton?: number;
-  idle_hours?: number;
-  idle_cost_per_hour?: number;
   overhead_per_trip?: number;
   risk_pct?: number;
   empty_return_pct?: number;
@@ -96,7 +91,6 @@ export type CostHeadId =
   | "toll"
   | "maintenance"
   | "loading"
-  | "idle"
   | "overhead"
   | "risk"
   | "empty_return";

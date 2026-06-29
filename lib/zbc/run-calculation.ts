@@ -67,8 +67,9 @@ function warnIfNotApi(
   p: { kind: string; label: string; detail?: string }
 ) {
   if (p.kind !== "api") {
+    const kindLabel = p.kind === "config" ? "config file" : p.kind === "input" ? "manual override" : "estimate";
     warnings.push(
-      `${label}: ${p.kind === "config" ? "config file" : "estimate"} — ${p.label}${p.detail ? ` (${p.detail})` : ""}`
+      `${label}: ${kindLabel} — ${p.label}${p.detail ? ` (${p.detail})` : ""}`
     );
   }
 }
@@ -106,10 +107,25 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
   const o = originGeo.result;
   const d = destGeo.result;
 
-  const distanceResult = await getRouteDistance(
+  const routedDistance = await getRouteDistance(
     { lat: o.lat, lng: o.lng },
     { lat: d.lat, lng: d.lng }
   );
+
+  // Manual distance override — bypasses the geocoded/routed distance entirely
+  // (geocoding still runs above for diesel-price state lookup and the toll API).
+  const distanceResult =
+    overrides?.distance_km !== undefined
+      ? {
+          ...routedDistance,
+          distance_km: overrides.distance_km,
+          provenance: {
+            kind: "input" as const,
+            label: "User override",
+            detail: "Advanced rates form",
+          },
+        }
+      : routedDistance;
 
   const [toll, fuel] = await Promise.all([
     getTollEstimate(

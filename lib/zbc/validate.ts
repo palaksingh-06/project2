@@ -12,7 +12,6 @@ const HEAD_LABELS: Record<CostHeadId, string> = {
   toll: "Toll & Permits",
   maintenance: "Maintenance & Tyres",
   loading: "Loading & Unloading",
-  idle: "Idle / Waiting Cost",
   overhead: "Overheads",
   risk: "Risk & Variability",
   empty_return: "Empty Return (Backhaul)",

@@ -35,8 +35,8 @@ describe("calculateZBC Delhi-Mumbai 16T", () => {
     trip_type: "one-way",
   });
 
-  it("has 10 cost lines", () => {
-    expect(result.lines).toHaveLength(10);
+  it("has 9 cost lines", () => {
+    expect(result.lines).toHaveLength(9);
   });
 
   it("total equals subtotal plus risk", () => {
@@ -54,7 +54,7 @@ describe("calculateZBC Delhi-Mumbai 16T", () => {
 
   it("validateContributions returns status per head", () => {
     const checks = validateContributions(result);
-    expect(checks).toHaveLength(10);
+    expect(checks).toHaveLength(9);
     checks.forEach((c) => {
       expect(["ok", "low", "high"]).toContain(c.status);
       expect(c.pct).toBeGreaterThanOrEqual(0);

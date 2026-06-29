@@ -4,6 +4,7 @@ import { runCalculation, CalculationError } from "@/lib/zbc/run-calculation";
 
 const overridesSchema = z
   .object({
+    distance_km: z.number().positive().optional(),
     mileage_kmpl: z.number().positive().optional(),
     driver_per_day: z.number().nonnegative().optional(),
     bata_per_trip: z.number().nonnegative().optional(),
@@ -13,8 +14,6 @@ const overridesSchema = z
     state_permit: z.number().nonnegative().optional(),
     maintenance_per_km: z.number().nonnegative().optional(),
     loading_per_ton: z.number().nonnegative().optional(),
-    idle_hours: z.number().nonnegative().optional(),
-    idle_cost_per_hour: z.number().nonnegative().optional(),
     overhead_per_trip: z.number().nonnegative().optional(),
     risk_pct: z.number().min(0).max(1).optional(),
     empty_return_pct: z.number().min(0).max(1).optional(),

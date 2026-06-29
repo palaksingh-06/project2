@@ -52,10 +52,6 @@ export function buildCostHeadProvenance(input: {
     ),
     maintenance: withOverride(TRUCK_CONFIG, overrides, ["maintenance_per_km"]),
     loading: withOverride(TRUCK_CONFIG, overrides, ["loading_per_ton"]),
-    idle: withOverride(TRUCK_CONFIG, overrides, [
-      "idle_hours",
-      "idle_cost_per_hour",
-    ]),
     overhead: withOverride(TRUCK_CONFIG, overrides, ["overhead_per_trip"]),
     risk: withOverride(
       {

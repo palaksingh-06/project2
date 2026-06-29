@@ -65,7 +65,6 @@ describe("buildCostHeadProvenance", () => {
     expect(keys).toContain("toll");
     expect(keys).toContain("maintenance");
     expect(keys).toContain("loading");
-    expect(keys).toContain("idle");
     expect(keys).toContain("overhead");
     expect(keys).toContain("risk");
     expect(keys).toContain("empty_return");

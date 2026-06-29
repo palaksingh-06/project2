@@ -96,6 +96,18 @@
       "mileage_kmpl": 11.2,
       "payload_tons": 7.0
     },
+    "tata-lpt-712": {
+      "label": "Tata LPT 712",
+      "truck_class": "75T_4W",
+      "mileage_kmpl": 9.5,
+      "payload_tons": 7.5
+    },
+    "eicher-pro-2059": {
+      "label": "Eicher Pro 2059",
+      "truck_class": "75T_4W",
+      "mileage_kmpl": 10.0,
+      "payload_tons": 7.0
+    },
     "tata-lpt-912": {
       "label": "Tata LPT 912",
       "truck_class": "9T_4W",

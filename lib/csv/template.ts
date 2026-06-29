@@ -14,6 +14,7 @@ export function getBatchCsvTemplate(): string {
     "destination_lng",
     "route_name",
     "payload_tons",
+    "distance_km",
     "truck_model_id",
     "mileage_kmpl",
     "driver_per_day",
@@ -24,8 +25,6 @@ export function getBatchCsvTemplate(): string {
     "state_permit",
     "maintenance_per_km",
     "loading_per_ton",
-    "idle_hours",
-    "idle_cost_per_hour",
     "overhead_per_trip",
     "risk_pct",
     "empty_return_pct",
@@ -46,6 +45,7 @@ export function getBatchCsvTemplate(): string {
     "",       // destination_lng      (optional — use instead of destination_lat_lng)
     "",       // route_name           (optional — e.g. "Route 1" or "1"; rows sharing a value are connected on the map)
     "14",     // payload_tons
+    "",       // distance_km (optional override — replaces geocoded/routed distance)
     "",       // truck_model_id (optional)
     "",       // mileage_kmpl (optional override)
     "",       // driver_per_day
@@ -56,8 +56,6 @@ export function getBatchCsvTemplate(): string {
     "",       // state_permit
     "",       // maintenance_per_km
     "",       // loading_per_ton
-    "",       // idle_hours
-    "",       // idle_cost_per_hour
     "",       // overhead_per_trip
     "",       // risk_pct (0–1)
     "",       // empty_return_pct (0–1)

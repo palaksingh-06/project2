@@ -14,10 +14,6 @@ type TruckProfile = {
   depreciation_per_km: number;
   maintenance_per_km: number;
   loading_per_ton: number;
-  idle_hours_short_haul: number;
-  idle_hours_medium_haul: number;
-  idle_hours_long_haul: number;
-  idle_cost_per_hour: number;
   overhead_per_trip: number;
   risk_pct: number;
   empty_return_pct: number;
@@ -56,10 +52,6 @@ function buildTruckTable(trucks: Record<string, TruckProfile>): string {
     "Depreciation (₹/km)",
     "Maintenance (₹/km)",
     "Loading (₹/ton)",
-    "Idle — Short (<300 km, hrs)",
-    "Idle — Medium (300–800 km, hrs)",
-    "Idle — Long (>800 km, hrs)",
-    "Idle Cost (₹/hr)",
     "Overheads (₹/trip)",
     "Risk",
     "Empty Return |",
@@ -67,7 +59,7 @@ function buildTruckTable(trucks: Record<string, TruckProfile>): string {
 
   const separator =
     "| " +
-    Array(19).fill("---").join(" | ") +
+    Array(15).fill("---").join(" | ") +
     " |";
 
   const dataRows = rows.map((t) =>
@@ -84,10 +76,6 @@ function buildTruckTable(trucks: Record<string, TruckProfile>): string {
       `₹${t.depreciation_per_km.toFixed(1)}`,
       `₹${t.maintenance_per_km.toFixed(1)}`,
       inr(t.loading_per_ton),
-      t.idle_hours_short_haul,
-      t.idle_hours_medium_haul,
-      t.idle_hours_long_haul,
-      inr(t.idle_cost_per_hour),
       inr(t.overhead_per_trip),
       pct(t.risk_pct),
       `${pct(t.empty_return_pct)} |`,
@@ -147,12 +135,11 @@ All amounts are in **₹ (Indian Rupees)** and are for a **one-way laden trip** 
 | 4 | **Toll & Permits** | Actual FASTag toll + State permit override |
 | 5 | **Maintenance & Tyres** | Maintenance ₹/km × Distance |
 | 6 | **Loading & Unloading** | ₹/ton × Payload (tons) |
-| 7 | **Idle / Waiting** | Idle hours × ₹/hour |
-| 8 | **Overheads** | Fixed allocated amount per trip |
-| 9 | **Risk & Variability** | Risk % × Subtotal (heads 1–8 + 10) |
-| 10 | **Empty Return (Backhaul)** | Empty km × Variable ₹/km *(one-way trips = ₹0)* |
+| 7 | **Overheads** | Fixed allocated amount per trip |
+| 8 | **Risk & Variability** | Risk % × Subtotal (heads 1–7 + 9) |
+| 9 | **Empty Return (Backhaul)** | Empty km × Variable ₹/km *(one-way trips = ₹0)* |
 
-**Subtotal** = sum of heads 1–8 + 10 (excluding Risk)
+**Subtotal** = sum of heads 1–7 + 9 (excluding Risk)
 **Total** = Subtotal + Risk
 
 > **Trip days** = ⌈Distance ÷ (${truckRatesJson.avg_speed_kmh} km/h × 24 h)⌉, minimum 1.
@@ -162,6 +149,21 @@ All amounts are in **₹ (Indian Rupees)** and are for a **one-way laden trip** 
 ## Mileage: Rated vs Effective
 
 The **Rated Mileage** is the manufacturer/ideal figure. The **Effective Mileage** (used in calculations) applies a real-world efficiency factor (~70%) to account for road conditions, load weight, driver behaviour, and traffic.
+
+## Cost-Sharing (Batch only)
+
+When multiple rows share the same **route name**, they are treated as segments of one physical trip. The following cost heads are **divided equally by N** (number of rows on that route):
+
+- Driver & Crew
+- Vehicle Cost
+- Maintenance & Tyres
+- Loading & Unloading
+- Overheads
+- Empty Return
+
+**Fuel** and **Toll** are kept per-segment (each hop burns its own diesel and crosses its own plazas). **Risk** is recomputed from the reduced subtotal.
+
+> Example: Route "R-101" has 3 segments. Driver cost of ₹3,000 becomes ₹1,000 per segment.
 
 ---
 
@@ -202,24 +204,6 @@ For **one-way trips**, empty return = ₹0.
 
 ---
 
-## Route Cost-Sharing (Batch only)
-
-When multiple rows share the same **route name**, they are treated as segments of one physical trip. The following cost heads are **divided equally by N** (number of rows on that route):
-
-- Driver & Crew
-- Vehicle Cost
-- Maintenance & Tyres
-- Loading & Unloading
-- Idle / Waiting
-- Overheads
-- Empty Return
-
-**Fuel** and **Toll** are kept per-segment (each hop burns its own diesel and crosses its own plazas). **Risk** is recomputed from the reduced subtotal.
-
-> Example: Route "R-101" has 3 segments. Driver cost of ₹3,000 becomes ₹1,000 per segment.
-
----
-
 ## Benchmark Ranges
 
 Each cost head is benchmarked against expected contribution ranges. A flag is shown if a head falls outside its normal band.
@@ -232,7 +216,6 @@ Each cost head is benchmarked against expected contribution ranges. A flag is sh
 | Toll & Permits | ${truckRatesJson.contribution_ranges.toll.min}% | ${truckRatesJson.contribution_ranges.toll.max}% |
 | Maintenance | ${truckRatesJson.contribution_ranges.maintenance.min}% | ${truckRatesJson.contribution_ranges.maintenance.max}% |
 | Loading | ${truckRatesJson.contribution_ranges.loading.min}% | ${truckRatesJson.contribution_ranges.loading.max}% |
-| Idle / Waiting | ${truckRatesJson.contribution_ranges.idle.min}% | ${truckRatesJson.contribution_ranges.idle.max}% |
 | Overheads | ${truckRatesJson.contribution_ranges.overhead.min}% | ${truckRatesJson.contribution_ranges.overhead.max}% |
 | Risk | ${truckRatesJson.contribution_ranges.risk.min}% | ${truckRatesJson.contribution_ranges.risk.max}% |
 | Empty Return | ${truckRatesJson.contribution_ranges.empty_return.min}% | ${truckRatesJson.contribution_ranges.empty_return.max}% |
@@ -241,7 +224,7 @@ Each cost head is benchmarked against expected contribution ranges. A flag is sh
 
 ## Truck Rate Card
 
-Effective Mileage is the figure used in all fuel calculations. Idle hours vary automatically by haul distance: short (<300 km), medium (300–800 km), long (>800 km).
+Effective Mileage is the figure used in all fuel calculations.
 
 ${buildTruckTable(trucks)}
 
@@ -253,6 +236,7 @@ Any rate can be overridden per-row in the upload file:
 
 | Column | Description |
 |--------|-------------|
+| \`distance_km\` | Override the geocoded/routed distance (km) |
 | \`mileage_kmpl\` | Override effective mileage (km/L) |
 | \`driver_per_day\` | Driver cost per day (₹) |
 | \`bata_per_trip\` | Bata allowance per trip (₹) |
@@ -262,8 +246,6 @@ Any rate can be overridden per-row in the upload file:
 | \`state_permit\` | State permit / green tax (₹) |
 | \`maintenance_per_km\` | Maintenance & tyres per km (₹) |
 | \`loading_per_ton\` | Loading & unloading per ton (₹) |
-| \`idle_hours\` | Idle / waiting hours (overrides auto-selection) |
-| \`idle_cost_per_hour\` | Idle cost per hour (₹) |
 | \`overhead_per_trip\` | Overhead allocated per trip (₹) |
 | \`risk_pct\` | Risk fraction (0–1, e.g. 0.03 = 3%) |
 | \`empty_return_pct\` | Empty return fraction of laden distance (0–1) |

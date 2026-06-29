@@ -322,7 +322,7 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
           {
             (() => {
               if(markPayloadInvalid)
-                return (<span className="text-xs text-red-500 py-1 italic"> - Invalid payload. Must be within truck's capacity!</span>);
+                return (<span className="text-xs text-red-500 py-1 italic"> - Invalid payload. Must be within truck&apos;s capacity!</span>);
             })()
           }
         </label>
@@ -368,7 +368,15 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
             </button>
           </div>
 
-          <p className="text-xs text-slate-500">Fuel</p>
+          <p className="text-xs text-slate-500">Route</p>
+          <OverrideField
+            label="Distance override (km) — replaces geocoded/routed distance"
+            defaultVal={undefined}
+            fieldKey="distance_km"
+            setOverride={setOverride}
+          />
+
+          <p className="text-xs text-slate-500 pt-1">Fuel</p>
           <OverrideField label="Effective mileage (km/l)" defaultVal={profile.mileage_kmpl_considered} fieldKey="mileage_kmpl" setOverride={setOverride} />
 
           <p className="text-xs text-slate-500 pt-1">Driver & Crew</p>
@@ -385,15 +393,6 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
 
           <p className="text-xs text-slate-500 pt-1">Loading & Unloading</p>
           <OverrideField label="Loading ₹/ton" defaultVal={profile.loading_per_ton} fieldKey="loading_per_ton" setOverride={setOverride} />
-
-          <p className="text-xs text-slate-500 pt-1">Idle / Waiting</p>
-          <OverrideField
-            label={`Idle hours (defaults: ${profile.idle_hours_short_haul}h <300km / ${profile.idle_hours_medium_haul}h 300–800km / ${profile.idle_hours_long_haul}h >800km)`}
-            defaultVal={undefined}
-            fieldKey="idle_hours"
-            setOverride={setOverride}
-          />
-          <OverrideField label="Idle cost ₹/hour" defaultVal={profile.idle_cost_per_hour} fieldKey="idle_cost_per_hour" setOverride={setOverride} />
 
           <p className="text-xs text-slate-500 pt-1">Overheads & Permits</p>
           <OverrideField label="Overheads ₹/trip" defaultVal={profile.overhead_per_trip} fieldKey="overhead_per_trip" setOverride={setOverride} />
