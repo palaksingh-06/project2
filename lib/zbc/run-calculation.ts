@@ -107,17 +107,11 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
   const o = originGeo.result;
   const d = destGeo.result;
 
-  const routedDistance = await getRouteDistance(
-    { lat: o.lat, lng: o.lng },
-    { lat: d.lat, lng: d.lng }
-  );
-
-  // Manual distance override — bypasses the geocoded/routed distance entirely
+  // Manual distance override — skips the routing API call entirely when provided
   // (geocoding still runs above for diesel-price state lookup and the toll API).
   const distanceResult =
     overrides?.distance_km !== undefined
       ? {
-          ...routedDistance,
           distance_km: overrides.distance_km,
           provenance: {
             kind: "input" as const,
@@ -125,7 +119,10 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
             detail: "Advanced rates form",
           },
         }
-      : routedDistance;
+      : await getRouteDistance(
+          { lat: o.lat, lng: o.lng },
+          { lat: d.lat, lng: d.lng }
+        );
 
   const [toll, fuel] = await Promise.all([
     getTollEstimate(

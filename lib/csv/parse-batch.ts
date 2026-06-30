@@ -268,6 +268,16 @@ function resolveTruck(
     };
   }
 
+  // Ambiguity caused solely by a missing body_type (everything else matches exactly)
+  // defaults to "open" — same default the trip form uses.
+  if (bodyType === undefined) {
+    const openCandidates = candidates.filter((c) => c.body_type === "open");
+    if (openCandidates.length === 1) {
+      const profile = getTruckProfile(openCandidates[0].id);
+      return { truckId: openCandidates[0].id, truckLabel: profile?.label ?? openCandidates[0].label, tier: "filtered" };
+    }
+  }
+
   // Multiple candidates — tell the user which ones matched so they can narrow it down
   return {
     error: `Ambiguous — ${candidates.length} trucks match the given info. Add more detail. Options: ${candidates.map((c) => c.label).join(" | ")}`,
