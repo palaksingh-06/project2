@@ -32,6 +32,10 @@ export function BatchResultsTable({ results, apiErrors = [], onShowProvenance }:
 
   // Grand total across all successfully calculated trips
   const grandTotal = results.reduce((sum, r) => sum + r.total, 0);
+  const grandMarketRate = results.reduce(
+    (sum, r) => sum + (r.market_rate_estimate_inr ?? r.total),
+    0
+  );
 
   // Download the route map — only enabled when at least one result has a routeName and lat/lng
   const hasMapData = results.some(
@@ -100,7 +104,8 @@ export function BatchResultsTable({ results, apiErrors = [], onShowProvenance }:
               <th className="px-4 py-3">Origin → Destination</th>
               <th className="px-4 py-3">Distance</th>
               <th className="px-4 py-3">Days</th>
-              <th className="px-4 py-3 text-right">Total ₹</th>
+              <th className="px-4 py-3 text-right">ZBC ₹</th>
+              <th className="px-4 py-3 text-right">Market Rate Est. ₹</th>
               {/* Extra column header for provenance button — only rendered when handler is provided */}
               {onShowProvenance && <th className="px-2 py-3 text-right">Sources</th>}
             </tr>
@@ -127,6 +132,24 @@ export function BatchResultsTable({ results, apiErrors = [], onShowProvenance }:
                     <td className="px-4 py-3 text-slate-600">{r.meta.trip_days}</td>
                     <td className="px-4 py-3 text-right font-semibold tabular-nums">
                       {formatInr(r.total)}
+                    </td>
+                    <td className="px-4 py-3 text-right tabular-nums">
+                      {r.market_rate_estimate_inr !== undefined ? (
+                        <span title={
+                          r.return_load?.match_level === "state"
+                            ? `State avg · ${r.return_load.return_probability_pct}% return prob · ${r.return_load.multiplier}× · ${r.return_load.matched_city}`
+                            : `${r.return_load?.return_probability_pct ?? "?"}% return prob · ${r.return_load?.multiplier ?? "?"}× · ${r.return_load?.hub ?? ""}`
+                        }>
+                          {formatInr(r.market_rate_estimate_inr)}
+                          {r.return_load?.match_level === "state" && (
+                            <span className="ml-1 text-xs text-slate-400">~</span>
+                          )}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400" title="City not in master — showing raw ZBC">
+                          {formatInr(r.total)}
+                        </span>
+                      )}
                     </td>
                     {/* ⓘ button — stops row expand-click propagation */}
                     {onShowProvenance && (
@@ -166,6 +189,7 @@ export function BatchResultsTable({ results, apiErrors = [], onShowProvenance }:
             <tr className="border-t-2 border-slate-300 bg-slate-50 font-semibold">
               <td colSpan={4} className="px-4 py-3 text-slate-600">Grand Total ({results.length} trips)</td>
               <td className="px-4 py-3 text-right tabular-nums">{formatInr(grandTotal)}</td>
+              <td className="px-4 py-3 text-right tabular-nums">{formatInr(grandMarketRate)}</td>
             </tr>
           </tbody>
         </table>

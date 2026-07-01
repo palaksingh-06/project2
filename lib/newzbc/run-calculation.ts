@@ -3,13 +3,27 @@ import { geocode } from "@/lib/providers/geocode";
 import { getDieselPrice } from "@/lib/providers/fuel";
 import { getRouteDistance } from "@/lib/providers/routing";
 import { getTollEstimate } from "@/lib/providers/tolls";
+import type { TollEstimate } from "@/lib/providers/tolls";
 import { buildCostHeadProvenance } from "@/lib/zbc/cost-head-provenance";
 import { calculateZBC, tripDays } from "@/lib/zbc/calculate";
 import { validateContributions } from "@/lib/zbc/validate";
 import { CalculationError } from "@/lib/zbc/run-calculation";
 import type { CalculationResponse } from "@/lib/zbc/run-calculation";
 import type { RateOverrides, CostHeadId } from "@/lib/zbc/types";
+import type { Provenance } from "@/lib/zbc/provenance";
 import type { MultiStopCalculationRequest } from "@/lib/newzbc/types";
+
+// Resolved location, or a degraded stand-in when geocoding failed but a
+// distance_km override let the calculation proceed anyway.
+interface ResolvedLocation {
+  name: string;
+  state: string;
+  lat?: number;
+  lng?: number;
+  resolved_address?: string;
+  provenance: Provenance;
+  name_provenance?: Provenance;
+}
 
 function warnIfNotApi(
   warnings: string[],
@@ -35,6 +49,7 @@ export async function runCalculation(req: MultiStopCalculationRequest): Promise<
 
   const config = getTruckRatesConfig();
   const warnings: string[] = [];
+  const hasDistanceOverride = overrides?.distance_km !== undefined;
 
   // Geocode origin and all destinations in parallel
   const [originGeoResult, ...destGeoResults] = await Promise.all([
@@ -42,11 +57,14 @@ export async function runCalculation(req: MultiStopCalculationRequest): Promise<
     ...destinations.map((d) => geocode(d)),
   ]);
 
-  if (!originGeoResult.result) {
+  // A manual distance override makes geocoding optional — the trip can still be
+  // costed without resolved coordinates. Only fail hard when there's no override
+  // to fall back on, since distance, tolls, and diesel state all depend on it otherwise.
+  if (!originGeoResult.result && !hasDistanceOverride) {
     throw new CalculationError("Could not resolve origin", originGeoResult.suggestions);
   }
   for (let i = 0; i < destGeoResults.length; i++) {
-    if (!destGeoResults[i].result) {
+    if (!destGeoResults[i].result && !hasDistanceOverride) {
       throw new CalculationError(
         `Could not resolve stop ${i + 1}: ${destinations[i]}`,
         destGeoResults[i].suggestions
@@ -54,50 +72,104 @@ export async function runCalculation(req: MultiStopCalculationRequest): Promise<
     }
   }
 
-  const o = originGeoResult.result;
-  const destResults = destGeoResults.map((r) => r.result!);
+  const unresolvedProvenance: Provenance = {
+    kind: "error",
+    label: "Could not geocode — using distance override",
+  };
+
+  const o: ResolvedLocation = originGeoResult.result ?? {
+    name: origin,
+    state: "India",
+    provenance: unresolvedProvenance,
+  };
+  const destResults: ResolvedLocation[] = destGeoResults.map(
+    (r, i) => r.result ?? { name: destinations[i], state: "India", provenance: unresolvedProvenance }
+  );
   const finalDest = destResults[destResults.length - 1];
+
+  if (!originGeoResult.result) warnings.push(`Origin "${origin}" could not be geocoded — using distance override; tolls fall back to ₹/km estimate.`);
+  destGeoResults.forEach((r, i) => {
+    if (!r.result) warnings.push(`Stop ${i + 1} "${destinations[i]}" could not be geocoded — using distance override; tolls fall back to ₹/km estimate.`);
+  });
 
   // Build leg endpoints: (origin→stop[0]), (stop[0]→stop[1]), …, (stop[n-2]→stop[n-1])
   const legFrom = [o, ...destResults.slice(0, -1)];
   const legTo = destResults;
 
-  // Get distances for all legs in parallel
-  const legDistances = await Promise.all(
-    legFrom.map((from, i) =>
-      getRouteDistance({ lat: from.lat, lng: from.lng }, { lat: legTo[i].lat, lng: legTo[i].lng })
-    )
-  );
+  let totalDistance: number;
+  let totalTollInr: number;
+  let totalPlazaCount: number;
+  let primaryDistanceProvenance: Provenance;
+  let primaryToll: TollEstimate;
+  let fuel: Awaited<ReturnType<typeof getDieselPrice>>;
 
-  // Get tolls (with known per-leg distances) and fuel in parallel
-  const [legTolls, fuel] = await Promise.all([
-    Promise.all(
+  if (hasDistanceOverride) {
+    // Manual distance override — applies to the whole multi-stop trip as a single
+    // combined distance, skipping per-leg routing entirely (one user-supplied
+    // number can't be meaningfully split back into individual legs).
+    totalDistance = overrides!.distance_km!;
+    primaryDistanceProvenance = {
+      kind: "input",
+      label: "User override",
+      detail: "Advanced rates form",
+    };
+    [primaryToll, fuel] = await Promise.all([
+      getTollEstimate(
+        o.name,
+        finalDest.name,
+        profile.toll_class,
+        totalDistance,
+        originGeoResult.result ? { lat: o.lat!, lng: o.lng! } : undefined,
+        destGeoResults[destGeoResults.length - 1].result ? { lat: finalDest.lat!, lng: finalDest.lng! } : undefined
+      ),
+      getDieselPrice(o.state),
+    ]);
+    totalTollInr = primaryToll.total_inr;
+    totalPlazaCount = primaryToll.plaza_count;
+    if (destinations.length > 1) {
+      warnings.push("Distance override applies to the whole trip — per-leg distance/toll breakdown is not available for this calculation.");
+    }
+  } else {
+    // Get distances for all legs in parallel
+    const legDistances = await Promise.all(
       legFrom.map((from, i) =>
-        getTollEstimate(
-          from.name,
-          legTo[i].name,
-          profile.toll_class,
-          legDistances[i].distance_km,
-          { lat: from.lat, lng: from.lng },
-          { lat: legTo[i].lat, lng: legTo[i].lng }
-        )
+        getRouteDistance({ lat: from.lat!, lng: from.lng! }, { lat: legTo[i].lat!, lng: legTo[i].lng! })
       )
-    ),
-    getDieselPrice(o.state),
-  ]);
+    );
 
-  // Aggregate across legs
-  const totalDistance = legDistances.reduce((sum, d) => sum + d.distance_km, 0);
-  const totalTollInr = legTolls.reduce((sum, t) => sum + t.total_inr, 0);
-  const totalPlazaCount = legTolls.reduce((sum, t) => sum + t.plaza_count, 0);
+    // Get tolls (with known per-leg distances) and fuel in parallel
+    let legTolls: TollEstimate[];
+    [legTolls, fuel] = await Promise.all([
+      Promise.all(
+        legFrom.map((from, i) =>
+          getTollEstimate(
+            from.name,
+            legTo[i].name,
+            profile.toll_class,
+            legDistances[i].distance_km,
+            { lat: from.lat!, lng: from.lng! },
+            { lat: legTo[i].lat!, lng: legTo[i].lng! }
+          )
+        )
+      ),
+      getDieselPrice(o.state),
+    ]);
 
-  // Warn if any leg relied on non-API data
-  legDistances.forEach((d, i) =>
-    warnIfNotApi(warnings, destinations.length > 1 ? `Leg ${i + 1} distance` : "Distance", d.provenance)
-  );
-  legTolls.forEach((t, i) =>
-    warnIfNotApi(warnings, destinations.length > 1 ? `Leg ${i + 1} tolls` : "Tolls", t.provenance)
-  );
+    totalDistance = legDistances.reduce((sum, d) => sum + d.distance_km, 0);
+    totalTollInr = legTolls.reduce((sum, t) => sum + t.total_inr, 0);
+    totalPlazaCount = legTolls.reduce((sum, t) => sum + t.plaza_count, 0);
+    primaryDistanceProvenance = legDistances[0].provenance;
+    primaryToll = legTolls[0];
+
+    // Warn if any leg relied on non-API data
+    legDistances.forEach((d, i) =>
+      warnIfNotApi(warnings, destinations.length > 1 ? `Leg ${i + 1} distance` : "Distance", d.provenance)
+    );
+    legTolls.forEach((t, i) =>
+      warnIfNotApi(warnings, destinations.length > 1 ? `Leg ${i + 1} tolls` : "Tolls", t.provenance)
+    );
+  }
+
   warnIfNotApi(warnings, "Diesel", fuel.provenance);
 
   const payload = payloadTons ?? profile.payload_tons;
@@ -141,7 +213,7 @@ export async function runCalculation(req: MultiStopCalculationRequest): Promise<
   const combinedToll = {
     total_inr: totalTollInr,
     plaza_count: totalPlazaCount,
-    provenance: legTolls[0].provenance,
+    provenance: primaryToll.provenance,
   };
 
   const result = calculateZBC({
@@ -173,8 +245,8 @@ export async function runCalculation(req: MultiStopCalculationRequest): Promise<
           ? Math.round((line.amount_inr / result.total_inr) * 1000) / 10
           : 0,
       provenance: costHeadProvenance[line.id as keyof typeof costHeadProvenance],
-      ...(line.id === "toll" && legTolls[0].plazas_detail?.length
-        ? { toll_plazas: legTolls[0].plazas_detail }
+      ...(line.id === "toll" && primaryToll.plazas_detail?.length
+        ? { toll_plazas: primaryToll.plazas_detail }
         : {}),
     })),
     contributions,
@@ -204,14 +276,14 @@ export async function runCalculation(req: MultiStopCalculationRequest): Promise<
         geocode_origin_name: o.name_provenance,
         geocode_destination: finalDest.provenance,
         geocode_destination_name: finalDest.name_provenance,
-        distance: legDistances[0].provenance,
+        distance: primaryDistanceProvenance,
         fuel: fuel.provenance,
         toll: combinedToll.provenance,
       },
       cost_heads: costHeadProvenance,
       toll: {
         plazas: totalPlazaCount,
-        highway: legTolls[0].highway,
+        highway: primaryToll.highway,
       },
       fuel: {
         price_inr: fuel.price_inr,

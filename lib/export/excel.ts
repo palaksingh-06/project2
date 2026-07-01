@@ -58,6 +58,8 @@ interface CalculationResult {
     fuel: { price_inr: number; state: string };
     toll: { plazas: number };
   };
+  market_rate_estimate_inr?: number;
+  return_load?: { multiplier: number; hub: string; terrain: string; return_probability_pct: number; match_level?: string; matched_city?: string };
 }
 
 export interface BatchRowResult extends CalculationResult {
@@ -88,7 +90,13 @@ function buildRow(
   }
 
   row["Subtotal (₹)"] = Math.round(result.subtotal);
-  row["Total (₹)"] = Math.round(result.total);
+  row["Total ZBC (₹)"] = Math.round(result.total);
+
+  row["Market Rate Est. (₹)"] = result.market_rate_estimate_inr ?? Math.round(result.total);
+  row["Return Multiplier"] = result.return_load?.multiplier ?? "1.00";
+  row["Return Prob. (%)"] = result.return_load?.return_probability_pct ?? "";
+  row["Logistics Hub"] = result.return_load?.hub ?? "";
+  row["Terrain"] = result.return_load?.terrain ?? "";
 
   return row;
 }

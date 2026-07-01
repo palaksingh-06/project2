@@ -5,9 +5,23 @@ import { getRouteDistance } from "@/lib/providers/routing";
 import { getTollEstimate } from "@/lib/providers/tolls";
 import { buildCostHeadProvenance } from "@/lib/zbc/cost-head-provenance";
 import { calculateZBC, tripDays } from "@/lib/zbc/calculate";
+import { lookupReturnLoad } from "@/lib/zbc/return-load-master";
+import type { ReturnLoadInfo } from "@/lib/zbc/return-load-master";
 import { validateContributions } from "@/lib/zbc/validate";
 import type { RateOverrides, CostHeadId } from "@/lib/zbc/types";
 import type { Provenance } from "@/lib/zbc/provenance";
+
+// Resolved location, or a degraded stand-in when geocoding failed but a
+// distance_km override let the calculation proceed anyway.
+interface ResolvedLocation {
+  name: string;
+  state: string;
+  lat?: number;
+  lng?: number;
+  resolved_address?: string;
+  provenance: Provenance;
+  name_provenance?: Provenance;
+}
 
 export interface CalculationRequest {
   truckId: string;
@@ -35,8 +49,8 @@ export interface CalculationResponse {
   meta: {
     trip_days: number;
     distance_km: number;
-    origin: { name: string; state: string; lat: number; lng: number; resolved_address?: string; provenance: Provenance; name_provenance?: Provenance };
-    destination: { name: string; state: string; lat: number; lng: number; resolved_address?: string; provenance: Provenance; name_provenance?: Provenance };
+    origin: { name: string; state: string; lat?: number; lng?: number; resolved_address?: string; provenance: Provenance; name_provenance?: Provenance };
+    destination: { name: string; state: string; lat?: number; lng?: number; resolved_address?: string; provenance: Provenance; name_provenance?: Provenance };
     inputs: {
       geocode_origin: Provenance;
       geocode_origin_name?: Provenance;
@@ -59,6 +73,8 @@ export interface CalculationResponse {
     };
   };
   warnings: string[];
+  market_rate_estimate_inr?: number;
+  return_load?: ReturnLoadInfo;
 }
 
 function warnIfNotApi(
@@ -92,20 +108,41 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
   const config = getTruckRatesConfig();
   const warnings: string[] = [];
 
+  const hasDistanceOverride = overrides?.distance_km !== undefined;
+
   const [originGeo, destGeo] = await Promise.all([
     geocode(origin),
     geocode(destination),
   ]);
 
-  if (!originGeo.result) {
+  // A manual distance override makes geocoding optional — the trip can still be
+  // costed without resolved coordinates. Only fail hard when there's no override
+  // to fall back on, since distance, tolls, and diesel state all depend on it otherwise.
+  if (!originGeo.result && !hasDistanceOverride) {
     throw new CalculationError("Could not resolve origin", originGeo.suggestions);
   }
-  if (!destGeo.result) {
+  if (!destGeo.result && !hasDistanceOverride) {
     throw new CalculationError("Could not resolve destination", destGeo.suggestions);
   }
 
-  const o = originGeo.result;
-  const d = destGeo.result;
+  const unresolvedProvenance: Provenance = {
+    kind: "error",
+    label: "Could not geocode — using distance override",
+  };
+
+  const o: ResolvedLocation = originGeo.result ?? {
+    name: origin,
+    state: "India",
+    provenance: unresolvedProvenance,
+  };
+  const d: ResolvedLocation = destGeo.result ?? {
+    name: destination,
+    state: "India",
+    provenance: unresolvedProvenance,
+  };
+
+  if (!originGeo.result) warnings.push(`Origin "${origin}" could not be geocoded — using distance override; tolls fall back to ₹/km estimate.`);
+  if (!destGeo.result) warnings.push(`Destination "${destination}" could not be geocoded — using distance override; tolls fall back to ₹/km estimate.`);
 
   // Manual distance override — skips the routing API call entirely when provided
   // (geocoding still runs above for diesel-price state lookup and the toll API).
@@ -120,8 +157,8 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
           },
         }
       : await getRouteDistance(
-          { lat: o.lat, lng: o.lng },
-          { lat: d.lat, lng: d.lng }
+          { lat: o.lat!, lng: o.lng! },
+          { lat: d.lat!, lng: d.lng! }
         );
 
   const [toll, fuel] = await Promise.all([
@@ -130,8 +167,8 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
       d.name,
       profile.toll_class,
       distanceResult.distance_km,
-      { lat: o.lat, lng: o.lng },
-      { lat: d.lat, lng: d.lng }
+      originGeo.result ? { lat: o.lat!, lng: o.lng! } : undefined,
+      destGeo.result ? { lat: d.lat!, lng: d.lng! } : undefined
     ),
     getDieselPrice(o.state),
   ]);
@@ -197,6 +234,11 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
     trip_type: tripType ?? "one-way",
   });
 
+  const returnLoad = lookupReturnLoad(d.name, d.state);
+  const marketRateEstimate = returnLoad
+    ? Math.round(result.total_inr * returnLoad.multiplier)
+    : undefined;
+
   const contributions = validateContributions(result);
   const costHeadProvenance = buildCostHeadProvenance({
     toll: toll.provenance,
@@ -260,5 +302,7 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
       truck: truckMeta,
     },
     warnings,
+    market_rate_estimate_inr: marketRateEstimate,
+    return_load: returnLoad ?? undefined,
   };
 }

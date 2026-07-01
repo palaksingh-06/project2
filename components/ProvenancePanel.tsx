@@ -13,8 +13,8 @@ interface ProvenanceInfo {
 
 interface ProvenanceData {
   meta: {
-    origin?: { name: string; lat: number; lng: number; resolved_address?: string };
-    destination?: { name: string; lat: number; lng: number; resolved_address?: string };
+    origin?: { name: string; lat?: number; lng?: number; resolved_address?: string };
+    destination?: { name: string; lat?: number; lng?: number; resolved_address?: string };
     inputs?: {
       geocode_origin?: ProvenanceInfo;
       geocode_origin_name?: ProvenanceInfo;
