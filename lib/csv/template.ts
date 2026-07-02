@@ -20,13 +20,9 @@ export function getBatchCsvTemplate(): string {
     "driver_per_day",
     "bata_per_trip",
     "night_halt_per_night",
-    "depreciation_per_km",
-    "vehicle_per_trip",
-    "state_permit",
     "maintenance_per_km",
+    "state_permit",
     "loading_per_ton",
-    "overhead_per_trip",
-    "risk_pct",
     "empty_return_pct",
   ];
 
@@ -51,14 +47,10 @@ export function getBatchCsvTemplate(): string {
     "",       // driver_per_day
     "",       // bata_per_trip
     "",       // night_halt_per_night
-    "",       // depreciation_per_km
-    "",       // vehicle_per_trip
-    "",       // state_permit
     "",       // maintenance_per_km
+    "",       // state_permit
     "",       // loading_per_ton
-    "",       // overhead_per_trip
-    "",       // risk_pct (0–1)
-    "",       // empty_return_pct (0–1)
+    "",       // empty_return_pct (0-1)
   ];
 
   return [headers.join(","), exampleRow.join(",")].join("\r\n");

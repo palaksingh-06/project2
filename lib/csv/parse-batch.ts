@@ -52,13 +52,9 @@ const OVERRIDE_COLUMNS = [
   "driver_per_day",
   "bata_per_trip",
   "night_halt_per_night",
-  "depreciation_per_km",
-  "vehicle_per_trip",
-  "state_permit",
   "maintenance_per_km",
+  "state_permit",
   "loading_per_ton",
-  "overhead_per_trip",
-  "risk_pct",
   "empty_return_pct",
 ] as const;
 
@@ -491,13 +487,9 @@ export function validateBatchRows(
       { key: "driver_per_day", col: "driver_per_day", min: 0 },
       { key: "bata_per_trip", col: "bata_per_trip", min: 0 },
       { key: "night_halt_per_night", col: "night_halt_per_night", min: 0 },
-      { key: "depreciation_per_km", col: "depreciation_per_km", min: 0 },
-      { key: "vehicle_per_trip", col: "vehicle_per_trip", min: 0 },
-      { key: "state_permit", col: "state_permit", min: 0 },
       { key: "maintenance_per_km", col: "maintenance_per_km", min: 0 },
+      { key: "state_permit", col: "state_permit", min: 0 },
       { key: "loading_per_ton", col: "loading_per_ton", min: 0 },
-      { key: "overhead_per_trip", col: "overhead_per_trip", min: 0 },
-      { key: "risk_pct", col: "risk_pct", min: 0, max: 1 },
       { key: "empty_return_pct", col: "empty_return_pct", min: 0, max: 1 },
     ];
 
