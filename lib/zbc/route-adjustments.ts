@@ -11,31 +11,48 @@
 //
 // What it does:
 //   Route cost-sharing — all rows that share the same `route_name` are treated
-//   as one physical trip. The per-trip / per-day cost heads (driver, vehicle,
-//   maintenance, loading, idle, overhead, empty return) are counted ONCE for the
-//   whole route and split equally across N = the number of rows that share that
-//   route_name. Fuel and Toll stay per-segment (each hop burns its own diesel
-//   and crosses its own plazas). Risk is a % of subtotal so it is recomputed from
-//   the reduced subtotal automatically (no separate division — that would
-//   double-count).
+//   as one physical trip. The per-trip / per-day / annual-km fixed cost heads
+//   (driver, helper, maintenance, tyres, depreciation-aging, insurance, road
+//   tax, fitness, interest, optional add-ons, loading, empty return) are
+//   counted ONCE for the whole route and split equally across N = the number
+//   of rows that share that route_name. Fuel, Toll, and Depreciation (Usage)
+//   stay per-segment (each hop burns its own diesel, crosses its own plazas,
+//   and wears the truck by its own actual km). Overhead and Profit are two
+//   percentage markups, so they are recomputed from the post-split cost base
+//   automatically (no separate division — that would double-count).
 // ════════════════════════════════════════════════════════════════════════════
 
 // Master on/off switch for this whole model-specific behaviour.
 export const ROUTE_ADJUSTMENTS_ENABLED = true;
 
 // Cost heads that represent one trip's shared fixed cost and are therefore split
-// equally across the route's stops. Fuel + Toll are intentionally excluded (they
-// stay per-segment); Risk is excluded here because it is derived from subtotal and
-// is recomputed afterwards.
+// equally across the route's stops. Fuel, Toll, and Depreciation (Usage) are
+// intentionally excluded — they scale with each segment's actual km driven, so
+// they stay per-segment. Overhead and Profit are excluded here because they are
+// recomputed from the post-split cost base afterwards (dividing them directly
+// would double-count the effect of the split).
 const SPLIT_HEAD_IDS = new Set([
   "driver",
-  "vehicle",
+  "helper",
   "maintenance",
+  "tyres",
+  "depreciation_aging",
+  "insurance",
+  "road_tax",
+  "fitness",
+  "interest",
+  "gps",
+  "fastag_fee",
+  "rto_misc",
+  "tarpaulin",
+  "other_fixed",
   "loading",
-  "idle",
-  "overhead",
   "empty_return",
 ]);
+
+// Cost heads excluded from the overhead/profit base recomputation below —
+// mirrors the exclusion list in lib/zbc/calculate.ts's overheadProfitBase.
+const MARKUP_EXCLUDED_IDS = new Set(["toll", "loading", "empty_return", "overhead", "profit"]);
 
 // Minimal structural shapes we touch — kept local so this file has no coupling to
 // the wider result types and can be deleted cleanly.
@@ -87,14 +104,11 @@ export function applyRouteAdjustments<T extends AdjustableRow>(results: T[]): T[
 }
 
 // Adjusts a single row: splits shared heads by the route size `n`, then
-// recomputes risk, subtotal, total and per-line %.
+// recomputes overhead, profit, subtotal, total and per-line %.
 function adjustRow(row: AdjustableRow, n: number): void {
   const lines = row.breakdown;
 
   // ── Split shared per-trip / per-day heads across the route's stops ──────────
-  // (The short-hop toll-free rule now lives in lib/providers/tolls.ts so it
-  //  applies consistently to both single and batch trips, and only to the
-  //  fallback estimate — not when TollGuru returns a real value.)
   if (n > 1) {
     for (const line of lines) {
       if (SPLIT_HEAD_IDS.has(line.id)) {
@@ -103,38 +117,42 @@ function adjustRow(row: AdjustableRow, n: number): void {
     }
   }
 
-  // ── 3. Recompute risk from the adjusted subtotal ──────────────────────────
-  // Subtotal = every head except risk. Risk = subtotal × risk_pct, so it shrinks
-  // in step with the split heads instead of being divided separately.
-  const subtotal = lines
-    .filter((l) => l.id !== "risk")
+  // ── Recompute overhead & profit from the adjusted cost base ────────────────
+  // The cost base is every line except toll, loading, empty_return, overhead,
+  // and profit itself — same exclusion set lib/zbc/calculate.ts uses.
+  const base = lines
+    .filter((l) => !MARKUP_EXCLUDED_IDS.has(l.id))
     .reduce((s, l) => s + l.amount_inr, 0);
 
-  const riskLine = lines.find((l) => l.id === "risk");
-  if (riskLine) {
-    // Prefer the stored risk_pct; fall back to the original risk/subtotal ratio.
-    const storedPct =
-      typeof riskLine.inputs?.risk_pct === "number"
-        ? (riskLine.inputs.risk_pct as number)
-        : undefined;
-    const prevSubtotal =
-      typeof riskLine.inputs?.subtotal_inr === "number"
-        ? (riskLine.inputs.subtotal_inr as number)
-        : undefined;
-    const riskPct =
-      storedPct ??
-      (prevSubtotal && prevSubtotal > 0
-        ? riskLine.amount_inr / prevSubtotal
-        : 0);
-    riskLine.amount_inr = round(subtotal * riskPct);
-    // Keep the stored subtotal input in sync for transparency.
-    if (riskLine.inputs) riskLine.inputs.subtotal_inr = round(subtotal);
+  const overheadLine = lines.find((l) => l.id === "overhead");
+  const profitLine = lines.find((l) => l.id === "profit");
+
+  const overheadPct =
+    typeof overheadLine?.inputs?.overhead_pct === "number"
+      ? (overheadLine.inputs.overhead_pct as number)
+      : 0.07;
+  const profitPct =
+    typeof profitLine?.inputs?.profit_pct === "number"
+      ? (profitLine.inputs.profit_pct as number)
+      : 0.1;
+
+  if (overheadLine) {
+    overheadLine.amount_inr = round(base * overheadPct);
+    if (overheadLine.inputs) overheadLine.inputs.base_inr = round(base);
+  }
+  if (profitLine) {
+    profitLine.amount_inr = round(base * profitPct);
+    if (profitLine.inputs) profitLine.inputs.base_inr = round(base);
   }
 
-  const risk = riskLine?.amount_inr ?? 0;
-  const total = subtotal + risk;
+  const subtotal = lines
+    .filter((l) => l.id !== "overhead" && l.id !== "profit")
+    .reduce((s, l) => s + l.amount_inr, 0);
+  const overhead = overheadLine?.amount_inr ?? 0;
+  const profit = profitLine?.amount_inr ?? 0;
+  const total = subtotal + overhead + profit;
 
-  // ── 4. Write back totals and recompute each line's % of total ─────────────
+  // ── Write back totals and recompute each line's % of total ─────────────
   row.subtotal = round(subtotal);
   row.total = round(total);
   for (const line of lines) {
