@@ -95,7 +95,7 @@ export function generateMethodologyMd(): string {
 
 ## Overview
 
-This tool calculates the full cost of a freight trip by summing **10 cost heads** from first principles. Every input is traceable to a data source shown in the "Sources" panel on each result.
+This tool calculates the full cost of a freight trip by summing **16 cost heads** (fixed, variable, and margin) from first principles — up to 21 when optional add-on fixed costs are included. Every input is traceable to a data source shown in the "Sources" panel on each result.
 
 ---
 
