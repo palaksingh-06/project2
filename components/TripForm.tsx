@@ -428,10 +428,11 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
           <OverrideField label="Driver ₹/day" defaultVal={profile.driver_per_day} fieldKey="driver_per_day" setOverride={setOverride} />
           <OverrideField label="Bata allowance ₹/trip" defaultVal={profile.bata_per_trip} fieldKey="bata_per_trip" setOverride={setOverride} />
           <OverrideField label="Night halt ₹/night" defaultVal={profile.night_halt_per_night} fieldKey="night_halt_per_night" setOverride={setOverride} />
+          <OverrideField label="Helper ₹/day (off by default)" defaultVal={profile.helper_per_day} fieldKey="helper_per_day" setOverride={setOverride} />
 
-          <p className="text-xs text-slate-500 pt-1">Vehicle depreciation</p>
-          <OverrideField label="Depreciation ₹/km (owned fleet)" defaultVal={profile.depreciation_per_km} fieldKey="depreciation_per_km" setOverride={setOverride} />
-          <OverrideField label="Hire charge ₹/trip (hired truck — overrides ₹/km)" defaultVal={undefined} fieldKey="vehicle_per_trip" setOverride={setOverride} />
+          <p className="text-xs text-slate-500 pt-1">Depreciation (Vehicle)</p>
+          <OverrideField label="Ex-showroom price (₹)" defaultVal={profile.ex_showroom_inr} fieldKey="ex_showroom_inr" setOverride={setOverride} />
+          <OverrideField label="Salvage value (0–1)" defaultVal={profile.salvage_pct} fieldKey="salvage_pct" setOverride={setOverride} />
 
           <p className="text-xs text-slate-500 pt-1">Maintenance</p>
           <OverrideField label="Maintenance ₹/km" defaultVal={profile.maintenance_per_km} fieldKey="maintenance_per_km" setOverride={setOverride} />
@@ -439,12 +440,12 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
           <p className="text-xs text-slate-500 pt-1">Loading & Unloading</p>
           <OverrideField label="Loading ₹/ton" defaultVal={profile.loading_per_ton} fieldKey="loading_per_ton" setOverride={setOverride} />
 
-          <p className="text-xs text-slate-500 pt-1">Overheads & Permits</p>
-          <OverrideField label="Overheads ₹/trip" defaultVal={profile.overhead_per_trip} fieldKey="overhead_per_trip" setOverride={setOverride} />
+          <p className="text-xs text-slate-500 pt-1">Overhead & Profit</p>
+          <OverrideField label="Overhead % (0–1)" defaultVal={0.07} fieldKey="overhead_pct" setOverride={setOverride} />
+          <OverrideField label="Profit % (0–1)" defaultVal={0.10} fieldKey="profit_pct" setOverride={setOverride} />
           <OverrideField label="State permit ₹/trip" defaultVal={undefined} fieldKey="state_permit" setOverride={setOverride} />
 
-          <p className="text-xs text-slate-500 pt-1">Risk & Empty Return</p>
-          <OverrideField label="Risk % (0–1)" defaultVal={profile.risk_pct} fieldKey="risk_pct" setOverride={setOverride} />
+          <p className="text-xs text-slate-500 pt-1">Empty Return</p>
           <OverrideField label="Empty return % (0–1)" defaultVal={profile.empty_return_pct} fieldKey="empty_return_pct" setOverride={setOverride} />
         </div>
       )}

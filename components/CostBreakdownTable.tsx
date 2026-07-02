@@ -74,18 +74,6 @@ function DetailPanel({ row }: { row: BreakdownRow }) {
     );
   }
 
-  if (id === "vehicle") {
-    return (
-      <div className="space-y-1 text-xs text-slate-600">
-        {inputs.depreciation_per_km !== undefined
-          ? <p>₹{inputs.depreciation_per_km}/km × {inputs.distance_km} km = <strong>{formatInr(row.amount_inr)}</strong></p>
-          : <p>Hire charge per trip: <strong>{formatInr(row.amount_inr)}</strong></p>
-        }
-        <p className="text-slate-400">Covers truck depreciation + financing cost spread over lifetime km</p>
-      </div>
-    );
-  }
-
   if (id === "toll") {
     if (toll_plazas && toll_plazas.length > 0) {
       return (
@@ -162,20 +150,18 @@ function DetailPanel({ row }: { row: BreakdownRow }) {
     );
   }
 
-  if (id === "overhead") {
+  if (id === "overhead" || id === "profit") {
     return (
       <div className="space-y-1 text-xs text-slate-600">
-        <p>Fixed per trip: <strong>{formatInr(Number(inputs.per_trip))}</strong></p>
-        <p className="text-slate-400">GPS + admin + insurance allocation + driver phone</p>
-      </div>
-    );
-  }
-
-  if (id === "risk") {
-    return (
-      <div className="space-y-1 text-xs text-slate-600">
-        <p>{(Number(inputs.risk_pct) * 100).toFixed(1)}% of {formatInr(Number(inputs.subtotal_inr))} subtotal = <strong>{formatInr(row.amount_inr)}</strong></p>
-        <p className="text-slate-400">Cargo insurance, pilferage, transit damage buffer</p>
+        <p>
+          {((Number(inputs[id === "overhead" ? "overhead_pct" : "profit_pct"])) * 100).toFixed(0)}%
+          of {formatInr(Number(inputs.base_inr))} cost base = <strong>{formatInr(row.amount_inr)}</strong>
+        </p>
+        <p className="text-slate-400">
+          {id === "overhead"
+            ? "Business overhead (dispatch, admin, insurance administration)"
+            : "Transporter margin"}
+        </p>
       </div>
     );
   }
