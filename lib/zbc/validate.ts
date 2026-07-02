@@ -7,14 +7,26 @@ import type {
 
 const HEAD_LABELS: Record<CostHeadId, string> = {
   fuel: "Fuel Cost",
-  driver: "Driver & Crew",
-  vehicle: "Vehicle Cost",
+  driver: "Driver Salary",
+  helper: "Helper / Cleaner Salary",
+  maintenance: "Maintenance",
+  tyres: "Tyres",
+  depreciation_usage: "Depreciation (Usage)",
+  depreciation_aging: "Depreciation (Aging)",
+  insurance: "Insurance",
+  road_tax: "Road Tax / Permit",
+  fitness: "Fitness Certificate",
+  interest: "Interest (Loan Carrying Cost)",
+  gps: "GPS Charges",
+  fastag_fee: "FASTag Service Fee",
+  rto_misc: "RTO / Miscellaneous",
+  tarpaulin: "Tarpaulin",
+  other_fixed: "Other Fixed Costs",
   toll: "Toll & Permits",
-  maintenance: "Maintenance & Tyres",
   loading: "Loading & Unloading",
-  overhead: "Overheads",
-  risk: "Risk & Variability",
   empty_return: "Empty Return (Backhaul)",
+  overhead: "Overhead",
+  profit: "Transporter Profit",
 };
 
 export function validateContributions(
