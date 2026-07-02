@@ -132,7 +132,7 @@ export default function HomePage() {
               Zero Based Costing Calculator
             </h1>
             <p className="mt-1 text-slate-600">
-              Estimate freight trip cost across 10 cost heads.
+              Estimate freight trip cost across fixed, variable, and margin cost heads.
             </p>
           </div>
           <button
