@@ -1,4 +1,4 @@
-import { getTruckModel, getTruckProfile, getTruckRatesConfig } from "@/lib/config";
+import { getTruckModel, getTruckProfile, getTruckRatesConfig, getZbcGuidelines } from "@/lib/config";
 import { geocode } from "@/lib/providers/geocode";
 import { getDieselPrice } from "@/lib/providers/fuel";
 import { getRouteDistance } from "@/lib/providers/routing";
@@ -6,6 +6,7 @@ import { getTollEstimate } from "@/lib/providers/tolls";
 import type { TollEstimate } from "@/lib/providers/tolls";
 import { buildCostHeadProvenance } from "@/lib/zbc/cost-head-provenance";
 import { calculateZBC, tripDays } from "@/lib/zbc/calculate";
+import { lookupReturnLoad } from "@/lib/zbc/return-load-master";
 import { validateContributions } from "@/lib/zbc/validate";
 import { CalculationError } from "@/lib/zbc/run-calculation";
 import type { CalculationResponse } from "@/lib/zbc/run-calculation";
@@ -216,6 +217,8 @@ export async function runCalculation(req: MultiStopCalculationRequest): Promise<
     provenance: primaryToll.provenance,
   };
 
+  const finalDestReturnLoad = lookupReturnLoad(finalDest.name, finalDest.state);
+
   const result = calculateZBC({
     truckId,
     profile,
@@ -227,6 +230,8 @@ export async function runCalculation(req: MultiStopCalculationRequest): Promise<
     overrides: rateOverrides,
     avg_speed_kmh: config.avg_speed_kmh,
     trip_type: tripType ?? "one-way",
+    guidelines: getZbcGuidelines(),
+    terrain: finalDestReturnLoad?.terrain === "Hill" ? "Hill" : "Plain",
   });
 
   const contributions = validateContributions(result);
