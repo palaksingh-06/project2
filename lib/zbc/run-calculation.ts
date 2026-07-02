@@ -1,4 +1,4 @@
-import { getTruckModel, getTruckProfile, getTruckRatesConfig } from "@/lib/config";
+import { getTruckModel, getTruckProfile, getTruckRatesConfig, getZbcGuidelines } from "@/lib/config";
 import { geocode } from "@/lib/providers/geocode";
 import { getDieselPrice } from "@/lib/providers/fuel";
 import { getRouteDistance } from "@/lib/providers/routing";
@@ -217,6 +217,9 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
         provenance: { kind: "input" as const, label: "Selected in form" },
       };
 
+  // Lookup return load before calculateZBC call so terrain is available
+  const returnLoad = lookupReturnLoad(d.name, d.state);
+
   const result = calculateZBC({
     truckId,
     profile,
@@ -232,9 +235,9 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
     overrides: rateOverrides,
     avg_speed_kmh: config.avg_speed_kmh,
     trip_type: tripType ?? "one-way",
+    guidelines: getZbcGuidelines(),
+    terrain: returnLoad?.terrain === "Hill" ? "Hill" : "Plain",
   });
-
-  const returnLoad = lookupReturnLoad(d.name, d.state);
   const marketRateEstimate = returnLoad
     ? Math.round(result.total_inr * returnLoad.multiplier)
     : undefined;
