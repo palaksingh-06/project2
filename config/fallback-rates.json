@@ -21,5 +21,9 @@
     "fiveAxle": 9.0,
     "car": 1.5
   },
-  "typical_plazas_per_100km": 3.5
+  "typical_plazas_per_100km": 3.5,
+  "terrain_depreciation_multiplier": {
+    "Plain": 1.0,
+    "Hill": 1.4
+  }
 }

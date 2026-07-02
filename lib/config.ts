@@ -3,6 +3,7 @@ import fallbackRates from "@/config/fallback-rates.json";
 import truckModels from "@/config/truck-models.json";
 import truckRates from "@/config/truck-rates.json";
 import truckAliases from "@/config/truck-aliases.json";
+import zbcGuidelines from "@/config/zbc-guidelines.json";
 import type { TruckProfile, TruckRatesConfig } from "@/lib/zbc/types";
 
 export interface TruckModel {
@@ -64,4 +65,30 @@ export function getTruckModel(modelId: string): TruckModel | null {
 // Used to resolve freeform truck_model_id text like "Bolero-Pickup" or "Intra".
 export function getTruckAliases(): Record<string, string> {
   return truckAliases.aliases as Record<string, string>;
+}
+
+export interface ZbcGuidelines {
+  placement_hrs: number;
+  plant_turnaround_hrs: number;
+  client_turnaround_hrs: number;
+  return_to_garage_hrs: number;
+  rest_threshold_km: number;
+  rest_hrs: number;
+  return_load_wait_hrs: number;
+  uptime_pct: number;
+  overhead_pct: number;
+  profit_pct: number;
+}
+
+export function getZbcGuidelines(): ZbcGuidelines {
+  return zbcGuidelines as ZbcGuidelines;
+}
+
+// Looks up the ₹/km usage-depreciation multiplier for a terrain type. Defaults
+// to 1.0 (Plain) for unknown/missing terrain so calculation never throws.
+export function getTerrainDepreciationMultiplier(terrain?: string): number {
+  const rates = getFallbackRates() as {
+    terrain_depreciation_multiplier?: Record<string, number>;
+  };
+  return rates.terrain_depreciation_multiplier?.[terrain ?? "Plain"] ?? 1.0;
 }

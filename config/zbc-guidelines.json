@@ -1,0 +1,12 @@
+{
+  "placement_hrs": 2,
+  "plant_turnaround_hrs": 4,
+  "client_turnaround_hrs": 4,
+  "return_to_garage_hrs": 4,
+  "rest_threshold_km": 150,
+  "rest_hrs": 8,
+  "return_load_wait_hrs": 12,
+  "uptime_pct": 0.9,
+  "overhead_pct": 0.07,
+  "profit_pct": 0.10
+}
