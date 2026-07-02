@@ -11,11 +11,11 @@ type TruckProfile = {
   driver_per_day: number;
   bata_per_trip: number;
   night_halt_per_night: number;
-  depreciation_per_km: number;
   maintenance_per_km: number;
+  ex_showroom_inr: number;
+  salvage_pct: number;
+  interest_per_year: number;
   loading_per_ton: number;
-  overhead_per_trip: number;
-  risk_pct: number;
   empty_return_pct: number;
 };
 
@@ -44,23 +44,17 @@ function buildTruckTable(trucks: Record<string, TruckProfile>): string {
     "Payload",
     "Body",
     "Toll Class",
-    "Rated Mileage (km/L)",
     "Effective Mileage (km/L)",
     "Driver Cost (₹/day)",
     "Bata (₹/trip)",
     "Night Halt (₹/night)",
-    "Depreciation (₹/km)",
+    "Ex-Showroom (₹)",
     "Maintenance (₹/km)",
     "Loading (₹/ton)",
-    "Overheads (₹/trip)",
-    "Risk",
     "Empty Return |",
   ].join(" | ");
 
-  const separator =
-    "| " +
-    Array(15).fill("---").join(" | ") +
-    " |";
+  const separator = "| " + Array(12).fill("---").join(" | ") + " |";
 
   const dataRows = rows.map((t) =>
     [
@@ -68,16 +62,13 @@ function buildTruckTable(trucks: Record<string, TruckProfile>): string {
       `${t.payload_tons}T`,
       t.body_type === "open" ? "Open" : "Closed",
       TOLL_CLASS_LABELS[t.toll_class] ?? t.toll_class,
-      t.mileage_kmpl.toFixed(1),
       t.mileage_kmpl_considered.toFixed(2),
       inr(t.driver_per_day),
       inr(t.bata_per_trip),
       inr(t.night_halt_per_night),
-      `₹${t.depreciation_per_km.toFixed(1)}`,
+      inr(t.ex_showroom_inr),
       `₹${t.maintenance_per_km.toFixed(1)}`,
       inr(t.loading_per_ton),
-      inr(t.overhead_per_trip),
-      pct(t.risk_pct),
       `${pct(t.empty_return_pct)} |`,
     ].join(" | ")
   );
@@ -127,43 +118,55 @@ This tool calculates the full cost of a freight trip by summing **10 cost heads*
 
 All amounts are in **₹ (Indian Rupees)** and are for a **one-way laden trip** unless otherwise noted.
 
-| # | Cost Head | Formula |
-|---|-----------|---------|
-| 1 | **Fuel** | (Distance ÷ Effective Mileage) × Diesel price |
-| 2 | **Driver & Crew** | (Driver/day × Trip days) + Bata + (Night halt × (Days − 1)) |
-| 3 | **Vehicle Cost** | Depreciation ₹/km × Distance  *(or flat hire charge if overridden)* |
-| 4 | **Toll & Permits** | Actual FASTag toll + State permit override |
-| 5 | **Maintenance & Tyres** | Maintenance ₹/km × Distance |
-| 6 | **Loading & Unloading** | ₹/ton × Payload (tons) |
-| 7 | **Overheads** | Fixed allocated amount per trip |
-| 8 | **Risk & Variability** | Risk % × Subtotal (heads 1–7 + 9) |
-| 9 | **Empty Return (Backhaul)** | Empty km × Variable ₹/km *(one-way trips = ₹0)* |
+Costs fall into three groups: **Fixed** (allocated by trip-days for driver/helper, or by an
+annual-km utilization estimate for everything else), **Variable** (scales with distance driven),
+and two **Margin** markups (overhead + profit) applied to the cost base.
 
-**Subtotal** = sum of heads 1–7 + 9 (excluding Risk)
-**Total** = Subtotal + Risk
+| # | Cost Head | Basis | Formula |
+|---|-----------|-------|---------|
+| 1 | **Fuel** | Variable | (Distance ÷ Effective Mileage) × Diesel price |
+| 2 | **Driver Salary** | Fixed (days) | (Driver/day × Trip days) + Bata + (Night halt × (Days − 1)) |
+| 3 | **Helper Salary** | Fixed (days), off by default | Helper/day × Trip days |
+| 4 | **Maintenance** | Variable | Maintenance ₹/km × Distance |
+| 5 | **Tyres** | Variable | (Tyre count × Cost per tyre ÷ Tyre life km) × Distance |
+| 6 | **Depreciation (Usage)** | Variable, terrain-scaled | (Depreciable base × usage share ÷ life km) × Distance × Terrain multiplier |
+| 7 | **Depreciation (Aging)** | Fixed (annual-km) | (Depreciable base × aging share ÷ life years) ÷ Annual km × Distance |
+| 8 | **Insurance** | Fixed (annual-km) | Annual premium ÷ Annual km × Distance |
+| 9 | **Road Tax / Permit** | Fixed (annual-km) | Annual road tax ÷ Annual km × Distance |
+| 10 | **Fitness Certificate** | Fixed (annual-km) | Annual fitness cost ÷ Annual km × Distance |
+| 11 | **Interest (Loan Carrying Cost)** | Fixed (annual-km) | Annual loan interest ÷ Annual km × Distance |
+| 12 | **Toll & Permits** | Pass-through | Actual FASTag toll + State permit override |
+| 13 | **Loading & Unloading** | Variable | ₹/ton × Payload (tons) |
+| 14 | **Empty Return (Backhaul)** | Variable | Empty km × Blended variable ₹/km *(one-way trips = ₹0)* |
+| 15 | **Overhead** | Margin | 7% × Cost base (excl. toll, loading, empty return) |
+| 16 | **Transporter Profit** | Margin | 10% × Cost base (excl. toll, loading, empty return) |
+
+**Subtotal** = sum of all lines above except Overhead and Profit
+**Total** = Subtotal + Overhead + Profit
 
 > **Trip days** = ⌈Distance ÷ (${truckRatesJson.avg_speed_kmh} km/h × 24 h)⌉, minimum 1.
+>
+> **Annual km** (utilization estimate) = Trips/month × Distance × 2 × 12, where trips/month is
+> derived from a trip-duration model (loading, turnaround, travel, rest, return-load wait) at 90%
+> fleet uptime. See \`config/zbc-guidelines.json\` for the underlying constants.
 
 ---
 
-## Mileage: Rated vs Effective
-
-The **Rated Mileage** is the manufacturer/ideal figure. The **Effective Mileage** (used in calculations) applies a real-world efficiency factor (~70%) to account for road conditions, load weight, driver behaviour, and traffic.
-
 ## Cost-Sharing (Batch only)
 
-When multiple rows share the same **route name**, they are treated as segments of one physical trip. The following cost heads are **divided equally by N** (number of rows on that route):
+When multiple rows share the same **route name**, they are treated as segments of one physical trip.
+The following cost heads are **divided equally by N** (number of rows on that route):
 
-- Driver & Crew
-- Vehicle Cost
-- Maintenance & Tyres
+- Driver Salary, Helper Salary
+- Maintenance, Tyres
+- Depreciation (Aging)
+- Insurance, Road Tax / Permit, Fitness Certificate, Interest
 - Loading & Unloading
-- Overheads
 - Empty Return
 
-**Fuel** and **Toll** are kept per-segment (each hop burns its own diesel and crosses its own plazas). **Risk** is recomputed from the reduced subtotal.
-
-> Example: Route "R-101" has 3 segments. Driver cost of ₹3,000 becomes ₹1,000 per segment.
+**Fuel**, **Toll**, and **Depreciation (Usage)** are kept per-segment (each hop burns its own
+diesel, crosses its own plazas, and wears the truck by its own actual km driven). **Overhead** and
+**Profit** are recomputed from the reduced cost base.
 
 ---
 
@@ -197,7 +200,8 @@ ${dieselRows}
 For **two-way trips**, the return leg is costed using only the variable ₹/km applied to the empty return distance:
 
 \`\`\`
-Empty return cost = Empty km × (Fuel ₹/km + Maintenance ₹/km + Depreciation ₹/km)
+Empty return cost = Empty km × (Fuel + Maintenance + Tyres + Depreciation (both lines)
+                                 + Insurance + Road Tax + Fitness + Interest) ₹/km
 \`\`\`
 
 For **one-way trips**, empty return = ₹0.
@@ -210,15 +214,9 @@ Each cost head is benchmarked against expected contribution ranges. A flag is sh
 
 | Cost Head | Normal Min | Normal Max |
 |-----------|-----------|-----------|
-| Fuel | ${truckRatesJson.contribution_ranges.fuel.min}% | ${truckRatesJson.contribution_ranges.fuel.max}% |
-| Driver & Crew | ${truckRatesJson.contribution_ranges.driver.min}% | ${truckRatesJson.contribution_ranges.driver.max}% |
-| Vehicle Cost | ${truckRatesJson.contribution_ranges.vehicle.min}% | ${truckRatesJson.contribution_ranges.vehicle.max}% |
-| Toll & Permits | ${truckRatesJson.contribution_ranges.toll.min}% | ${truckRatesJson.contribution_ranges.toll.max}% |
-| Maintenance | ${truckRatesJson.contribution_ranges.maintenance.min}% | ${truckRatesJson.contribution_ranges.maintenance.max}% |
-| Loading | ${truckRatesJson.contribution_ranges.loading.min}% | ${truckRatesJson.contribution_ranges.loading.max}% |
-| Overheads | ${truckRatesJson.contribution_ranges.overhead.min}% | ${truckRatesJson.contribution_ranges.overhead.max}% |
-| Risk | ${truckRatesJson.contribution_ranges.risk.min}% | ${truckRatesJson.contribution_ranges.risk.max}% |
-| Empty Return | ${truckRatesJson.contribution_ranges.empty_return.min}% | ${truckRatesJson.contribution_ranges.empty_return.max}% |
+${Object.entries(truckRatesJson.contribution_ranges)
+  .map(([id, r]) => `| ${id.replace(/_/g, " ")} | ${r.min}% | ${r.max}% |`)
+  .join("\n")}
 
 ---
 
@@ -232,8 +230,6 @@ ${buildTruckTable(trucks)}
 
 ## Override Columns (Batch CSV / Excel)
 
-Any rate can be overridden per-row in the upload file:
-
 | Column | Description |
 |--------|-------------|
 | \`distance_km\` | Override the geocoded/routed distance (km) |
@@ -241,15 +237,14 @@ Any rate can be overridden per-row in the upload file:
 | \`driver_per_day\` | Driver cost per day (₹) |
 | \`bata_per_trip\` | Bata allowance per trip (₹) |
 | \`night_halt_per_night\` | Night halt cost per night (₹) |
-| \`depreciation_per_km\` | Vehicle depreciation per km (₹) |
-| \`vehicle_per_trip\` | Flat hire charge, replaces depreciation (₹) |
+| \`maintenance_per_km\` | Maintenance per km (₹) |
 | \`state_permit\` | State permit / green tax (₹) |
-| \`maintenance_per_km\` | Maintenance & tyres per km (₹) |
 | \`loading_per_ton\` | Loading & unloading per ton (₹) |
-| \`overhead_per_trip\` | Overhead allocated per trip (₹) |
-| \`risk_pct\` | Risk fraction (0–1, e.g. 0.03 = 3%) |
 | \`empty_return_pct\` | Empty return fraction of laden distance (0–1) |
-| \`empty_km\` | Explicit empty return distance in km |
+
+> More fixed-cost fields (insurance, road tax, interest, depreciation, overhead/profit %, etc.) can
+> be overridden through the single-trip form's "Show advanced rates" panel; they are not exposed as
+> batch CSV columns to keep the template manageable.
 
 ---
 
