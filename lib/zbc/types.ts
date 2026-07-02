@@ -1,10 +1,19 @@
 import type { Provenance } from "@/lib/zbc/provenance";
+import type { ZbcGuidelines } from "@/lib/config";
+
+export type { ZbcGuidelines };
 
 /** @deprecated Use Provenance — kept for internal provider returns */
 export type DataSource = "live" | "fallback";
 export interface ContributionRange {
   min: number;
   max: number;
+}
+
+export interface TyreProfile {
+  count: number;
+  cost_per_tyre: number;
+  life_km: number;
 }
 
 export interface TruckProfile {
@@ -17,14 +26,40 @@ export interface TruckProfile {
   toll_class: string;
   mileage_kmpl: number;
   mileage_kmpl_considered: number;
+
+  // ── Driver & crew (days-based fixed allocation) ──────────────────────────
   driver_per_day: number;
   bata_per_trip: number;
   night_halt_per_night: number;
-  depreciation_per_km: number;
+  /** Off by default — only produces a cost line when > 0. */
+  helper_per_day?: number;
+
+  // ── Variable costs ────────────────────────────────────────────────────────
   maintenance_per_km: number;
+  tyres: TyreProfile;
+
+  // ── Depreciation (split: aging = annual-km fixed, usage = variable) ─────
+  ex_showroom_inr: number;
+  salvage_pct: number;
+  life_years: number;
+  life_km: number;
+  depreciation_aging_share: number;
+  depreciation_usage_share: number;
+
+  // ── Other fixed costs (annual-km allocation — Unnati method) ─────────────
+  insurance_per_year: number;
+  road_tax_per_year: number;
+  fitness_per_year: number;
+  interest_per_year: number;
+
+  // ── Optional fixed add-ons (off by default; only costed when > 0) ───────
+  gps_per_year?: number;
+  fastag_fee_per_year?: number;
+  rto_misc_per_year?: number;
+  tarpaulin_per_year?: number;
+  other_fixed_per_year?: number;
+
   loading_per_ton: number;
-  overhead_per_trip: number;
-  risk_pct: number;
   empty_return_pct: number;
 }
 
@@ -37,18 +72,43 @@ export interface TruckRatesConfig {
 export interface RateOverrides {
   distance_km?: number;
   mileage_kmpl?: number;
+
   driver_per_day?: number;
   bata_per_trip?: number;
   night_halt_per_night?: number;
-  depreciation_per_km?: number;
-  vehicle_per_trip?: number;
-  state_permit?: number;
+  helper_per_day?: number;
+
   maintenance_per_km?: number;
+  tyres_count?: number;
+  tyres_cost_per_tyre?: number;
+  tyres_life_km?: number;
+
+  ex_showroom_inr?: number;
+  salvage_pct?: number;
+  life_years?: number;
+  life_km?: number;
+  depreciation_aging_share?: number;
+  depreciation_usage_share?: number;
+
+  insurance_per_year?: number;
+  road_tax_per_year?: number;
+  fitness_per_year?: number;
+  interest_per_year?: number;
+
+  gps_per_year?: number;
+  fastag_fee_per_year?: number;
+  rto_misc_per_year?: number;
+  tarpaulin_per_year?: number;
+  other_fixed_per_year?: number;
+
   loading_per_ton?: number;
-  overhead_per_trip?: number;
-  risk_pct?: number;
   empty_return_pct?: number;
   empty_km?: number;
+  state_permit?: number;
+
+  overhead_pct?: number;
+  profit_pct?: number;
+  terrain?: "Plain" | "Hill";
 }
 
 export interface RouteData {
@@ -82,18 +142,34 @@ export interface CalculateInput {
   overrides?: RateOverrides;
   avg_speed_kmh: number;
   trip_type: string;
+  /** Utilization/overhead/profit constants — see lib/config.ts#getZbcGuidelines(). */
+  guidelines: ZbcGuidelines;
+  /** Destination terrain, used for the usage-depreciation multiplier. Defaults to "Plain". */
+  terrain?: "Plain" | "Hill";
 }
 
 export type CostHeadId =
   | "fuel"
   | "driver"
-  | "vehicle"
-  | "toll"
+  | "helper"
   | "maintenance"
+  | "tyres"
+  | "depreciation_usage"
+  | "depreciation_aging"
+  | "insurance"
+  | "road_tax"
+  | "fitness"
+  | "interest"
+  | "gps"
+  | "fastag_fee"
+  | "rto_misc"
+  | "tarpaulin"
+  | "other_fixed"
+  | "toll"
   | "loading"
+  | "empty_return"
   | "overhead"
-  | "risk"
-  | "empty_return";
+  | "profit";
 
 export interface CostLine {
   id: CostHeadId;
