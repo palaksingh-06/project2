@@ -6,12 +6,12 @@
       "payload_tons": 1,
       "image": "/truck-images/mini_open/tata-ace-mega.png",
       "mileage_kmpl": {
-        "value": 15,
-        "source": "estimate"
+        "value": 18.5,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 440000,
-        "source": "estimate"
+        "value": 430000,
+        "source": "real"
       }
     },
     "tata-ace-gold": {
@@ -20,12 +20,12 @@
       "payload_tons": 1,
       "image": "/truck-images/mini_open/tata-ace-gold.png",
       "mileage_kmpl": {
-        "value": 16.2,
-        "source": "estimate"
+        "value": 20,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 440000,
-        "source": "estimate"
+        "value": 450000,
+        "source": "real"
       }
     },
     "mahindra-jeeto-plus": {
@@ -34,12 +34,12 @@
       "payload_tons": 0.75,
       "image": "/truck-images/mini_open/mahindra-jeeto-plus.png",
       "mileage_kmpl": {
-        "value": 17.4,
-        "source": "estimate"
+        "value": 32.86,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 405000,
-        "source": "estimate"
+        "value": 403000,
+        "source": "real"
       }
     },
     "mahindra-jeeto-strong": {
@@ -48,12 +48,12 @@
       "payload_tons": 0.8,
       "image": "/truck-images/mini_open/mahindra-jeeto-strong.png",
       "mileage_kmpl": {
-        "value": 20,
-        "source": "estimate"
+        "value": 32,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 412000,
-        "source": "estimate"
+        "value": 528000,
+        "source": "real"
       }
     },
     "mahindra-bolero-maxi": {
@@ -62,12 +62,12 @@
       "payload_tons": 1.3,
       "image": "/truck-images/mini_open/mahindra-bolero-maxi.png",
       "mileage_kmpl": {
-        "value": 17,
-        "source": "estimate"
+        "value": 17.2,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 482000,
-        "source": "estimate"
+        "value": 749000,
+        "source": "real"
       }
     },
     "tata-ace-ht": {
@@ -80,8 +80,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 440000,
-        "source": "estimate"
+        "value": 719000,
+        "source": "real"
       }
     },
     "mahindra-supro": {
@@ -90,12 +90,12 @@
       "payload_tons": 0.75,
       "image": "/truck-images/mini_closed/mahindra-supro.png",
       "mileage_kmpl": {
-        "value": 19,
-        "source": "estimate"
+        "value": 21.9,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 405000,
-        "source": "estimate"
+        "value": 684000,
+        "source": "real"
       }
     },
     "tata-ultra-714": {
@@ -104,12 +104,12 @@
       "payload_tons": 5,
       "image": "/truck-images/lcv_open/tata-ultra-714.png",
       "mileage_kmpl": {
-        "value": 12.5,
-        "source": "estimate"
+        "value": 9,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1000000,
-        "source": "estimate"
+        "value": 1564000,
+        "source": "real"
       }
     },
     "tata-lpt-812": {
@@ -132,12 +132,12 @@
       "payload_tons": 5,
       "image": "/truck-images/lcv_open/eicher-pro-1049.png",
       "mileage_kmpl": {
-        "value": 10.8,
-        "source": "estimate"
+        "value": 12,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1000000,
-        "source": "estimate"
+        "value": 832000,
+        "source": "real"
       }
     },
     "mahindra-furio-7": {
@@ -146,12 +146,12 @@
       "payload_tons": 5,
       "image": "/truck-images/lcv_open/mahindra-furio-7.png",
       "mileage_kmpl": {
-        "value": 11.5,
-        "source": "estimate"
+        "value": 13,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1000000,
-        "source": "estimate"
+        "value": 1393000,
+        "source": "real"
       }
     },
     "ashok-leyland-dost-strong": {
@@ -161,11 +161,11 @@
       "image": "/truck-images/lcv_open/ashok-leyland-dost-strong.png",
       "mileage_kmpl": {
         "value": 19.6,
-        "source": "estimate"
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 510000,
-        "source": "estimate"
+        "value": 749000,
+        "source": "real"
       }
     },
     "tata-lpt-709-lx": {
@@ -188,12 +188,12 @@
       "payload_tons": 5,
       "image": "/truck-images/lcv_closed/eicher-pro-2049.png",
       "mileage_kmpl": {
-        "value": 10.8,
-        "source": "estimate"
+        "value": 11,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1000000,
-        "source": "estimate"
+        "value": 1216000,
+        "source": "real"
       }
     },
     "ashok-leyland-partner": {
@@ -202,12 +202,12 @@
       "payload_tons": 4.5,
       "image": "/truck-images/lcv_closed/ashok-leyland-partner.png",
       "mileage_kmpl": {
-        "value": 10,
-        "source": "estimate"
+        "value": 8.5,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 930000,
-        "source": "estimate"
+        "value": 1385000,
+        "source": "real"
       }
     },
     "mahindra-furio-11": {
@@ -216,12 +216,12 @@
       "payload_tons": 7,
       "image": "/truck-images/9T_4W/mahindra-furio-11.png",
       "mileage_kmpl": {
-        "value": 11.2,
-        "source": "estimate"
+        "value": 7.5,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1280000,
-        "source": "estimate"
+        "value": 1772000,
+        "source": "real"
       }
     },
     "tata-lpt-712": {
@@ -230,12 +230,12 @@
       "payload_tons": 7.5,
       "image": "/truck-images/75T_4W/tata-lpt-712.png",
       "mileage_kmpl": {
-        "value": 9.5,
-        "source": "estimate"
+        "value": 8,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1350000,
-        "source": "estimate"
+        "value": 1632000,
+        "source": "real"
       }
     },
     "eicher-pro-2059": {
@@ -245,11 +245,11 @@
       "image": "/truck-images/75T_4W/eicher-pro-2059.png",
       "mileage_kmpl": {
         "value": 10,
-        "source": "estimate"
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1280000,
-        "source": "estimate"
+        "value": 1516000,
+        "source": "real"
       }
     },
     "tata-lpt-912": {
@@ -258,12 +258,12 @@
       "payload_tons": 9,
       "image": "/truck-images/9T_4W/tata-lpt-912.png",
       "mileage_kmpl": {
-        "value": 8.5,
-        "source": "estimate"
+        "value": 8,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1560000,
-        "source": "estimate"
+        "value": 1679000,
+        "source": "real"
       }
     },
     "ashok-leyland-ecomet-1215": {
@@ -272,12 +272,12 @@
       "payload_tons": 8.5,
       "image": "/truck-images/9T_4W/ashok-leyland-ecomet-1215.png",
       "mileage_kmpl": {
-        "value": 8.8,
-        "source": "estimate"
+        "value": 7,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1490000,
-        "source": "estimate"
+        "value": 2450000,
+        "source": "real"
       }
     },
     "tata-lpt-1412": {
@@ -287,11 +287,11 @@
       "image": "/truck-images/17ft_open/tata-lpt-1412.png",
       "mileage_kmpl": {
         "value": 7.5,
-        "source": "estimate"
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1630000,
-        "source": "estimate"
+        "value": 2030000,
+        "source": "real"
       }
     },
     "eicher-pro-3015": {
@@ -300,12 +300,12 @@
       "payload_tons": 9,
       "image": "/truck-images/17ft_open/eicher-pro-3015.png",
       "mileage_kmpl": {
-        "value": 7.1,
-        "source": "estimate"
+        "value": 6,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1560000,
-        "source": "estimate"
+        "value": 2100000,
+        "source": "real"
       }
     },
     "ashok-leyland-avtr-1415": {
@@ -315,11 +315,11 @@
       "image": "/truck-images/17ft_open/ashok-leyland-avtr-1415.png",
       "mileage_kmpl": {
         "value": 7,
-        "source": "estimate"
+        "source": "proxy"
       },
       "ex_showroom_inr": {
-        "value": 1560000,
-        "source": "estimate"
+        "value": 1888000,
+        "source": "proxy"
       }
     },
     "bharatbenz-1017r": {
@@ -329,11 +329,11 @@
       "image": "/truck-images/17ft_open/bharatbenz-1017r.png",
       "mileage_kmpl": {
         "value": 7,
-        "source": "estimate"
+        "source": "proxy"
       },
       "ex_showroom_inr": {
-        "value": 1560000,
-        "source": "estimate"
+        "value": 1978000,
+        "source": "proxy"
       }
     },
     "man-cla-14-220": {
@@ -356,12 +356,12 @@
       "payload_tons": 10,
       "image": "/truck-images/17ft_closed/tata-lpt-1512.png",
       "mileage_kmpl": {
-        "value": 7,
-        "source": "estimate"
+        "value": 6,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1700000,
-        "source": "estimate"
+        "value": 2347000,
+        "source": "real"
       }
     },
     "bharatbenz-1117r": {
@@ -371,11 +371,11 @@
       "image": "/truck-images/17ft_closed/bharatbenz-1117r.png",
       "mileage_kmpl": {
         "value": 7,
-        "source": "estimate"
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1700000,
-        "source": "estimate"
+        "value": 1978000,
+        "source": "real"
       }
     },
     "ashok-leyland-1618": {
@@ -388,8 +388,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 1840000,
-        "source": "estimate"
+        "value": 1865000,
+        "source": "real"
       }
     },
     "tata-lpt-1613": {
@@ -402,8 +402,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 1700000,
-        "source": "estimate"
+        "value": 1470000,
+        "source": "real"
       }
     },
     "ashok-leyland-1616": {
@@ -416,8 +416,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 1700000,
-        "source": "estimate"
+        "value": 1470000,
+        "source": "real"
       }
     },
     "tata-lpt-1815": {
@@ -426,12 +426,12 @@
       "payload_tons": 12,
       "image": "/truck-images/16T_6W/tata-lpt-1815.png",
       "mileage_kmpl": {
-        "value": 5.5,
-        "source": "estimate"
+        "value": 6,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1980000,
-        "source": "estimate"
+        "value": 2500000,
+        "source": "real"
       }
     },
     "bharatbenz-1617r": {
@@ -444,8 +444,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 1665000,
-        "source": "estimate"
+        "value": 2222000,
+        "source": "real"
       }
     },
     "man-cla-16-220": {
@@ -458,8 +458,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 1770000,
-        "source": "estimate"
+        "value": 2530000,
+        "source": "real"
       }
     },
     "tata-lpt-1618": {
@@ -472,8 +472,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 1840000,
-        "source": "estimate"
+        "value": 2468000,
+        "source": "proxy"
       }
     },
     "bharatbenz-1917r": {
@@ -482,12 +482,12 @@
       "payload_tons": 9.75,
       "image": "/truck-images/20ft_closed/bharatbenz-1917r.png",
       "mileage_kmpl": {
-        "value": 5.8,
-        "source": "estimate"
+        "value": 6.5,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1665000,
-        "source": "estimate"
+        "value": 2224000,
+        "source": "real"
       }
     },
     "ashok-leyland-avtr-1920": {
@@ -496,12 +496,12 @@
       "payload_tons": 10.5,
       "image": "/truck-images/20ft_closed/ashok-leyland-avtr-1920.png",
       "mileage_kmpl": {
-        "value": 5.5,
-        "source": "estimate"
+        "value": 6,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1770000,
-        "source": "estimate"
+        "value": 2407000,
+        "source": "real"
       }
     },
     "eicher-pro-3019": {
@@ -510,12 +510,12 @@
       "payload_tons": 10,
       "image": "/truck-images/20ft_closed/eicher-pro-3019.png",
       "mileage_kmpl": {
-        "value": 5.8,
-        "source": "estimate"
+        "value": 6.5,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 1700000,
-        "source": "estimate"
+        "value": 2512000,
+        "source": "real"
       }
     },
     "tata-prima-3523": {
@@ -542,8 +542,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 3240000,
-        "source": "estimate"
+        "value": 2567000,
+        "source": "real"
       }
     },
     "tata-lpt-2518": {
@@ -556,8 +556,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 2540000,
-        "source": "estimate"
+        "value": 2429000,
+        "source": "real"
       }
     },
     "ashok-leyland-2518": {
@@ -570,8 +570,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 2540000,
-        "source": "estimate"
+        "value": 2411000,
+        "source": "real"
       }
     },
     "tata-prima-2523": {
@@ -584,8 +584,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 3240000,
-        "source": "estimate"
+        "value": 2473000,
+        "source": "real"
       }
     },
     "bharatbenz-2523c": {
@@ -598,8 +598,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 3100000,
-        "source": "estimate"
+        "value": 3346000,
+        "source": "real"
       }
     },
     "man-cla-25-220": {
@@ -612,8 +612,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 2820000,
-        "source": "estimate"
+        "value": 3020000,
+        "source": "real"
       }
     },
     "eicher-pro-6025": {
@@ -626,8 +626,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 3240000,
-        "source": "estimate"
+        "value": 2422000,
+        "source": "real"
       }
     },
     "ashok-leyland-2620": {
@@ -636,12 +636,12 @@
       "payload_tons": 16.75,
       "image": "/truck-images/24ft_closed/ashok-leyland-2620.png",
       "mileage_kmpl": {
-        "value": 4,
-        "source": "estimate"
+        "value": 5.25,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 2645000,
-        "source": "estimate"
+        "value": 3015000,
+        "source": "real"
       }
     },
     "tata-lpt-2516": {
@@ -654,8 +654,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 2540000,
-        "source": "estimate"
+        "value": 2100000,
+        "source": "proxy"
       }
     },
     "bharatbenz-2823c": {
@@ -664,12 +664,12 @@
       "payload_tons": 16,
       "image": "/truck-images/24ft_closed/bharatbenz-2823c.png",
       "mileage_kmpl": {
-        "value": 4.1,
-        "source": "estimate"
+        "value": 3.5,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 2540000,
-        "source": "estimate"
+        "value": 3780000,
+        "source": "real"
       }
     },
     "tata-prima-4928": {
@@ -678,12 +678,12 @@
       "payload_tons": 28,
       "image": "/truck-images/32T_12W/tata-prima-4928.png",
       "mileage_kmpl": {
-        "value": 3.8,
-        "source": "estimate"
+        "value": 3,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 4220000,
-        "source": "estimate"
+        "value": 3220000,
+        "source": "real"
       }
     },
     "ashok-leyland-4923": {
@@ -696,8 +696,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 3800000,
-        "source": "estimate"
+        "value": 2908000,
+        "source": "real"
       }
     },
     "bharatbenz-4228r": {
@@ -706,12 +706,12 @@
       "payload_tons": 28,
       "image": "/truck-images/32T_12W/bharatbenz-4228r.png",
       "mileage_kmpl": {
-        "value": 3.9,
-        "source": "estimate"
+        "value": 4,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 4220000,
-        "source": "estimate"
+        "value": 4392000,
+        "source": "real"
       }
     },
     "tata-prima-4923": {
@@ -724,8 +724,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 3800000,
-        "source": "estimate"
+        "value": 2920000,
+        "source": "real"
       }
     },
     "man-cla-40-250": {
@@ -738,8 +738,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 4080000,
-        "source": "estimate"
+        "value": 2400000,
+        "source": "real"
       }
     },
     "ashok-leyland-4120": {
@@ -748,12 +748,12 @@
       "payload_tons": 25,
       "image": "/truck-images/32T_12W/ashok-leyland-4120.png",
       "mileage_kmpl": {
-        "value": 3.9,
-        "source": "estimate"
+        "value": 4,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 3800000,
-        "source": "estimate"
+        "value": 2996000,
+        "source": "real"
       }
     },
     "tata-prima-4940": {
@@ -776,12 +776,12 @@
       "payload_tons": 20,
       "image": "/truck-images/32ft_closed/bharatbenz-3528c.png",
       "mileage_kmpl": {
-        "value": 4,
-        "source": "estimate"
+        "value": 3,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 3100000,
-        "source": "estimate"
+        "value": 4394000,
+        "source": "real"
       }
     },
     "ashok-leyland-3120": {
@@ -790,12 +790,12 @@
       "payload_tons": 20,
       "image": "/truck-images/32ft_closed/ashok-leyland-3120.png",
       "mileage_kmpl": {
-        "value": 3.8,
-        "source": "estimate"
+        "value": 3.75,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 3100000,
-        "source": "estimate"
+        "value": 3400000,
+        "source": "real"
       }
     },
     "eicher-pro-8049": {
@@ -808,8 +808,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 3800000,
-        "source": "estimate"
+        "value": 3417000,
+        "source": "real"
       }
     },
     "tata-prima-5530": {
@@ -818,12 +818,12 @@
       "payload_tons": 35,
       "image": "/truck-images/40ft_open/tata-prima-5530.png",
       "mileage_kmpl": {
-        "value": 2.8,
-        "source": "estimate"
+        "value": 3,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 5200000,
-        "source": "estimate"
+        "value": 3871000,
+        "source": "real"
       }
     },
     "ashok-leyland-5530": {
@@ -850,8 +850,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 5200000,
-        "source": "estimate"
+        "value": 6453000,
+        "source": "real"
       }
     },
     "man-tgx-18-480": {
@@ -889,11 +889,11 @@
       "image": "/truck-images/40ft_closed/bharatbenz-4440.png",
       "mileage_kmpl": {
         "value": 2.9,
-        "source": "estimate"
+        "source": "proxy"
       },
       "ex_showroom_inr": {
-        "value": 4500000,
-        "source": "estimate"
+        "value": 4392000,
+        "source": "proxy"
       }
     },
     "ashok-leyland-4940": {
@@ -906,8 +906,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 4780000,
-        "source": "estimate"
+        "value": 3200000,
+        "source": "real"
       }
     },
     "volvo-fh520": {
@@ -920,8 +920,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 5200000,
-        "source": "estimate"
+        "value": 8297000,
+        "source": "real"
       }
     },
     "tata-ace-carry": {
@@ -930,8 +930,8 @@
       "payload_tons": 0.8,
       "image": "/truck-images/9ft_1T_open/tata-ace-carry.png",
       "mileage_kmpl": {
-        "value": 22,
-        "source": "estimate"
+        "value": 20,
+        "source": "proxy"
       },
       "ex_showroom_inr": {
         "value": 412000,
@@ -945,11 +945,11 @@
       "image": "/truck-images/7ft_07T_closed/maruti-super-carry-diesel.png",
       "mileage_kmpl": {
         "value": 22.07,
-        "source": "estimate"
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 398000,
-        "source": "estimate"
+        "value": 401000,
+        "source": "real"
       }
     },
     "mahindra-bolero-pikup-es": {
@@ -959,11 +959,11 @@
       "image": "/truck-images/bolero_open/mahindra-bolero-pikup-es.png",
       "mileage_kmpl": {
         "value": 14.3,
-        "source": "estimate"
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 510000,
-        "source": "estimate"
+        "value": 856000,
+        "source": "real"
       }
     },
     "mahindra-veero": {
@@ -973,11 +973,11 @@
       "image": "/truck-images/bolero_open/mahindra-veero.png",
       "mileage_kmpl": {
         "value": 18.4,
-        "source": "estimate"
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 496000,
-        "source": "estimate"
+        "value": 782000,
+        "source": "real"
       }
     },
     "tata-intra-v30": {
@@ -986,12 +986,12 @@
       "payload_tons": 1.3,
       "image": "/truck-images/bolero_open/tata-intra-v30.png",
       "mileage_kmpl": {
-        "value": 15.5,
-        "source": "estimate"
+        "value": 14,
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 482000,
-        "source": "estimate"
+        "value": 766000,
+        "source": "real"
       }
     },
     "tata-intra-v50": {
@@ -1000,12 +1000,12 @@
       "payload_tons": 1.5,
       "image": "/truck-images/bolero_open/tata-intra-v50.png",
       "mileage_kmpl": {
-        "value": 19.5,
-        "source": "estimate"
+        "value": 18,
+        "source": "proxy"
       },
       "ex_showroom_inr": {
-        "value": 510000,
-        "source": "estimate"
+        "value": 890000,
+        "source": "real"
       }
     },
     "ashok-leyland-dost-plus": {
@@ -1015,11 +1015,11 @@
       "image": "/truck-images/bolero_open/ashok-leyland-dost-plus.png",
       "mileage_kmpl": {
         "value": 19.6,
-        "source": "estimate"
+        "source": "real"
       },
       "ex_showroom_inr": {
-        "value": 475000,
-        "source": "estimate"
+        "value": 699000,
+        "source": "real"
       }
     },
     "eicher-pro-1059": {
@@ -1032,8 +1032,8 @@
         "source": "estimate"
       },
       "ex_showroom_inr": {
-        "value": 790000,
-        "source": "estimate"
+        "value": 987000,
+        "source": "real"
       }
     },
     "tata-ultra-814": {

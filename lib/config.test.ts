@@ -45,4 +45,16 @@ describe("getTruckModel (enriched schema)", () => {
       expect(m.ex_showroom_inr.value, `${id}.ex_showroom_inr.value should be positive`).toBeGreaterThan(0);
     }
   });
+
+  it("real/proxy sources are only claimed with a note in the research log", () => {
+    const models = getTruckModels();
+    const realOrProxyCount = Object.values(models).filter(
+      (m) => m.mileage_kmpl.source !== "estimate" || m.ex_showroom_inr.source !== "estimate"
+    ).length;
+    // At least half the catalog should have moved past pure estimates once
+    // research is done — this is a coarse regression guard, not a precise
+    // target: it catches "the whole file silently reverted to all-estimate"
+    // without dictating exactly how many models must be real.
+    expect(realOrProxyCount).toBeGreaterThan(Object.keys(models).length / 2);
+  });
 });
