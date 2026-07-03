@@ -3,452 +3,1052 @@
     "tata-ace-mega": {
       "label": "Tata Ace Mega",
       "truck_class": "mini_open",
-      "mileage_kmpl": 15.0,
-      "payload_tons": 1.0
+      "payload_tons": 1,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 15,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 440000,
+        "source": "estimate"
+      }
     },
     "tata-ace-gold": {
       "label": "Tata Ace Gold",
       "truck_class": "mini_open",
-      "mileage_kmpl": 16.2,
-      "payload_tons": 1.0
+      "payload_tons": 1,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 16.2,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 440000,
+        "source": "estimate"
+      }
     },
     "mahindra-jeeto-plus": {
       "label": "Mahindra Jeeto Plus",
       "truck_class": "mini_open",
-      "mileage_kmpl": 17.4,
-      "payload_tons": 0.75
+      "payload_tons": 0.75,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 17.4,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 405000,
+        "source": "estimate"
+      }
     },
     "mahindra-jeeto-strong": {
       "label": "Mahindra Jeeto Strong Diesel",
       "truck_class": "mini_open",
-      "mileage_kmpl": 20.0,
-      "payload_tons": 0.8
+      "payload_tons": 0.8,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 20,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 412000,
+        "source": "estimate"
+      }
     },
     "mahindra-bolero-maxi": {
       "label": "Mahindra Bolero Maxi Truck+",
       "truck_class": "mini_open",
-      "mileage_kmpl": 17.0,
-      "payload_tons": 1.3
+      "payload_tons": 1.3,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 17,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 482000,
+        "source": "estimate"
+      }
     },
     "tata-ace-ht": {
       "label": "Tata Ace HT (Van)",
       "truck_class": "mini_closed",
-      "mileage_kmpl": 14.5,
-      "payload_tons": 1.0
+      "payload_tons": 1,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 14.5,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 440000,
+        "source": "estimate"
+      }
     },
     "mahindra-supro": {
       "label": "Mahindra Supro Profit Truck",
       "truck_class": "mini_closed",
-      "mileage_kmpl": 19.0,
-      "payload_tons": 0.75
+      "payload_tons": 0.75,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 19,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 405000,
+        "source": "estimate"
+      }
     },
     "tata-ultra-714": {
       "label": "Tata Ultra 714",
       "truck_class": "lcv_open",
-      "mileage_kmpl": 12.5,
-      "payload_tons": 5.0
+      "payload_tons": 5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 12.5,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1000000,
+        "source": "estimate"
+      }
     },
     "tata-lpt-812": {
       "label": "Tata LPT 812",
       "truck_class": "lcv_open",
-      "mileage_kmpl": 11.0,
-      "payload_tons": 5.0
+      "payload_tons": 5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 11,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1000000,
+        "source": "estimate"
+      }
     },
     "eicher-pro-1049": {
       "label": "Eicher Pro 1049",
       "truck_class": "lcv_open",
-      "mileage_kmpl": 10.8,
-      "payload_tons": 5.0
+      "payload_tons": 5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 10.8,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1000000,
+        "source": "estimate"
+      }
     },
     "mahindra-furio-7": {
       "label": "Mahindra Furio 7",
       "truck_class": "lcv_open",
-      "mileage_kmpl": 11.5,
-      "payload_tons": 5.0
+      "payload_tons": 5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 11.5,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1000000,
+        "source": "estimate"
+      }
     },
     "ashok-leyland-dost-strong": {
       "label": "Ashok Leyland Dost Strong",
       "truck_class": "lcv_open",
-      "mileage_kmpl": 19.6,
-      "payload_tons": 1.5
+      "payload_tons": 1.5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 19.6,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 510000,
+        "source": "estimate"
+      }
     },
     "tata-lpt-709-lx": {
       "label": "Tata LPT 709 LX",
       "truck_class": "lcv_closed",
-      "mileage_kmpl": 10.5,
-      "payload_tons": 5.0
+      "payload_tons": 5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 10.5,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1000000,
+        "source": "estimate"
+      }
     },
     "eicher-pro-2049": {
       "label": "Eicher Pro 2049",
       "truck_class": "lcv_closed",
-      "mileage_kmpl": 10.8,
-      "payload_tons": 5.0
+      "payload_tons": 5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 10.8,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1000000,
+        "source": "estimate"
+      }
     },
     "ashok-leyland-partner": {
       "label": "Ashok Leyland Partner 6 Tyre",
       "truck_class": "lcv_closed",
-      "mileage_kmpl": 10.0,
-      "payload_tons": 4.5
+      "payload_tons": 4.5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 10,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 930000,
+        "source": "estimate"
+      }
     },
     "mahindra-furio-11": {
       "label": "Mahindra Furio 11",
       "truck_class": "9T_4W",
-      "mileage_kmpl": 11.2,
-      "payload_tons": 7.0
+      "payload_tons": 7,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 11.2,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1280000,
+        "source": "estimate"
+      }
     },
     "tata-lpt-712": {
       "label": "Tata LPT 712",
       "truck_class": "75T_4W",
-      "mileage_kmpl": 9.5,
-      "payload_tons": 7.5
+      "payload_tons": 7.5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 9.5,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1350000,
+        "source": "estimate"
+      }
     },
     "eicher-pro-2059": {
       "label": "Eicher Pro 2059",
       "truck_class": "75T_4W",
-      "mileage_kmpl": 10.0,
-      "payload_tons": 7.0
+      "payload_tons": 7,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 10,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1280000,
+        "source": "estimate"
+      }
     },
     "tata-lpt-912": {
       "label": "Tata LPT 912",
       "truck_class": "9T_4W",
-      "mileage_kmpl": 8.5,
-      "payload_tons": 9.0
+      "payload_tons": 9,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 8.5,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1560000,
+        "source": "estimate"
+      }
     },
     "ashok-leyland-ecomet-1215": {
       "label": "Ashok Leyland Ecomet 1215",
       "truck_class": "9T_4W",
-      "mileage_kmpl": 8.8,
-      "payload_tons": 8.5
+      "payload_tons": 8.5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 8.8,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1490000,
+        "source": "estimate"
+      }
     },
     "tata-lpt-1412": {
       "label": "Tata LPT 1412",
       "truck_class": "17ft_open",
-      "mileage_kmpl": 7.5,
-      "payload_tons": 9.5
+      "payload_tons": 9.5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 7.5,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1630000,
+        "source": "estimate"
+      }
     },
     "eicher-pro-3015": {
       "label": "Eicher Pro 3015",
       "truck_class": "17ft_open",
-      "mileage_kmpl": 7.1,
-      "payload_tons": 9.0
+      "payload_tons": 9,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 7.1,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1560000,
+        "source": "estimate"
+      }
     },
     "ashok-leyland-avtr-1415": {
       "label": "Ashok Leyland AVTR 1415",
       "truck_class": "17ft_open",
-      "mileage_kmpl": 7.0,
-      "payload_tons": 9.0
+      "payload_tons": 9,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 7,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1560000,
+        "source": "estimate"
+      }
     },
     "bharatbenz-1017r": {
       "label": "BharatBenz 1017R",
       "truck_class": "17ft_open",
-      "mileage_kmpl": 7.0,
-      "payload_tons": 9.0
+      "payload_tons": 9,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 7,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1560000,
+        "source": "estimate"
+      }
     },
     "man-cla-14-220": {
       "label": "MAN CLA 14.220",
       "truck_class": "17ft_open",
-      "mileage_kmpl": 7.2,
-      "payload_tons": 9.0
+      "payload_tons": 9,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 7.2,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1560000,
+        "source": "estimate"
+      }
     },
     "tata-lpt-1512": {
       "label": "Tata LPT 1512",
       "truck_class": "17ft_closed",
-      "mileage_kmpl": 7.0,
-      "payload_tons": 10.0
+      "payload_tons": 10,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 7,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1700000,
+        "source": "estimate"
+      }
     },
     "bharatbenz-1117r": {
       "label": "BharatBenz 1117R",
       "truck_class": "17ft_closed",
-      "mileage_kmpl": 7.0,
-      "payload_tons": 10.0
+      "payload_tons": 10,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 7,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1700000,
+        "source": "estimate"
+      }
     },
     "ashok-leyland-1618": {
       "label": "Ashok Leyland 1618",
       "truck_class": "17ft_closed",
-      "mileage_kmpl": 6.8,
-      "payload_tons": 11.0
+      "payload_tons": 11,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 6.8,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1840000,
+        "source": "estimate"
+      }
     },
     "tata-lpt-1613": {
       "label": "Tata LPT 1613",
       "truck_class": "16T_6W",
-      "mileage_kmpl": 6.2,
-      "payload_tons": 10.0
+      "payload_tons": 10,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 6.2,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1700000,
+        "source": "estimate"
+      }
     },
     "ashok-leyland-1616": {
       "label": "Ashok Leyland 1616",
       "truck_class": "16T_6W",
-      "mileage_kmpl": 5.8,
-      "payload_tons": 10.0
+      "payload_tons": 10,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 5.8,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1700000,
+        "source": "estimate"
+      }
     },
     "tata-lpt-1815": {
       "label": "Tata LPT 1815",
       "truck_class": "16T_6W",
-      "mileage_kmpl": 5.5,
-      "payload_tons": 12.0
+      "payload_tons": 12,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 5.5,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1980000,
+        "source": "estimate"
+      }
     },
     "bharatbenz-1617r": {
       "label": "BharatBenz 1617R",
       "truck_class": "16T_6W",
-      "mileage_kmpl": 6.0,
-      "payload_tons": 9.75
+      "payload_tons": 9.75,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 6,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1665000,
+        "source": "estimate"
+      }
     },
     "man-cla-16-220": {
       "label": "MAN CLA 16.220",
       "truck_class": "16T_6W",
-      "mileage_kmpl": 5.8,
-      "payload_tons": 10.5
+      "payload_tons": 10.5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 5.8,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1770000,
+        "source": "estimate"
+      }
     },
     "tata-lpt-1618": {
       "label": "Tata LPT 1618",
       "truck_class": "20ft_closed",
-      "mileage_kmpl": 5.3,
-      "payload_tons": 11.0
+      "payload_tons": 11,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 5.3,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1840000,
+        "source": "estimate"
+      }
     },
     "bharatbenz-1917r": {
       "label": "BharatBenz 1917R",
       "truck_class": "20ft_closed",
-      "mileage_kmpl": 5.8,
-      "payload_tons": 9.75
+      "payload_tons": 9.75,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 5.8,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1665000,
+        "source": "estimate"
+      }
     },
     "ashok-leyland-avtr-1920": {
       "label": "Ashok Leyland AVTR 1920",
       "truck_class": "20ft_closed",
-      "mileage_kmpl": 5.5,
-      "payload_tons": 10.5
+      "payload_tons": 10.5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 5.5,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1770000,
+        "source": "estimate"
+      }
     },
     "eicher-pro-3019": {
       "label": "Eicher Pro 3019",
       "truck_class": "20ft_closed",
-      "mileage_kmpl": 5.8,
-      "payload_tons": 10.0
+      "payload_tons": 10,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 5.8,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 1700000,
+        "source": "estimate"
+      }
     },
     "tata-prima-3523": {
       "label": "Tata Prima 3523.S",
       "truck_class": "25T_10W",
-      "mileage_kmpl": 4.2,
-      "payload_tons": 21.0
+      "payload_tons": 21,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4.2,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 3240000,
+        "source": "estimate"
+      }
     },
     "eicher-pro-6031": {
       "label": "Eicher Pro 6031",
       "truck_class": "25T_10W",
-      "mileage_kmpl": 4.5,
-      "payload_tons": 21.0
+      "payload_tons": 21,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4.5,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 3240000,
+        "source": "estimate"
+      }
     },
     "tata-lpt-2518": {
       "label": "Tata LPT 2518",
       "truck_class": "25T_10W",
-      "mileage_kmpl": 3.9,
-      "payload_tons": 16.0
+      "payload_tons": 16,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3.9,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 2540000,
+        "source": "estimate"
+      }
     },
     "ashok-leyland-2518": {
       "label": "Ashok Leyland 2518",
       "truck_class": "25T_10W",
-      "mileage_kmpl": 4.0,
-      "payload_tons": 16.0
+      "payload_tons": 16,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 2540000,
+        "source": "estimate"
+      }
     },
     "tata-prima-2523": {
       "label": "Tata Prima 2523",
       "truck_class": "25T_10W",
-      "mileage_kmpl": 4.3,
-      "payload_tons": 21.0
+      "payload_tons": 21,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4.3,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 3240000,
+        "source": "estimate"
+      }
     },
     "bharatbenz-2523c": {
       "label": "BharatBenz 2523C",
       "truck_class": "25T_10W",
-      "mileage_kmpl": 4.2,
-      "payload_tons": 20.0
+      "payload_tons": 20,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4.2,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 3100000,
+        "source": "estimate"
+      }
     },
     "man-cla-25-220": {
       "label": "MAN CLA 25.220",
       "truck_class": "25T_10W",
-      "mileage_kmpl": 4.0,
-      "payload_tons": 18.0
+      "payload_tons": 18,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 2820000,
+        "source": "estimate"
+      }
     },
     "eicher-pro-6025": {
       "label": "Eicher Pro 6025",
       "truck_class": "24ft_closed",
-      "mileage_kmpl": 4.3,
-      "payload_tons": 21.0
+      "payload_tons": 21,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4.3,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 3240000,
+        "source": "estimate"
+      }
     },
     "ashok-leyland-2620": {
       "label": "Ashok Leyland 2620 6x2",
       "truck_class": "24ft_closed",
-      "mileage_kmpl": 4.0,
-      "payload_tons": 16.75
+      "payload_tons": 16.75,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 2645000,
+        "source": "estimate"
+      }
     },
     "tata-lpt-2516": {
       "label": "Tata LPT 2516",
       "truck_class": "24ft_closed",
-      "mileage_kmpl": 4.0,
-      "payload_tons": 16.0
+      "payload_tons": 16,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 2540000,
+        "source": "estimate"
+      }
     },
     "bharatbenz-2823c": {
       "label": "BharatBenz 2823C",
       "truck_class": "24ft_closed",
-      "mileage_kmpl": 4.1,
-      "payload_tons": 16.0
+      "payload_tons": 16,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4.1,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 2540000,
+        "source": "estimate"
+      }
     },
     "tata-prima-4928": {
       "label": "Tata Prima 4928.S",
       "truck_class": "32T_12W",
-      "mileage_kmpl": 3.8,
-      "payload_tons": 28.0
+      "payload_tons": 28,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3.8,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 4220000,
+        "source": "estimate"
+      }
     },
     "ashok-leyland-4923": {
       "label": "Ashok Leyland 4923",
       "truck_class": "32T_12W",
-      "mileage_kmpl": 4.1,
-      "payload_tons": 25.0
+      "payload_tons": 25,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4.1,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 3800000,
+        "source": "estimate"
+      }
     },
     "bharatbenz-4228r": {
       "label": "BharatBenz 4228R",
       "truck_class": "32T_12W",
-      "mileage_kmpl": 3.9,
-      "payload_tons": 28.0
+      "payload_tons": 28,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3.9,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 4220000,
+        "source": "estimate"
+      }
     },
     "tata-prima-4923": {
       "label": "Tata Prima 4923.S",
       "truck_class": "32T_12W",
-      "mileage_kmpl": 4.0,
-      "payload_tons": 25.0
+      "payload_tons": 25,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 3800000,
+        "source": "estimate"
+      }
     },
     "man-cla-40-250": {
       "label": "MAN CLA 40.250",
       "truck_class": "32T_12W",
-      "mileage_kmpl": 3.7,
-      "payload_tons": 27.0
+      "payload_tons": 27,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3.7,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 4080000,
+        "source": "estimate"
+      }
     },
     "ashok-leyland-4120": {
       "label": "Ashok Leyland 4120",
       "truck_class": "32T_12W",
-      "mileage_kmpl": 3.9,
-      "payload_tons": 25.0
+      "payload_tons": 25,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3.9,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 3800000,
+        "source": "estimate"
+      }
     },
     "tata-prima-4940": {
       "label": "Tata Prima 4940",
       "truck_class": "32ft_closed",
-      "mileage_kmpl": 3.6,
-      "payload_tons": 30.0
+      "payload_tons": 30,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3.6,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 4500000,
+        "source": "estimate"
+      }
     },
     "bharatbenz-3528c": {
       "label": "BharatBenz 3528C",
       "truck_class": "32ft_closed",
-      "mileage_kmpl": 4.0,
-      "payload_tons": 20.0
+      "payload_tons": 20,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 3100000,
+        "source": "estimate"
+      }
     },
     "ashok-leyland-3120": {
       "label": "Ashok Leyland 3120",
       "truck_class": "32ft_closed",
-      "mileage_kmpl": 3.8,
-      "payload_tons": 20.0
+      "payload_tons": 20,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3.8,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 3100000,
+        "source": "estimate"
+      }
     },
     "eicher-pro-8049": {
       "label": "Eicher Pro 8049",
       "truck_class": "32ft_closed",
-      "mileage_kmpl": 3.8,
-      "payload_tons": 25.0
+      "payload_tons": 25,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3.8,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 3800000,
+        "source": "estimate"
+      }
     },
     "tata-prima-5530": {
       "label": "Tata Prima 5530.S",
       "truck_class": "40ft_open",
-      "mileage_kmpl": 2.8,
-      "payload_tons": 35.0
+      "payload_tons": 35,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 2.8,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 5200000,
+        "source": "estimate"
+      }
     },
     "ashok-leyland-5530": {
       "label": "Ashok Leyland 5530",
       "truck_class": "40ft_open",
-      "mileage_kmpl": 2.8,
-      "payload_tons": 35.0
+      "payload_tons": 35,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 2.8,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 5200000,
+        "source": "estimate"
+      }
     },
     "volvo-fm500": {
       "label": "Volvo FM500 Puller 6x4",
       "truck_class": "40ft_open",
-      "mileage_kmpl": 3.0,
-      "payload_tons": 35.0
+      "payload_tons": 35,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 5200000,
+        "source": "estimate"
+      }
     },
     "man-tgx-18-480": {
       "label": "MAN TGX 18.480",
       "truck_class": "40ft_open",
-      "mileage_kmpl": 3.1,
-      "payload_tons": 35.0
+      "payload_tons": 35,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3.1,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 5200000,
+        "source": "estimate"
+      }
     },
     "tata-prima-4940-con": {
       "label": "Tata Prima 4940 Container",
       "truck_class": "40ft_closed",
-      "mileage_kmpl": 2.7,
-      "payload_tons": 30.0
+      "payload_tons": 30,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 2.7,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 4500000,
+        "source": "estimate"
+      }
     },
     "bharatbenz-4440": {
       "label": "BharatBenz 4440R",
       "truck_class": "40ft_closed",
-      "mileage_kmpl": 2.9,
-      "payload_tons": 30.0
+      "payload_tons": 30,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 2.9,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 4500000,
+        "source": "estimate"
+      }
     },
     "ashok-leyland-4940": {
       "label": "Ashok Leyland 4940",
       "truck_class": "40ft_closed",
-      "mileage_kmpl": 2.7,
-      "payload_tons": 32.0
+      "payload_tons": 32,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 2.7,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 4780000,
+        "source": "estimate"
+      }
     },
     "volvo-fh520": {
       "label": "Volvo FH520 Puller",
       "truck_class": "40ft_closed",
-      "mileage_kmpl": 3.2,
-      "payload_tons": 35.0
+      "payload_tons": 35,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3.2,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 5200000,
+        "source": "estimate"
+      }
     },
     "tata-ace-carry": {
       "label": "Tata Ace Carry",
       "truck_class": "9ft_1T_open",
-      "mileage_kmpl": 22.0,
-      "payload_tons": 0.8
+      "payload_tons": 0.8,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 22,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 412000,
+        "source": "estimate"
+      }
     },
     "maruti-super-carry-diesel": {
       "label": "Maruti Suzuki Super Carry Diesel",
       "truck_class": "7ft_07T_closed",
-      "mileage_kmpl": 22.07,
-      "payload_tons": 0.7
+      "payload_tons": 0.7,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 22.07,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 398000,
+        "source": "estimate"
+      }
     },
     "mahindra-bolero-pikup-es": {
       "label": "Mahindra Bolero Pik-Up ExtraStrong",
       "truck_class": "bolero_open",
-      "mileage_kmpl": 14.3,
-      "payload_tons": 1.5
+      "payload_tons": 1.5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 14.3,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 510000,
+        "source": "estimate"
+      }
     },
     "mahindra-veero": {
       "label": "Mahindra Veero Diesel",
       "truck_class": "bolero_open",
-      "mileage_kmpl": 18.4,
-      "payload_tons": 1.4
+      "payload_tons": 1.4,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 18.4,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 496000,
+        "source": "estimate"
+      }
     },
     "tata-intra-v30": {
       "label": "Tata Intra V30",
       "truck_class": "bolero_open",
-      "mileage_kmpl": 15.5,
-      "payload_tons": 1.3
+      "payload_tons": 1.3,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 15.5,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 482000,
+        "source": "estimate"
+      }
     },
     "tata-intra-v50": {
       "label": "Tata Intra V50",
       "truck_class": "bolero_open",
-      "mileage_kmpl": 19.5,
-      "payload_tons": 1.5
+      "payload_tons": 1.5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 19.5,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 510000,
+        "source": "estimate"
+      }
     },
     "ashok-leyland-dost-plus": {
       "label": "Ashok Leyland Dost Plus",
       "truck_class": "bolero_open",
-      "mileage_kmpl": 19.6,
-      "payload_tons": 1.25
+      "payload_tons": 1.25,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 19.6,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 475000,
+        "source": "estimate"
+      }
     },
     "eicher-pro-1059": {
       "label": "Eicher Pro 1059",
       "truck_class": "14ft_lcv_3T_open",
-      "mileage_kmpl": 11.5,
-      "payload_tons": 3.5
+      "payload_tons": 3.5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 11.5,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 790000,
+        "source": "estimate"
+      }
     },
     "tata-ultra-814": {
       "label": "Tata Ultra 814",
       "truck_class": "14ft_lcv_3T_open",
-      "mileage_kmpl": 12.5,
-      "payload_tons": 3.5
+      "payload_tons": 3.5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 12.5,
+        "source": "estimate"
+      },
+      "ex_showroom_inr": {
+        "value": 790000,
+        "source": "estimate"
+      }
     }
   }
 }

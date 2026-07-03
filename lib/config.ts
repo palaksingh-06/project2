@@ -6,11 +6,18 @@ import truckAliases from "@/config/truck-aliases.json";
 import zbcGuidelines from "@/config/zbc-guidelines.json";
 import type { TruckProfile, TruckRatesConfig } from "@/lib/zbc/types";
 
+export interface SourcedValue {
+  value: number;
+  source: "real" | "proxy" | "estimate";
+}
+
 export interface TruckModel {
   label: string;
   truck_class: string;
-  mileage_kmpl: number;
   payload_tons: number;
+  image: string | null;
+  mileage_kmpl: SourcedValue;
+  ex_showroom_inr: SourcedValue;
 }
 
 export function getTruckRatesConfig(): TruckRatesConfig {

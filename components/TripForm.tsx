@@ -169,7 +169,7 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
     if (!matchedTruck) return [];
     return Object.entries(allModels)
       .filter(([, m]) => m.truck_class === matchedTruck.id)
-      .map(([id, m]) => ({ id, label: m.label, mileage_kmpl: m.mileage_kmpl }));
+      .map(([id, m]) => ({ id, label: m.label, mileage_kmpl: m.mileage_kmpl.value, image: m.image }));
   }, [matchedTruck, allModels]);
 
   const resetOverrides = () => setOverrides({});
