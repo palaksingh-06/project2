@@ -5,6 +5,7 @@ import { getRouteDistance } from "@/lib/providers/routing";
 import { getTollEstimate } from "@/lib/providers/tolls";
 import { buildCostHeadProvenance } from "@/lib/zbc/cost-head-provenance";
 import { calculateZBC, tripDays } from "@/lib/zbc/calculate";
+import { deriveDependentCosts } from "@/lib/zbc/truck-economics";
 import { lookupReturnLoad } from "@/lib/zbc/return-load-master";
 import type { ReturnLoadInfo } from "@/lib/zbc/return-load-master";
 import { validateContributions } from "@/lib/zbc/validate";
@@ -182,7 +183,12 @@ export async function runCalculation(req: CalculationRequest): Promise<Calculati
 
   const model = modelId ? getTruckModel(modelId) : null;
   const rateOverrides: RateOverrides | undefined = model
-    ? { mileage_kmpl: Math.round(model.mileage_kmpl * 0.7 * 100) / 100, ...overrides }
+    ? {
+        mileage_kmpl: Math.round(model.mileage_kmpl.value * 0.7 * 100) / 100,
+        ex_showroom_inr: model.ex_showroom_inr.value,
+        ...deriveDependentCosts(model.ex_showroom_inr.value),
+        ...overrides,
+      }
     : (overrides as RateOverrides | undefined);
 
   // Human-readable labels for each resolution tier
