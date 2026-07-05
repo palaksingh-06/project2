@@ -420,12 +420,14 @@ figure was used as a stand-in, per the brief's "closest real sibling" fallback.
 ### ashok-leyland-4825-28ft (Ashok Leyland 4825)
 - Mileage: 3.5 kmpl (source: proxy) — no mileage published for AL 4825 itself; proxied from sibling Tata Signa 4825.T (3.5 kmpl) — https://trucks.tractorjunction.com/en/tata-truck/signa-4825t
 - Ex-showroom: ₹45,32,000 (source: real) — search result confirms "starting price of ₹45.32 lakh, ex-showroom"; AL 4825 is explicitly documented with "cargo body options are 28 and 30ft" — direct real match for length
+- payload_tons: 30 (approximate — no official rated payload figure was surfaced in search; inferred from the "4825" model-number convention (GVW-adjacent) and comparable 28-30ft/25-30T category siblings, not a cited spec sheet)
 
 ## truck_class: 30ft_30T_open
 
 ### ashok-leyland-4825-30ft (Ashok Leyland 4825, 30ft body)
 - Mileage: 3.5 kmpl (source: proxy) — same as above, no AL-specific figure found
 - Ex-showroom: ₹45,32,000 (source: real) — same AL 4825 base price; 30ft body option explicitly confirmed for this chassis
+- payload_tons: 30 (approximate — same caveat as the 28ft entry above; no official rated payload found)
 
 ## truck_class: half_daala
 
@@ -511,12 +513,14 @@ figure was used as a stand-in, per the brief's "closest real sibling" fallback.
 ### tata-signa-3118t-open (Tata Signa 3118.T)
 - Mileage: 4.25 kmpl (source: real) — search result: "the mileage of this truck is 4.25 KMPL" (own verified figure; India's first 3-axle 6x2 10-wheeler, 31,000 kg GVW — closest real match to the 24T/24ft/3-axle spec)
 - Ex-showroom: ₹37,52,000 (source: real) — https://trucksfloor.com/en/tata-truck/signa-3118-t (₹37.52L–38.04L range, base used)
+- payload_tons: 19.5 (approximate — derived from GVW (31,000 kg) minus an estimated tare/chassis weight, not a cited rated-payload spec sheet figure)
 
 ## truck_class: 24T_24ft_closed
 
 ### tata-signa-3118t-closed (Tata Signa 3118.T, Container)
 - Mileage: 4.25 kmpl (source: proxy) — reused from the 24T_24ft_open entry above; no distinct container-body figure found
 - Ex-showroom: ₹37,52,000 (source: proxy) — same reasoning
+- payload_tons: 19.5 (approximate — same caveat as the open-body entry above)
 
 ## truck_class: 27T_32ft_open
 
