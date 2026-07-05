@@ -113,7 +113,6 @@ export function ConfigurationTab({
   // Model source badge shown only for the two fields a selected model
   // supplies a sourced figure for — category defaults don't carry a
   // real/proxy/estimate label.
-  const mileageSource: CostSource | null = model ? model.mileage_kmpl.source : null;
   const priceSource: CostSource | null = model ? model.ex_showroom_inr.source : null;
 
   return (
@@ -124,12 +123,18 @@ export function ConfigurationTab({
           label="Driver salary (₹/day)"
           value={driverPerDay}
           onChange={(v) => setOverride("driver_per_day", v)}
+          head="driver"
+          isIncluded={isIncluded}
+          onToggle={toggleHead}
         />
 
         <FieldRow
           label="Maintenance (₹/km)"
           value={maintenancePerKm}
           onChange={(v) => setOverride("maintenance_per_km", v)}
+          head="maintenance"
+          isIncluded={isIncluded}
+          onToggle={toggleHead}
         />
 
         <div className="rounded-lg border border-slate-200 p-3">
