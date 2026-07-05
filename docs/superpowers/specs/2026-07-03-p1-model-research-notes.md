@@ -354,7 +354,9 @@ badge/variant, but a close sibling model's real spec used as stand-in (noted).
 
 ## Summary
 
-Out of 75 models: see final counts in `lib/config.test.ts` run and task-5-report.md.
+Out of 75 models: 38 real / 5-7 proxy / ~30-32 estimate on at least one field
+(66/75 moved past pure estimate on at least one field, 42/75 on both fields).
+See `lib/config.test.ts`'s catalog-coverage test for the enforced threshold.
 Models left as `estimate` are cases where either (a) no model-specific numeric figure
 was found in multiple search attempts, (b) the only figures found were for a
 mismatched variant/fuel-type that would mislabel the record if used as "real", or
