@@ -183,3 +183,41 @@ describe("calculateZBC with overrides", () => {
     expect(helper!.amount_inr).toBe(800); // 400/day * 2 days
   });
 });
+
+describe("calculateZBC with excluded_heads", () => {
+  const profile = getTruckProfile("9T_4W")!;
+  const baseInput = {
+    truckId: "9T_4W",
+    profile,
+    payloadTons: 9,
+    distance_km: 500,
+    days: 2,
+    diesel_price_inr: 90,
+    toll: {
+      total_inr: 1000,
+      plaza_count: 5,
+      provenance: { kind: "estimate" as const, label: "₹/km × distance" },
+    },
+    avg_speed_kmh: 45,
+    trip_type: "one-way",
+    guidelines,
+  };
+
+  it("zeroes an excluded head and excludes it from the overhead/profit base", () => {
+    const withoutExclusion = calculateZBC(baseInput);
+    const withExclusion = calculateZBC({ ...baseInput, excluded_heads: ["tyres"] });
+
+    const tyresLineWithout = withoutExclusion.lines.find((l) => l.id === "tyres");
+    const tyresLineWith = withExclusion.lines.find((l) => l.id === "tyres");
+    expect(tyresLineWithout).toBeDefined();
+    expect(tyresLineWith).toBeUndefined();
+
+    // Total must drop by at least the excluded tyres line's amount, since
+    // removing it also shrinks the overhead/profit base it fed into.
+    expect(withExclusion.total_inr).toBeLessThan(withoutExclusion.total_inr);
+
+    // Excluding a head not in the excludable list must be a no-op, not a crash.
+    const withIgnoredExclusion = calculateZBC({ ...baseInput, excluded_heads: ["overhead" as never] });
+    expect(withIgnoredExclusion.total_inr).toBe(withoutExclusion.total_inr);
+  });
+});

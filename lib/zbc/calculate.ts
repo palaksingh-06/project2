@@ -39,6 +39,12 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
     terrain,
   } = input;
 
+  // Set up exclusion tracking: excluded heads are zeroed at cost calculation
+  // time, so all downstream uses (overhead/profit base, backhaulVariablePerKm)
+  // automatically reflect the exclusion.
+  const excluded = new Set(input.excluded_heads ?? []);
+  const isExcluded = (id: CostHeadId) => excluded.has(id);
+
   // ── Fuel (variable) ────────────────────────────────────────────────────────
   const mileage = overrides?.mileage_kmpl ?? profile.mileage_kmpl_considered;
   const fuelCostInr = distance_km > 0 ? (distance_km / mileage) * diesel_price_inr : 0;
@@ -48,22 +54,22 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
   const driverPerDay = resolve(profile, overrides, "driver_per_day");
   const bataPerTrip = resolve(profile, overrides, "bata_per_trip");
   const nightHaltPerNight = resolve(profile, overrides, "night_halt_per_night");
-  const driverCostInr =
+  const driverCostInr = isExcluded("driver") ? 0 :
     driverPerDay * days + bataPerTrip + nightHaltPerNight * Math.max(0, days - 1);
 
   const helperPerDay = overrides?.helper_per_day ?? profile.helper_per_day ?? 0;
-  const helperCostInr = helperPerDay * days;
+  const helperCostInr = isExcluded("helper") ? 0 : helperPerDay * days;
 
   // ── Maintenance (variable) ─────────────────────────────────────────────────
   const maintenancePerKm = resolve(profile, overrides, "maintenance_per_km");
-  const maintenanceCostInr = maintenancePerKm * distance_km;
+  const maintenanceCostInr = isExcluded("maintenance") ? 0 : maintenancePerKm * distance_km;
 
   // ── Tyres (variable) ────────────────────────────────────────────────────────
   const tyresCount = overrides?.tyres_count ?? profile.tyres.count;
   const tyresCostPerTyre = overrides?.tyres_cost_per_tyre ?? profile.tyres.cost_per_tyre;
   const tyresLifeKm = overrides?.tyres_life_km ?? profile.tyres.life_km;
   const tyresPerKm = (tyresCount * tyresCostPerTyre) / tyresLifeKm;
-  const tyresCostInr = tyresPerKm * distance_km;
+  const tyresCostInr = isExcluded("tyres") ? 0 : tyresPerKm * distance_km;
 
   // ── Depreciation split: usage (variable, terrain-scaled) ───────────────────
   const exShowroomInr = resolve(profile, overrides, "ex_showroom_inr");
@@ -76,7 +82,7 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
   const depreciableBase = exShowroomInr * (1 - salvagePct);
   const terrainMultiplier = getTerrainDepreciationMultiplier(terrain);
   const depUsagePerKm = (depreciableBase * usageShare) / lifeKm;
-  const depUsageCostInr = depUsagePerKm * distance_km * terrainMultiplier;
+  const depUsageCostInr = isExcluded("depreciation_usage") ? 0 : depUsagePerKm * distance_km * terrainMultiplier;
 
   // ── Annual-km fixed costs (Unnati method) ───────────────────────────────────
   // A trip is treated as "seeking a return load" (and therefore includes the
@@ -90,23 +96,23 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
 
   const depAgingAnnual = (depreciableBase * agingShare) / lifeYears;
   const depAgingPerKm = annualKm > 0 ? depAgingAnnual / annualKm : 0;
-  const depAgingCostInr = depAgingPerKm * distance_km;
+  const depAgingCostInr = isExcluded("depreciation_aging") ? 0 : depAgingPerKm * distance_km;
 
   const insurancePerYear = resolve(profile, overrides, "insurance_per_year");
   const insurancePerKm = annualKm > 0 ? insurancePerYear / annualKm : 0;
-  const insuranceCostInr = insurancePerKm * distance_km;
+  const insuranceCostInr = isExcluded("insurance") ? 0 : insurancePerKm * distance_km;
 
   const roadTaxPerYear = resolve(profile, overrides, "road_tax_per_year");
   const roadTaxPerKm = annualKm > 0 ? roadTaxPerYear / annualKm : 0;
-  const roadTaxCostInr = roadTaxPerKm * distance_km;
+  const roadTaxCostInr = isExcluded("road_tax") ? 0 : roadTaxPerKm * distance_km;
 
   const fitnessPerYear = resolve(profile, overrides, "fitness_per_year");
   const fitnessPerKm = annualKm > 0 ? fitnessPerYear / annualKm : 0;
-  const fitnessCostInr = fitnessPerKm * distance_km;
+  const fitnessCostInr = isExcluded("fitness") ? 0 : fitnessPerKm * distance_km;
 
   const interestPerYear = resolve(profile, overrides, "interest_per_year");
   const interestPerKm = annualKm > 0 ? interestPerYear / annualKm : 0;
-  const interestCostInr = interestPerKm * distance_km;
+  const interestCostInr = isExcluded("interest") ? 0 : interestPerKm * distance_km;
 
   // ── Optional fixed add-ons (off by default; only costed when > 0) ─────────
   function optionalAnnualLine(annualAmount: number | undefined) {
@@ -114,11 +120,11 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
     const perKm = amount > 0 && annualKm > 0 ? amount / annualKm : 0;
     return { perKm, costInr: perKm * distance_km, annualAmount: amount };
   }
-  const gps = optionalAnnualLine(overrides?.gps_per_year ?? profile.gps_per_year);
-  const fastag = optionalAnnualLine(overrides?.fastag_fee_per_year ?? profile.fastag_fee_per_year);
-  const rto = optionalAnnualLine(overrides?.rto_misc_per_year ?? profile.rto_misc_per_year);
-  const tarpaulin = optionalAnnualLine(overrides?.tarpaulin_per_year ?? profile.tarpaulin_per_year);
-  const otherFixed = optionalAnnualLine(overrides?.other_fixed_per_year ?? profile.other_fixed_per_year);
+  const gps = isExcluded("gps") ? { perKm: 0, costInr: 0, annualAmount: 0 } : optionalAnnualLine(overrides?.gps_per_year ?? profile.gps_per_year);
+  const fastag = isExcluded("fastag_fee") ? { perKm: 0, costInr: 0, annualAmount: 0 } : optionalAnnualLine(overrides?.fastag_fee_per_year ?? profile.fastag_fee_per_year);
+  const rto = isExcluded("rto_misc") ? { perKm: 0, costInr: 0, annualAmount: 0 } : optionalAnnualLine(overrides?.rto_misc_per_year ?? profile.rto_misc_per_year);
+  const tarpaulin = isExcluded("tarpaulin") ? { perKm: 0, costInr: 0, annualAmount: 0 } : optionalAnnualLine(overrides?.tarpaulin_per_year ?? profile.tarpaulin_per_year);
+  const otherFixed = isExcluded("other_fixed") ? { perKm: 0, costInr: 0, annualAmount: 0 } : optionalAnnualLine(overrides?.other_fixed_per_year ?? profile.other_fixed_per_year);
 
   // ── Toll & permits ───────────────────────────────────────────────────────
   const tollAndPermitCostInr = toll.total_inr + (overrides?.state_permit ?? 0);
@@ -133,16 +139,17 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
   // The empty leg still carries the truck's full per-km cost burden (fuel,
   // maintenance, tyres, both depreciation lines, and every annual-km fixed
   // cost) — the truck doesn't stop owing money just because it's unloaded.
+  // Rebuild with exclusions: each component must be zeroed if its head is excluded.
   const backhaulVariablePerKm =
     fuelPerKm +
-    maintenancePerKm +
-    tyresPerKm +
-    depUsagePerKm * terrainMultiplier +
-    depAgingPerKm +
-    insurancePerKm +
-    roadTaxPerKm +
-    fitnessPerKm +
-    interestPerKm;
+    (isExcluded("maintenance") ? 0 : maintenancePerKm) +
+    (isExcluded("tyres") ? 0 : tyresPerKm) +
+    (isExcluded("depreciation_usage") ? 0 : depUsagePerKm * terrainMultiplier) +
+    (isExcluded("depreciation_aging") ? 0 : depAgingPerKm) +
+    (isExcluded("insurance") ? 0 : insurancePerKm) +
+    (isExcluded("road_tax") ? 0 : roadTaxPerKm) +
+    (isExcluded("fitness") ? 0 : fitnessPerKm) +
+    (isExcluded("interest") ? 0 : interestPerKm);
   const emptyReturnCostInr = emptyReturnDistanceKm * backhaulVariablePerKm;
 
   // ── Overhead & Profit (two markups on the cost base) ────────────────────
@@ -186,13 +193,15 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
     diesel_inr: diesel_price_inr,
   });
 
-  push(
-    "driver",
-    "Driver Salary",
-    "(Per-day rate × trip days) + bata + night halts — days-based",
-    driverCostInr,
-    { days, driver_per_day: driverPerDay, bata_per_trip: bataPerTrip, night_halt_per_night: nightHaltPerNight }
-  );
+  if (!isExcluded("driver")) {
+    push(
+      "driver",
+      "Driver Salary",
+      "(Per-day rate × trip days) + bata + night halts — days-based",
+      driverCostInr,
+      { days, driver_per_day: driverPerDay, bata_per_trip: bataPerTrip, night_halt_per_night: nightHaltPerNight }
+    );
+  }
 
   if (helperCostInr > 0) {
     push("helper", "Helper / Cleaner Salary", "Per-day rate × trip days — days-based", helperCostInr, {
@@ -201,71 +210,87 @@ export function calculateZBC(input: CalculateInput): CalculateResult {
     });
   }
 
-  push("maintenance", "Maintenance", "₹/km × distance", maintenanceCostInr, {
-    per_km: maintenancePerKm,
-    distance_km,
-  });
-
-  push(
-    "tyres",
-    "Tyres",
-    "(No. of tyres × cost per tyre ÷ tyre life km) × distance",
-    tyresCostInr,
-    { count: tyresCount, cost_per_tyre: tyresCostPerTyre, life_km: tyresLifeKm, distance_km }
-  );
-
-  push(
-    "depreciation_usage",
-    "Depreciation (Usage)",
-    "(Depreciable base × usage share ÷ life km) × distance × terrain multiplier",
-    depUsageCostInr,
-    {
-      depreciable_base_inr: round(depreciableBase),
-      usage_share: usageShare,
-      life_km: lifeKm,
+  if (!isExcluded("maintenance")) {
+    push("maintenance", "Maintenance", "₹/km × distance", maintenanceCostInr, {
+      per_km: maintenancePerKm,
       distance_km,
-      terrain: terrain ?? "Plain",
-      terrain_multiplier: terrainMultiplier,
-    }
-  );
+    });
+  }
 
-  push(
-    "depreciation_aging",
-    "Depreciation (Aging)",
-    "(Depreciable base × aging share ÷ life years) ÷ annual km × distance",
-    depAgingCostInr,
-    {
-      depreciable_base_inr: round(depreciableBase),
-      aging_share: agingShare,
-      life_years: lifeYears,
+  if (!isExcluded("tyres")) {
+    push(
+      "tyres",
+      "Tyres",
+      "(No. of tyres × cost per tyre ÷ tyre life km) × distance",
+      tyresCostInr,
+      { count: tyresCount, cost_per_tyre: tyresCostPerTyre, life_km: tyresLifeKm, distance_km }
+    );
+  }
+
+  if (!isExcluded("depreciation_usage")) {
+    push(
+      "depreciation_usage",
+      "Depreciation (Usage)",
+      "(Depreciable base × usage share ÷ life km) × distance × terrain multiplier",
+      depUsageCostInr,
+      {
+        depreciable_base_inr: round(depreciableBase),
+        usage_share: usageShare,
+        life_km: lifeKm,
+        distance_km,
+        terrain: terrain ?? "Plain",
+        terrain_multiplier: terrainMultiplier,
+      }
+    );
+  }
+
+  if (!isExcluded("depreciation_aging")) {
+    push(
+      "depreciation_aging",
+      "Depreciation (Aging)",
+      "(Depreciable base × aging share ÷ life years) ÷ annual km × distance",
+      depAgingCostInr,
+      {
+        depreciable_base_inr: round(depreciableBase),
+        aging_share: agingShare,
+        life_years: lifeYears,
+        annual_km: Math.round(annualKm),
+        distance_km,
+      }
+    );
+  }
+
+  if (!isExcluded("insurance")) {
+    push("insurance", "Insurance", "Annual premium ÷ annual km × distance", insuranceCostInr, {
+      insurance_per_year: insurancePerYear,
       annual_km: Math.round(annualKm),
       distance_km,
-    }
-  );
+    });
+  }
 
-  push("insurance", "Insurance", "Annual premium ÷ annual km × distance", insuranceCostInr, {
-    insurance_per_year: insurancePerYear,
-    annual_km: Math.round(annualKm),
-    distance_km,
-  });
+  if (!isExcluded("road_tax")) {
+    push("road_tax", "Road Tax / Permit", "Annual road tax ÷ annual km × distance", roadTaxCostInr, {
+      road_tax_per_year: roadTaxPerYear,
+      annual_km: Math.round(annualKm),
+      distance_km,
+    });
+  }
 
-  push("road_tax", "Road Tax / Permit", "Annual road tax ÷ annual km × distance", roadTaxCostInr, {
-    road_tax_per_year: roadTaxPerYear,
-    annual_km: Math.round(annualKm),
-    distance_km,
-  });
+  if (!isExcluded("fitness")) {
+    push("fitness", "Fitness Certificate", "Annual fitness cost ÷ annual km × distance", fitnessCostInr, {
+      fitness_per_year: fitnessPerYear,
+      annual_km: Math.round(annualKm),
+      distance_km,
+    });
+  }
 
-  push("fitness", "Fitness Certificate", "Annual fitness cost ÷ annual km × distance", fitnessCostInr, {
-    fitness_per_year: fitnessPerYear,
-    annual_km: Math.round(annualKm),
-    distance_km,
-  });
-
-  push("interest", "Interest (Loan Carrying Cost)", "Annual loan interest ÷ annual km × distance", interestCostInr, {
-    interest_per_year: interestPerYear,
-    annual_km: Math.round(annualKm),
-    distance_km,
-  });
+  if (!isExcluded("interest")) {
+    push("interest", "Interest (Loan Carrying Cost)", "Annual loan interest ÷ annual km × distance", interestCostInr, {
+      interest_per_year: interestPerYear,
+      annual_km: Math.round(annualKm),
+      distance_km,
+    });
+  }
 
   if (gps.costInr > 0) {
     push("gps", "GPS Charges", "Annual GPS cost ÷ annual km × distance", gps.costInr, {

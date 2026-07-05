@@ -146,6 +146,8 @@ export interface CalculateInput {
   guidelines: ZbcGuidelines;
   /** Destination terrain, used for the usage-depreciation multiplier. Defaults to "Plain". */
   terrain?: "Plain" | "Hill";
+  /** Cost head IDs to fully omit from this calculation (Configuration tab toggles). */
+  excluded_heads?: CostHeadId[];
 }
 
 export type CostHeadId =
