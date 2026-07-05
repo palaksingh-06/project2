@@ -305,6 +305,16 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
               </option>
             ))}
           </select>
+          {selectedModelId && (() => {
+            const selected = modelOptions.find((m) => m.id === selectedModelId);
+            return selected?.image ? (
+              <img
+                src={selected.image}
+                alt={selected.label}
+                className="mt-2 h-24 w-auto rounded-lg border border-slate-200 object-contain bg-white p-1"
+              />
+            ) : null;
+          })()}
         </div>
       )}
 
