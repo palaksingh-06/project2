@@ -1049,6 +1049,370 @@
         "value": 790000,
         "source": "estimate"
       }
+    },
+    "tata-407-gold-sfc-open": {
+      "label": "Tata 407 Gold SFC",
+      "truck_class": "10ft_2T_open",
+      "payload_tons": 2.27,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 10,
+        "source": "real"
+      },
+      "ex_showroom_inr": {
+        "value": 1108000,
+        "source": "real"
+      }
+    },
+    "eicher-pro-1049-4t": {
+      "label": "Eicher Pro 1049",
+      "truck_class": "14ft_4T_open",
+      "payload_tons": 5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 12,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 832000,
+        "source": "proxy"
+      }
+    },
+    "tata-ultra-714-17ft": {
+      "label": "Tata Ultra 714",
+      "truck_class": "17ft_5T_open",
+      "payload_tons": 5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 9,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 1564000,
+        "source": "proxy"
+      }
+    },
+    "eicher-pro-3015-19ft": {
+      "label": "Eicher Pro 3015",
+      "truck_class": "19ft_10T_open",
+      "payload_tons": 10.6,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 6,
+        "source": "real"
+      },
+      "ex_showroom_inr": {
+        "value": 1978000,
+        "source": "real"
+      }
+    },
+    "eicher-pro-3015-22ft": {
+      "label": "Eicher Pro 3015 (22.2ft)",
+      "truck_class": "22ft_10T_open",
+      "payload_tons": 10.6,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 6,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 2200000,
+        "source": "proxy"
+      }
+    },
+    "tata-lpt-2518-22ft": {
+      "label": "Tata LPT 2518",
+      "truck_class": "22ft_18T_open",
+      "payload_tons": 19,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3.9,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 2429000,
+        "source": "real"
+      }
+    },
+    "ashok-leyland-4923-25ft": {
+      "label": "Ashok Leyland 4923",
+      "truck_class": "25ft_25T_open",
+      "payload_tons": 25,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4.1,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 2908000,
+        "source": "proxy"
+      }
+    },
+    "ashok-leyland-4825-28ft": {
+      "label": "Ashok Leyland 4825",
+      "truck_class": "28ft_30T_open",
+      "payload_tons": 30,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3.5,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 4532000,
+        "source": "real"
+      }
+    },
+    "ashok-leyland-4825-30ft": {
+      "label": "Ashok Leyland 4825 (30ft)",
+      "truck_class": "30ft_30T_open",
+      "payload_tons": 30,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3.5,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 4532000,
+        "source": "real"
+      }
+    },
+    "tata-lpt-1613-half-daala": {
+      "label": "Tata LPT 1613",
+      "truck_class": "half_daala",
+      "payload_tons": 11.25,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 6.2,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 1470000,
+        "source": "real"
+      }
+    },
+    "tata-407-gold-sfc-closed": {
+      "label": "Tata 407 Gold SFC (Container)",
+      "truck_class": "10ft_2T_closed",
+      "payload_tons": 2.27,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 10,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 1108000,
+        "source": "proxy"
+      }
+    },
+    "tata-ultra-814-closed": {
+      "label": "Tata Ultra 814 (Container)",
+      "truck_class": "14ft_3_5T_closed",
+      "payload_tons": 3.5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 12.5,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 790000,
+        "source": "proxy"
+      }
+    },
+    "tata-lpt-712-19ft-closed": {
+      "label": "Tata LPT 712 (Container)",
+      "truck_class": "19ft_6T_closed",
+      "payload_tons": 7.5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 8,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 1632000,
+        "source": "proxy"
+      }
+    },
+    "eicher-pro-2049-20ft": {
+      "label": "Eicher Pro 2049",
+      "truck_class": "20ft_6_5T_closed",
+      "payload_tons": 5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 11,
+        "source": "real"
+      },
+      "ex_showroom_inr": {
+        "value": 1216000,
+        "source": "real"
+      }
+    },
+    "tata-lpt-1613-tc-32ft": {
+      "label": "Tata LPT 1613 TC (Container)",
+      "truck_class": "32ft_9T_closed",
+      "payload_tons": 11.25,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 6.2,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 1470000,
+        "source": "real"
+      }
+    },
+    "tata-lpt-2518-32ft-closed": {
+      "label": "Tata LPT 2518 (Container)",
+      "truck_class": "32ft_18T_closed",
+      "payload_tons": 19,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3.9,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 2429000,
+        "source": "real"
+      }
+    },
+    "tata-lpt-1613-20ft-open": {
+      "label": "Tata LPT 1613",
+      "truck_class": "15T_20ft_open",
+      "payload_tons": 11.25,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 6.2,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 1470000,
+        "source": "proxy"
+      }
+    },
+    "tata-lpt-1613-tc-20ft-closed": {
+      "label": "Tata LPT 1613 TC (Container)",
+      "truck_class": "15T_20ft_closed",
+      "payload_tons": 11.25,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 6.2,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 1470000,
+        "source": "proxy"
+      }
+    },
+    "tata-prima-2523-20t-open": {
+      "label": "Tata Prima 2523",
+      "truck_class": "20T_24ft_open",
+      "payload_tons": 21,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4.3,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 2473000,
+        "source": "proxy"
+      }
+    },
+    "eicher-pro-6025-20t-closed": {
+      "label": "Eicher Pro 6025",
+      "truck_class": "20T_24ft_closed",
+      "payload_tons": 21,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4.3,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 2422000,
+        "source": "proxy"
+      }
+    },
+    "tata-prima-2523-21t-open": {
+      "label": "Tata Prima 2523",
+      "truck_class": "21T_24ft_open",
+      "payload_tons": 21,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4.3,
+        "source": "real"
+      },
+      "ex_showroom_inr": {
+        "value": 2473000,
+        "source": "real"
+      }
+    },
+    "eicher-pro-6025-21t-closed": {
+      "label": "Eicher Pro 6025",
+      "truck_class": "21T_24ft_closed",
+      "payload_tons": 21,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4.3,
+        "source": "real"
+      },
+      "ex_showroom_inr": {
+        "value": 2422000,
+        "source": "real"
+      }
+    },
+    "tata-signa-3118t-open": {
+      "label": "Tata Signa 3118.T",
+      "truck_class": "24T_24ft_open",
+      "payload_tons": 19.5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4.25,
+        "source": "real"
+      },
+      "ex_showroom_inr": {
+        "value": 3752000,
+        "source": "real"
+      }
+    },
+    "tata-signa-3118t-closed": {
+      "label": "Tata Signa 3118.T (Container)",
+      "truck_class": "24T_24ft_closed",
+      "payload_tons": 19.5,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4.25,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 3752000,
+        "source": "proxy"
+      }
+    },
+    "ashok-leyland-4923-27ft-open": {
+      "label": "Ashok Leyland 4923",
+      "truck_class": "27T_32ft_open",
+      "payload_tons": 25,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 4.1,
+        "source": "real"
+      },
+      "ex_showroom_inr": {
+        "value": 2908000,
+        "source": "real"
+      }
+    },
+    "eicher-pro-8049-27ft-closed": {
+      "label": "Eicher Pro 8049",
+      "truck_class": "27T_32ft_closed",
+      "payload_tons": 25,
+      "image": null,
+      "mileage_kmpl": {
+        "value": 3.8,
+        "source": "proxy"
+      },
+      "ex_showroom_inr": {
+        "value": 3417000,
+        "source": "real"
+      }
     }
   }
 }

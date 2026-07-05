@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getZbcGuidelines, getTerrainDepreciationMultiplier, getTruckModel, getTruckModels } from "@/lib/config";
+import { getZbcGuidelines, getTerrainDepreciationMultiplier, getTruckModel, getTruckModels, getTruckRatesConfig } from "@/lib/config";
 
 describe("getZbcGuidelines", () => {
   it("returns the utilization + overhead/profit constants", () => {
@@ -56,5 +56,17 @@ describe("getTruckModel (enriched schema)", () => {
     // target: it catches "the whole file silently reverted to all-estimate"
     // without dictating exactly how many models must be real.
     expect(realOrProxyCount).toBeGreaterThan(Object.keys(models).length / 2);
+  });
+});
+
+describe("getTruckModels covers every truck-rates.json category", () => {
+  it("has at least one model for every truck category", () => {
+    // Requires importing getTruckRatesConfig alongside getTruckModels at the
+    // top of this test file if not already imported.
+    const rates = getTruckRatesConfig();
+    const models = getTruckModels();
+    const coveredClasses = new Set(Object.values(models).map((m) => m.truck_class));
+    const uncovered = Object.keys(rates.trucks).filter((id) => !coveredClasses.has(id));
+    expect(uncovered, `Categories with no named model: ${uncovered.join(", ")}`).toEqual([]);
   });
 });
