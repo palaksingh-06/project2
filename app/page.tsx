@@ -13,7 +13,8 @@ import {
 import { downloadSingleTripExcel } from "@/lib/export/excel";
 import { generateMethodologyMd } from "@/lib/export/methodology";
 import { ProvenanceDrawer } from "@/components/ProvenanceDrawer";
-import type { ContributionCheck } from "@/lib/zbc/types";
+import { ConfigurationTab } from "@/components/ConfigurationTab";
+import type { ContributionCheck, RateOverrides, CostHeadId } from "@/lib/zbc/types";
 import type { BreakdownRow } from "@/components/CostBreakdownTable";
 import type { BatchRowResult } from "@/lib/export/excel";
 
@@ -84,6 +85,14 @@ export default function HomePage() {
   // When true, the left input column collapses so results take the full width
   const [formMinimized, setFormMinimized] = useState(false);
 
+  // Which panel is shown in the results column's tab bar
+  const [activeResultTab, setActiveResultTab] = useState<"configuration" | "breakdown" | "route">("breakdown");
+
+  // Configuration tab state — user-entered overrides and excluded cost heads,
+  // handed to ConfigurationTab and (in a later task) fed into recompute.
+  const [configOverrides, setConfigOverrides] = useState<RateOverrides>({});
+  const [excludedHeads, setExcludedHeads] = useState<CostHeadId[]>([]);
+
   // Provenance drawer state — holds whichever result row the user clicked "View data sources" on
   const [provenanceResult, setProvenanceResult] = useState<CalculateResponse | null>(null);
 
@@ -115,6 +124,7 @@ export default function HomePage() {
       }
 
       setResult(data);
+      setFormMinimized(true);
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -238,6 +248,23 @@ export default function HomePage() {
           {/* Single trip results */}
           {tab === "single" && result && !loading && (
             <>
+              {/* Tab bar — switches between Configuration, Cost Breakdown, and Route Map panels */}
+              <div className="flex gap-1 border-b border-slate-200" data-print="hide">
+                {(["configuration", "breakdown", "route"] as const).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setActiveResultTab(t)}
+                    className={`px-4 py-2 text-sm font-medium capitalize transition-colors ${
+                      activeResultTab === t
+                        ? "border-b-2 border-brand-700 text-brand-700"
+                        : "text-slate-500 hover:text-slate-800"
+                    }`}
+                  >
+                    {t === "configuration" ? "Configuration" : t === "breakdown" ? "Cost Breakdown" : "Route Map"}
+                  </button>
+                ))}
+              </div>
+
               {/* Provenance button — top of results, opens the right-side drawer */}
               <div className="flex justify-end" data-print="hide">
                 <button
@@ -290,40 +317,63 @@ export default function HomePage() {
                 </button>
               </div>
 
-              {/* Benchmark toggle */}
-              <label className="flex items-center gap-2 text-sm text-slate-600" data-print="hide">
-                <input
-                  type="checkbox"
-                  checked={showContribution}
-                  onChange={(e) => setShowContribution(e.target.checked)}
-                />
-                Show benchmark check
-              </label>
+              {activeResultTab === "breakdown" && (
+                <>
+                  {/* Benchmark toggle */}
+                  <label className="flex items-center gap-2 text-sm text-slate-600" data-print="hide">
+                    <input
+                      type="checkbox"
+                      checked={showContribution}
+                      onChange={(e) => setShowContribution(e.target.checked)}
+                    />
+                    Show benchmark check
+                  </label>
 
-              {/* Cost breakdown pie chart toggle */}
-              <label className="flex items-center gap-2 text-sm text-slate-600" data-print="hide">
-                <input
-                  type="checkbox"
-                  checked={showChart}
-                  onChange={(e) => setShowChart(e.target.checked)}
-                />
-                Show cost breakdown chart
-              </label>
-              {showChart && (
-                <BreakdownChart
-                  data={result.breakdown.map((r) => ({
-                    name: r.name.replace(/ \(.*\)/, ""),
-                    amount: r.amount_inr,
-                  }))}
+                  {/* Cost breakdown pie chart toggle */}
+                  <label className="flex items-center gap-2 text-sm text-slate-600" data-print="hide">
+                    <input
+                      type="checkbox"
+                      checked={showChart}
+                      onChange={(e) => setShowChart(e.target.checked)}
+                    />
+                    Show cost breakdown chart
+                  </label>
+                  {showChart && (
+                    <BreakdownChart
+                      data={result.breakdown.map((r) => ({
+                        name: r.name.replace(/ \(.*\)/, ""),
+                        amount: r.amount_inr,
+                      }))}
+                    />
+                  )}
+
+                  {/* Detailed cost breakdown table with expandable rows */}
+                  <CostBreakdownTable
+                    rows={result.breakdown}
+                    contributions={result.contributions}
+                    showContribution={showContribution}
+                  />
+                </>
+              )}
+
+              {activeResultTab === "configuration" && (
+                <ConfigurationTab
+                  truckId={result.meta.truck?.truck_id ?? ""}
+                  modelId={result.meta.truck?.model_id}
+                  overrides={configOverrides}
+                  excludedHeads={excludedHeads}
+                  onChange={(nextOverrides, nextExcluded) => {
+                    setConfigOverrides(nextOverrides);
+                    setExcludedHeads(nextExcluded);
+                  }}
                 />
               )}
 
-              {/* Detailed cost breakdown table with expandable rows */}
-              <CostBreakdownTable
-                rows={result.breakdown}
-                contributions={result.contributions}
-                showContribution={showContribution}
-              />
+              {activeResultTab === "route" && (
+                <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500">
+                  Route Map is coming in a future update.
+                </div>
+              )}
             </>
           )}
 
