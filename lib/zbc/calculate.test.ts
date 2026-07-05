@@ -220,4 +220,28 @@ describe("calculateZBC with excluded_heads", () => {
     const withIgnoredExclusion = calculateZBC({ ...baseInput, excluded_heads: ["overhead" as never] });
     expect(withIgnoredExclusion.total_inr).toBe(withoutExclusion.total_inr);
   });
+
+  it("excludes a head's contribution from the empty-return backhaul blend too", () => {
+    // Test with two-way trip and non-zero empty_return_pct so the empty_return line is actually calculated.
+    // This verifies that excluded heads propagate into the backhaul variable-cost blend.
+    const withoutExclusion = calculateZBC({
+      ...baseInput,
+      trip_type: "two-way",
+      overrides: { empty_return_pct: 0.5 },
+    });
+    const withExclusion = calculateZBC({
+      ...baseInput,
+      trip_type: "two-way",
+      overrides: { empty_return_pct: 0.5 },
+      excluded_heads: ["insurance"],
+    });
+
+    const emptyReturnWithout = withoutExclusion.lines.find((l) => l.id === "empty_return")!;
+    const emptyReturnWith = withExclusion.lines.find((l) => l.id === "empty_return")!;
+
+    expect(emptyReturnWithout.amount_inr).toBeGreaterThan(0); // sanity: backhaul is actually happening
+    expect(emptyReturnWith.amount_inr).toBeLessThan(
+      emptyReturnWithout.amount_inr
+    ); // excluding insurance shrinks the backhaul blend too
+  });
 });
