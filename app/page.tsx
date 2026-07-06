@@ -107,6 +107,12 @@ export default function HomePage() {
     if (!opts?.silent) {
       setLoading(true);
       setResult(null);
+      // A genuine new Calculate-button submission starts a fresh trip, so any
+      // Configuration-tab overrides/exclusions from the previous result no
+      // longer apply — reset them here (silent live-recompute calls must NOT
+      // hit this, since they exist specifically to preserve config edits).
+      setConfigOverrides({});
+      setExcludedHeads([]);
     }
     setError(null);
     setSuggestions([]);

@@ -2,6 +2,34 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { runCalculation } from "@/lib/newzbc/run-calculation";
 import { CalculationError } from "@/lib/zbc/run-calculation";
+import type { CostHeadId } from "@/lib/zbc/types";
+
+// Kept in sync with CostHeadId at compile time: if a future head is added to
+// (or removed from) that union without updating this list, the `satisfies`
+// clause below will fail to compile instead of silently 400-ing at runtime.
+const COST_HEAD_IDS = [
+  "fuel",
+  "driver",
+  "helper",
+  "maintenance",
+  "tyres",
+  "depreciation_usage",
+  "depreciation_aging",
+  "insurance",
+  "road_tax",
+  "fitness",
+  "interest",
+  "gps",
+  "fastag_fee",
+  "rto_misc",
+  "tarpaulin",
+  "other_fixed",
+  "toll",
+  "loading",
+  "empty_return",
+  "overhead",
+  "profit",
+] as const satisfies readonly CostHeadId[];
 
 const overridesSchema = z
   .object({
@@ -50,33 +78,7 @@ const bodySchema = z.object({
   }),
   payloadTons: z.number().positive().optional(),
   overrides: overridesSchema,
-  excluded_heads: z
-    .array(
-      z.enum([
-        "fuel",
-        "driver",
-        "helper",
-        "maintenance",
-        "tyres",
-        "depreciation_usage",
-        "depreciation_aging",
-        "insurance",
-        "road_tax",
-        "fitness",
-        "interest",
-        "gps",
-        "fastag_fee",
-        "rto_misc",
-        "tarpaulin",
-        "other_fixed",
-        "toll",
-        "loading",
-        "empty_return",
-        "overhead",
-        "profit",
-      ])
-    )
-    .optional(),
+  excluded_heads: z.array(z.enum(COST_HEAD_IDS)).optional(),
 });
 
 export async function POST(request: Request) {
