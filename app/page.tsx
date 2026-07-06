@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import truckRatesJson from "@/config/truck-rates.json";
 import { BreakdownChart } from "@/components/BreakdownChart";
 import { CostBreakdownTable } from "@/components/CostBreakdownTable";
@@ -96,6 +96,13 @@ export default function HomePage() {
   // Provenance drawer state — holds whichever result row the user clicked "View data sources" on
   const [provenanceResult, setProvenanceResult] = useState<CalculateResponse | null>(null);
 
+  // Set by handleCalculate's non-silent reset so the live-recompute effect
+  // can tell "this empty state came from a fresh-Calculate reset" (skip —
+  // the button's own request already reflects it) apart from "this empty
+  // state came from the user reverting an edit/exclusion" (must recompute —
+  // the current result still reflects the old, now-stale, edit).
+  const skipNextRecomputeRef = useRef(false);
+
   const truckRates = truckRatesJson.trucks;
 
   // Calls /api/calculate for a single trip submission. When opts.silent is true
@@ -113,6 +120,7 @@ export default function HomePage() {
       // hit this, since they exist specifically to preserve config edits).
       setConfigOverrides({});
       setExcludedHeads([]);
+      skipNextRecomputeRef.current = true;
     }
     setError(null);
     setSuggestions([]);
@@ -152,14 +160,19 @@ export default function HomePage() {
   // own setLastRequest call doesn't re-trigger this effect.
   useEffect(() => {
     if (!lastRequest) return;
-    // Reference-only changes (e.g. the reset-to-empty-state that fires on
-    // every fresh Calculate click) must not trigger a recompute — only a
-    // genuinely non-empty override/exclusion means there's anything to
-    // recompute. Without this guard, resetting {} / [] to a NEW {} / []
-    // object still passes React's reference-equality dependency check and
-    // fires a spurious duplicate request that races the user's own
-    // Calculate-button submission.
-    if (Object.keys(configOverrides).length === 0 && excludedHeads.length === 0) return;
+    // The reset-to-empty-state that fires on every fresh Calculate click is a
+    // reference-only change (new {} / [] objects) that still passes React's
+    // reference-equality dependency check, which would otherwise fire a
+    // spurious duplicate request racing the user's own Calculate-button
+    // submission. handleCalculate's reset branch sets this flag right before
+    // that reset so we can skip exactly that one resulting effect run —
+    // without mistaking a genuine user revert-to-empty (re-including an
+    // excluded head, or clearing an override back to blank) for a reset, since
+    // those transitions must still recompute.
+    if (skipNextRecomputeRef.current) {
+      skipNextRecomputeRef.current = false;
+      return;
+    }
     const handle = setTimeout(() => {
       const merged: CalculateRequest = {
         ...lastRequest,
