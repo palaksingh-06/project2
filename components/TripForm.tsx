@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getTruckModels, getTrucksByBodyType, getTruckProfile } from "@/lib/config";
-import type { RateOverrides } from "@/lib/zbc/types";
+import type { RateOverrides, CostHeadId } from "@/lib/zbc/types";
 
 export interface CalculateRequest {
   truckId: string;
@@ -12,6 +12,8 @@ export interface CalculateRequest {
   tripType: string;
   payloadTons: number;
   overrides?: RateOverrides;
+  /** Cost head IDs to fully omit from this calculation (Configuration tab toggles). */
+  excluded_heads?: CostHeadId[];
 }
 
 interface TripFormProps {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import truckRatesJson from "@/config/truck-rates.json";
 import { BreakdownChart } from "@/components/BreakdownChart";
 import { CostBreakdownTable } from "@/components/CostBreakdownTable";
@@ -98,12 +98,18 @@ export default function HomePage() {
 
   const truckRates = truckRatesJson.trucks;
 
-  // Calls /api/calculate for a single trip submission
-  async function handleCalculate(req: CalculateRequest) {
-    setLoading(true);
+  // Calls /api/calculate for a single trip submission. When opts.silent is true
+  // (used by the Configuration-tab live-recompute effect below), the loading
+  // spinner/blank-result flash and the auto-minimize side effect are suppressed
+  // so a background recompute doesn't visibly disrupt the page — only the
+  // actual result/error/lastRequest state is still updated.
+  async function handleCalculate(req: CalculateRequest, opts?: { silent?: boolean }) {
+    if (!opts?.silent) {
+      setLoading(true);
+      setResult(null);
+    }
     setError(null);
     setSuggestions([]);
-    setResult(null);
     setLastRequest(req);
 
     try {
@@ -124,13 +130,33 @@ export default function HomePage() {
       }
 
       setResult(data);
-      setFormMinimized(true);
+      if (!opts?.silent) setFormMinimized(true);
     } catch {
       setError("Network error. Please try again.");
     } finally {
-      setLoading(false);
+      if (!opts?.silent) setLoading(false);
     }
   }
+
+  // Live-recompute: when the Configuration tab edits overrides or toggles
+  // excluded cost heads, re-run the last calculation (debounced 400ms) with
+  // those edits merged in, so the Cost Breakdown tab stays in sync without
+  // requiring the user to click Calculate again. Deliberately depends only on
+  // configOverrides/excludedHeads (not lastRequest) so that handleCalculate's
+  // own setLastRequest call doesn't re-trigger this effect.
+  useEffect(() => {
+    if (!lastRequest) return;
+    const handle = setTimeout(() => {
+      const merged: CalculateRequest = {
+        ...lastRequest,
+        overrides: { ...lastRequest.overrides, ...configOverrides },
+        excluded_heads: excludedHeads,
+      };
+      handleCalculate(merged, { silent: true });
+    }, 400);
+    return () => clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [configOverrides, excludedHeads]);
 
   return (
     <main className="min-h-screen">

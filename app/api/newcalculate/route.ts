@@ -50,6 +50,33 @@ const bodySchema = z.object({
   }),
   payloadTons: z.number().positive().optional(),
   overrides: overridesSchema,
+  excluded_heads: z
+    .array(
+      z.enum([
+        "fuel",
+        "driver",
+        "helper",
+        "maintenance",
+        "tyres",
+        "depreciation_usage",
+        "depreciation_aging",
+        "insurance",
+        "road_tax",
+        "fitness",
+        "interest",
+        "gps",
+        "fastag_fee",
+        "rto_misc",
+        "tarpaulin",
+        "other_fixed",
+        "toll",
+        "loading",
+        "empty_return",
+        "overhead",
+        "profit",
+      ])
+    )
+    .optional(),
 });
 
 export async function POST(request: Request) {

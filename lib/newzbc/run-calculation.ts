@@ -40,7 +40,7 @@ function warnIfNotApi(
 }
 
 export async function runCalculation(req: MultiStopCalculationRequest): Promise<CalculationResponse> {
-  const { truckId, modelId, origin, destinations, tripType, payloadTons, overrides } = req;
+  const { truckId, modelId, origin, destinations, tripType, payloadTons, overrides, excluded_heads } = req;
 
   if (destinations.length === 0) {
     throw new CalculationError("At least one destination is required");
@@ -238,6 +238,7 @@ export async function runCalculation(req: MultiStopCalculationRequest): Promise<
     trip_type: tripType ?? "one-way",
     guidelines: getZbcGuidelines(),
     terrain: finalDestReturnLoad?.terrain === "Hill" ? "Hill" : "Plain",
+    excluded_heads,
   });
 
   const contributions = validateContributions(result);

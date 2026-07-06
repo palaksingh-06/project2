@@ -1,4 +1,4 @@
-import type { RateOverrides } from "@/lib/zbc/types";
+import type { RateOverrides, CostHeadId } from "@/lib/zbc/types";
 
 export interface MultiStopCalculationRequest {
   truckId: string;
@@ -8,6 +8,8 @@ export interface MultiStopCalculationRequest {
   tripType?: string;
   payloadTons?: number;
   overrides?: RateOverrides;
+  /** Cost head IDs to fully omit from this calculation (Configuration tab toggles). */
+  excluded_heads?: CostHeadId[];
   truckResolution?: {
     truckId: string;
     truckLabel: string;
