@@ -152,6 +152,14 @@ export default function HomePage() {
   // own setLastRequest call doesn't re-trigger this effect.
   useEffect(() => {
     if (!lastRequest) return;
+    // Reference-only changes (e.g. the reset-to-empty-state that fires on
+    // every fresh Calculate click) must not trigger a recompute — only a
+    // genuinely non-empty override/exclusion means there's anything to
+    // recompute. Without this guard, resetting {} / [] to a NEW {} / []
+    // object still passes React's reference-equality dependency check and
+    // fires a spurious duplicate request that races the user's own
+    // Calculate-button submission.
+    if (Object.keys(configOverrides).length === 0 && excludedHeads.length === 0) return;
     const handle = setTimeout(() => {
       const merged: CalculateRequest = {
         ...lastRequest,
