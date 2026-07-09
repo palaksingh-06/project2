@@ -7,8 +7,7 @@ import type { RateOverrides, CostHeadId } from "@/lib/zbc/types";
 export interface CalculateRequest {
   truckId: string;
   modelId?: string;
-  origin: string;
-  destinations: string[];
+  routes: string[];
   tripType: string;
   payloadTons: number;
   overrides?: RateOverrides;
@@ -191,8 +190,7 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
     onSubmit({
       truckId: matchedTruck?.id ?? "", // placeholder catch
       modelId: selectedModelId || undefined,
-      origin,
-      destinations: stops,
+      routes: [origin, ...stops],
       tripType,
       payloadTons: Math.round(Number(payloadTons) * 10) / 10, // Rounds to 1 decimal place
       overrides: Object.keys(overrides).length ? overrides : undefined,

@@ -71,8 +71,7 @@ const overridesSchema = z
 const bodySchema = z.object({
   truckId: z.string(),
   modelId: z.string().optional(),
-  origin: z.string().min(1),
-  destinations: z.array(z.string().min(1)).min(1),
+  routes: z.array(z.string().min(1)).min(2),
   tripType: z.string().refine((val) => val === "one-way" || val === "two-way", {
     message: "tripType must be either 'one-way' or 'two-way'",
   }),

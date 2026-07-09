@@ -40,11 +40,12 @@ function warnIfNotApi(
 }
 
 export async function runCalculation(req: MultiStopCalculationRequest): Promise<CalculationResponse> {
-  const { truckId, modelId, origin, destinations, tripType, payloadTons, overrides, excluded_heads } = req;
+  const { truckId, modelId, routes, tripType, payloadTons, overrides, excluded_heads } = req;
 
-  if (destinations.length === 0) {
-    throw new CalculationError("At least one destination is required");
+  if (routes.length < 2) {
+    throw new CalculationError("At least an origin and a destination are required");
   }
+  const [origin, ...destinations] = routes;
 
   const profile = getTruckProfile(truckId);
   if (!profile) throw new CalculationError(`Unknown truck type: ${truckId}`);

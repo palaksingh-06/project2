@@ -9,18 +9,34 @@ export interface DistanceResult {
   duration_hours?: number;
 }
 
+export interface RouteGeometry {
+  type: "LineString";
+  coordinates: [number, number][]; // [lng, lat], GeoJSON order
+}
+
+export interface RouteResult {
+  distance_km: number;
+  duration_hours?: number;
+  provenance: Provenance;
+  geometry: RouteGeometry; // always populated — real route, or straight-line estimate as fallback
+  source: "google" | "ors" | "estimate"; // machine-readable — which path actually produced this result
+}
+
 // ── Google Routes API toggle ──────────────────────────────────────────────────
 // Controlled by GOOGLE_ROUTES_ENABLED env variable. While off, distance falls
 // through to OpenRouteService (if keyed) then the straight-line × road-factor estimate.
 async function routeGoogle(
-  origin: { lat: number; lng: number },
-  destination: { lat: number; lng: number },
+  waypoints: { lat: number; lng: number }[],
   apiKey: string
-): Promise<DistanceResult | "blocked" | null> {
+): Promise<RouteResult | "blocked" | null> {
   if (process.env.GOOGLE_ROUTES_ENABLED !== "true") return null;
 
   // Airtight cap: stop calling Google once the monthly free tier is reached.
   if (!canCallGoogle("routes")) return "blocked";
+
+  const origin = waypoints[0];
+  const destination = waypoints[waypoints.length - 1];
+  const intermediates = waypoints.slice(1, -1);
 
   try {
     const res = await fetch(
@@ -30,28 +46,38 @@ async function routeGoogle(
         headers: {
           "Content-Type": "application/json",
           "X-Goog-Api-Key": apiKey,
-          "X-Goog-FieldMask": "routes.distanceMeters,routes.duration",
+          "X-Goog-FieldMask": "routes.distanceMeters,routes.duration,routes.polyline",
         },
         body: JSON.stringify({
           origin: { location: { latLng: { latitude: origin.lat, longitude: origin.lng } } },
           destination: { location: { latLng: { latitude: destination.lat, longitude: destination.lng } } },
+          ...(intermediates.length
+            ? { intermediates: intermediates.map((p) => ({ location: { latLng: { latitude: p.lat, longitude: p.lng } } })) }
+            : {}),
           travelMode: "DRIVE",
+          polylineEncoding: "GEO_JSON_LINESTRING",
         }),
-        signal: AbortSignal.timeout(10000),
+        signal: AbortSignal.timeout(15000),
       }
     );
     recordGoogleCall("routes"); // billable request dispatched
     if (res.status === 429) return "blocked";
     if (!res.ok) return null;
     const data = (await res.json()) as {
-      routes?: { distanceMeters?: number; duration?: string }[];
+      routes?: {
+        distanceMeters?: number;
+        duration?: string;
+        polyline?: { geoJsonLinestring?: { type: string; coordinates: [number, number][] } };
+      }[];
     };
     const route = data.routes?.[0];
-    if (!route?.distanceMeters) return null;
+    if (!route?.distanceMeters || !route.polyline?.geoJsonLinestring) return null;
     const durationSecs = route.duration ? parseInt(route.duration) : undefined;
     return {
       distance_km: route.distanceMeters / 1000,
       duration_hours: durationSecs ? durationSecs / 3600 : undefined,
+      geometry: { type: "LineString", coordinates: route.polyline.geoJsonLinestring.coordinates },
+      source: "google",
       provenance: { kind: "api", label: "Google Routes API", detail: "DRIVE mode" },
     };
   } catch {
@@ -60,19 +86,15 @@ async function routeGoogle(
 }
 
 async function routeORS(
-  origin: { lat: number; lng: number },
-  destination: { lat: number; lng: number },
+  waypoints: { lat: number; lng: number }[],
   apiKey: string
-): Promise<DistanceResult | null> {
+): Promise<RouteResult | null> {
   const body = {
-    coordinates: [
-      [origin.lng, origin.lat],
-      [destination.lng, destination.lat],
-    ],
+    coordinates: waypoints.map((p) => [p.lng, p.lat]),
   };
   try {
     const res = await fetch(
-      "https://api.openrouteservice.org/v2/directions/driving-car",
+      "https://api.openrouteservice.org/v2/directions/driving-car/geojson",
       {
         method: "POST",
         headers: {
@@ -80,18 +102,24 @@ async function routeORS(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
-        signal: AbortSignal.timeout(12000),
+        signal: AbortSignal.timeout(15000),
       }
     );
     if (!res.ok) return null;
     const data = (await res.json()) as {
-      routes?: { summary?: { distance: number; duration: number } }[];
+      features?: {
+        geometry?: { type: string; coordinates: [number, number][] };
+        properties?: { summary?: { distance: number; duration: number } };
+      }[];
     };
-    const summary = data.routes?.[0]?.summary;
-    if (!summary) return null;
+    const feature = data.features?.[0];
+    const summary = feature?.properties?.summary;
+    if (!summary || !feature?.geometry) return null;
     return {
       distance_km: summary.distance / 1000,
       duration_hours: summary.duration / 3600,
+      geometry: { type: "LineString", coordinates: feature.geometry.coordinates },
+      source: "ors",
       provenance: {
         kind: "api",
         label: "OpenRouteService",
@@ -103,22 +131,25 @@ async function routeORS(
   }
 }
 
-export async function getRouteDistance(
-  origin: { lat: number; lng: number },
-  destination: { lat: number; lng: number }
-): Promise<DistanceResult> {
+export async function getRoute(
+  waypoints: { lat: number; lng: number }[]
+): Promise<RouteResult> {
+  if (waypoints.length < 2) {
+    throw new Error("getRoute requires at least 2 waypoints");
+  }
+
   let googleBlocked = false;
 
   const googleKey = process.env.GOOGLE_MAPS_API_KEY;
   if (googleKey) {
-    const g = await routeGoogle(origin, destination, googleKey);
+    const g = await routeGoogle(waypoints, googleKey);
     if (g === "blocked") googleBlocked = true;
     else if (g) return g;
   }
 
   const orsKey = process.env.OPENROUTESERVICE_API_KEY;
   if (orsKey) {
-    const o = await routeORS(origin, destination, orsKey);
+    const o = await routeORS(waypoints, orsKey);
     if (o) {
       // Flag as a fallback (red badge) only if Google was blocked by its cap.
       return googleBlocked
@@ -127,15 +158,28 @@ export async function getRouteDistance(
     }
   }
 
+  // Haversine fallback: straight-line × road-factor summed across consecutive
+  // waypoints, plus a synthesized straight-line LineString through all
+  // waypoints so the map always has something to draw (clearly flagged via
+  // `source`/`provenance` as an estimate, not a real routed path).
   const fallback = getFallbackRates();
-  const straight = haversineKm(
-    origin.lat,
-    origin.lng,
-    destination.lat,
-    destination.lng
-  );
+  let totalStraight = 0;
+  for (let i = 0; i < waypoints.length - 1; i++) {
+    totalStraight += haversineKm(
+      waypoints[i].lat,
+      waypoints[i].lng,
+      waypoints[i + 1].lat,
+      waypoints[i + 1].lng
+    );
+  }
+
   return {
-    distance_km: Math.round(straight * fallback.road_factor),
+    distance_km: Math.round(totalStraight * fallback.road_factor),
+    geometry: {
+      type: "LineString",
+      coordinates: waypoints.map((p) => [p.lng, p.lat]),
+    },
+    source: "estimate",
     provenance: googleBlocked
       ? {
           kind: "error",
@@ -147,5 +191,20 @@ export async function getRouteDistance(
           label: "Straight-line × road factor",
           detail: `config/fallback-rates.json (factor ${fallback.road_factor})`,
         },
+  };
+}
+
+// Back-compat shim for the legacy single-leg batch/`lib/zbc` path. Do not add
+// new callers — use getRoute() directly for anything that needs multi-waypoint
+// or geometry data.
+export async function getRouteDistance(
+  origin: { lat: number; lng: number },
+  destination: { lat: number; lng: number }
+): Promise<DistanceResult> {
+  const r = await getRoute([origin, destination]);
+  return {
+    distance_km: r.distance_km,
+    duration_hours: r.duration_hours,
+    provenance: r.provenance,
   };
 }

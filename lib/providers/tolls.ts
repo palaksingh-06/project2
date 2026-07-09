@@ -1,5 +1,6 @@
 import { getFallbackRates } from "@/lib/config";
 import type { Provenance } from "@/lib/zbc/provenance";
+import type { RouteGeometry } from "@/lib/providers/routing";
 
 export interface TollPlaza {
   name: string;
@@ -34,6 +35,43 @@ interface TollGuruToll {
   road?: string;
   state?: string;
   start?: { name?: string; road?: string; state?: string };
+}
+
+// Shared by both TollGuru endpoints below — confirmed identical `costs`/`tolls`
+// field names between the origin-destination-waypoints and the
+// complete-polyline-from-mapping-service responses.
+function extractTollGuruCosts(
+  route: Record<string, unknown>
+): { total_inr: number; plaza_count: number; plazas_detail: TollPlaza[] } | null {
+  const costs = (route.costs ?? route) as Record<string, unknown>;
+
+  // Prefer FASTag (tag) cost — mandatory in India
+  const total =
+    (costs.tag as number | undefined) ??
+    (costs.minimumTollCost as number | undefined) ??
+    (costs.tagAndCash as number | undefined) ??
+    (costs.cash as number | undefined);
+
+  if (typeof total !== "number" || total < 0) {
+    console.warn("[TollGuru] No usable toll cost in response. costs:", JSON.stringify(costs));
+    return null;
+  }
+
+  const tollsRaw = (route.tolls ?? []) as TollGuruToll[];
+  const plazas_detail: TollPlaza[] = tollsRaw
+    .map((t) => ({
+      name: t.name ?? t.start?.name ?? "Unnamed plaza",
+      tag_inr: Math.round(t.tagCost ?? t.cashCost ?? 0),
+      road: t.road ?? t.start?.road,
+      state: t.state ?? t.start?.state,
+    }))
+    .filter((p) => p.tag_inr > 0);
+
+  return {
+    total_inr: Math.round(total),
+    plaza_count: plazas_detail.length || tollsRaw.length,
+    plazas_detail,
+  };
 }
 
 // ── TollGuru API toggle ───────────────────────────────────────────────────────
@@ -102,38 +140,83 @@ async function tollFromTollGuru(
     ) as Record<string, unknown>;
 
     const costs = (route.costs ?? route) as Record<string, unknown>;
-
     console.log("[TollGuru] costs keys:", Object.keys(costs));
 
-    // Prefer FASTag (tag) cost — mandatory in India
-    const total =
-      (costs.tag as number | undefined) ??
-      (costs.minimumTollCost as number | undefined) ??
-      (costs.tagAndCash as number | undefined) ??
-      (costs.cash as number | undefined);
+    return extractTollGuruCosts(route);
+  } catch (err) {
+    console.error("[TollGuru] Fetch error:", err);
+    return null;
+  }
+}
 
-    if (typeof total !== "number" || total < 0) {
-      console.warn("[TollGuru] No usable toll cost in response. costs:", JSON.stringify(costs));
+// Whole-route TollGuru call — takes the already-routed geometry (from Google/ORS
+// via getRoute()) and asks TollGuru for tolls along that EXACT path in one call,
+// instead of letting TollGuru compute its own route per leg.
+async function tollFromTollGuruRoute(
+  geometry: RouteGeometry,
+  mapProvider: "google" | "osm",
+  tollClass: string
+): Promise<{ total_inr: number; plaza_count: number; plazas_detail: TollPlaza[] } | null> {
+  if (process.env.TOLLGURU_ENABLED !== "true") return null;
+
+  const apiKey = process.env.TOLLGURU_API_KEY;
+  if (!apiKey) {
+    console.warn("[TollGuru] TOLLGURU_API_KEY not set — falling back to estimate");
+    return null;
+  }
+
+  const vehicleType = TOLLGURU_VEHICLE[tollClass] ?? "2AxlesTruck";
+  // TollGuru's "path" wants lat,lng pairs delimited by "|" — the reverse of
+  // our geometry's [lng,lat] GeoJSON order.
+  const path = geometry.coordinates.map(([lng, lat]) => `${lat},${lng}`).join("|");
+
+  try {
+    const body = {
+      mapProvider,
+      path,
+      vehicle: { type: vehicleType },
+      units: { currencyUnit: "INR" }, // request defaults to USD otherwise
+    };
+
+    const res = await fetch(
+      "https://apis.tollguru.com/toll/v2/complete-polyline-from-mapping-service",
+      {
+        method: "POST",
+        headers: {
+          "x-api-key": apiKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(15000),
+      }
+    );
+
+    const rawText = await res.text();
+
+    if (!res.ok) {
+      console.error(`[TollGuru] Route-polyline HTTP ${res.status}:`, rawText.slice(0, 500));
       return null;
     }
 
-    const tollsRaw = (route.tolls ?? []) as TollGuruToll[];
-    const plazas_detail: TollPlaza[] = tollsRaw
-      .map((t) => ({
-        name: t.name ?? t.start?.name ?? "Unnamed plaza",
-        tag_inr: Math.round(t.tagCost ?? t.cashCost ?? 0),
-        road: t.road ?? t.start?.road,
-        state: t.state ?? t.start?.state,
-      }))
-      .filter((p) => p.tag_inr > 0);
+    let data: Record<string, unknown>;
+    try {
+      data = JSON.parse(rawText) as Record<string, unknown>;
+    } catch {
+      console.error("[TollGuru] Route-polyline invalid JSON response:", rawText.slice(0, 200));
+      return null;
+    }
 
-    return {
-      total_inr: Math.round(total),
-      plaza_count: plazas_detail.length || tollsRaw.length,
-      plazas_detail,
-    };
+    if (data.status !== "OK") {
+      console.warn("[TollGuru] Route-polyline non-OK status:", data.status);
+      return null;
+    }
+
+    const route = data.route as Record<string, unknown> | undefined;
+    if (!route) return null;
+
+    return extractTollGuruCosts(route);
   } catch (err) {
-    console.error("[TollGuru] Fetch error:", err);
+    console.error("[TollGuru] Route-polyline fetch error:", err);
     return null;
   }
 }
@@ -187,6 +270,68 @@ export async function getTollEstimate(
 
   return {
     total_inr: Math.round(perKm * distance_km),
+    plaza_count: 0,
+    provenance: {
+      kind: "estimate",
+      label: "₹/km × distance",
+      detail: `config/fallback-rates.json (₹${perKm}/km for ${tollClass})`,
+    },
+  };
+}
+
+export interface RouteTollInput {
+  geometry: RouteGeometry;
+  distance_km: number; // used only for the local fallback estimate below, never sent to TollGuru
+  source: "google" | "ors" | "estimate";
+}
+
+// Whole-route counterpart to getTollEstimate — call once per trip with the
+// entire routed geometry instead of once per leg.
+export async function getTollEstimateForRoute(
+  route: RouteTollInput,
+  tollClass: string
+): Promise<TollEstimate> {
+  // A synthesized straight-line geometry (no real API routing data) doesn't
+  // follow actual roads, so sending it to TollGuru would waste a call and
+  // return meaningless plaza data — go straight to the local estimate instead.
+  if (route.source !== "estimate") {
+    const mapProvider = route.source === "google" ? "google" : "osm";
+    const tg = await tollFromTollGuruRoute(route.geometry, mapProvider, tollClass);
+    if (tg) {
+      return {
+        total_inr: tg.total_inr,
+        plaza_count: tg.plaza_count,
+        plazas_detail: tg.plazas_detail,
+        provenance: {
+          kind: "api",
+          label: "TollGuru",
+          detail: `${TOLLGURU_VEHICLE[tollClass] ?? tollClass} — real FASTag rates (whole route)`,
+        },
+      };
+    }
+  }
+
+  // Fallback: ₹/km estimate from config, applied to the whole trip's distance.
+  const fallback = getFallbackRates();
+  const perKm =
+    fallback.toll_per_km[tollClass as keyof typeof fallback.toll_per_km] ??
+    fallback.toll_per_km.twoAxle ??
+    2;
+
+  if (route.distance_km < 30) {
+    return {
+      total_inr: 0,
+      plaza_count: 0,
+      provenance: {
+        kind: "estimate",
+        label: "₹/km × distance",
+        detail: "toll-free below 30 km (fallback estimate)",
+      },
+    };
+  }
+
+  return {
+    total_inr: Math.round(perKm * route.distance_km),
     plaza_count: 0,
     provenance: {
       kind: "estimate",

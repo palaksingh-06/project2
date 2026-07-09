@@ -3,8 +3,7 @@ import type { RateOverrides, CostHeadId } from "@/lib/zbc/types";
 export interface MultiStopCalculationRequest {
   truckId: string;
   modelId?: string;
-  origin: string;
-  destinations: string[];  // sequential waypoints; legs: origin→[0]→[1]→…→[n-1]
+  routes: string[]; // ordered waypoints: origin, ...stops, destination. Minimum length 2.
   tripType?: string;
   payloadTons?: number;
   overrides?: RateOverrides;

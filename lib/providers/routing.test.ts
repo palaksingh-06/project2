@@ -29,11 +29,16 @@ describe("getRouteDistance", () => {
     vi.stubEnv("GOOGLE_ROUTES_ENABLED", "false");
     vi.stubEnv("GOOGLE_MAPS_API_KEY", "");
 
-    // Mock fetch to return a valid ORS response with distance in meters
+    // Mock fetch to return a valid ORS geojson response with distance in meters
     vi.spyOn(global, "fetch").mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        routes: [{ summary: { distance: 75000, duration: 3600 } }],
+        features: [
+          {
+            geometry: { type: "LineString", coordinates: [[77.1025, 28.7041], [76.9635, 29.3909]] },
+            properties: { summary: { distance: 75000, duration: 3600 } },
+          },
+        ],
       }),
     } as Response);
 
