@@ -17,6 +17,7 @@ import { ConfigurationTab } from "@/components/ConfigurationTab";
 import type { ContributionCheck, RateOverrides, CostHeadId } from "@/lib/zbc/types";
 import type { BreakdownRow } from "@/components/CostBreakdownTable";
 import type { BatchRowResult } from "@/lib/export/excel";
+import { RouteMap } from "@/components/RouteMap";
 
 interface ProvenanceInfo {
   kind: string;
@@ -423,9 +424,11 @@ export default function HomePage() {
               )}
 
               {activeResultTab === "route" && (
-                <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500">
-                  Route Map is coming in a future update.
-                </div>
+                <RouteMap
+                  origin={result.meta.origin}
+                  destination={result.meta.destination}
+                  
+                />
               )}
             </>
           )}

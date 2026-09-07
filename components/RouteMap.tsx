@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 // RouteMap: draws the actual road route between the trip's origin and
 // destination using Leaflet (map rendering) + OSRM (free routing engine,
@@ -18,13 +18,16 @@ interface RoutePoint {
 export interface RouteMapProps {
   origin: RoutePoint;
   destination: RoutePoint;
+  /** Optional: the distance already billed/used in the cost calculation, for comparison against OSRM's figure. */
+  distanceKm?: number;
 }
 
-export function RouteMap({ origin, destination }: RouteMapProps) {
+export function RouteMap({ origin, destination, distanceKm }: RouteMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstanceRef = useRef<any>(null);
   const [status, setStatus] = useState<string>("Loading map…");
+  const [routeInfo, setRouteInfo] = useState<{ distanceKm: number; durationMin: number } | null>(null);
 
   const hasCoords =
     origin.lat != null && origin.lng != null && destination.lat != null && destination.lng != null;
@@ -97,6 +100,10 @@ export function RouteMap({ origin, destination }: RouteMapProps) {
           const line = L.polyline(coords, { color: "#c2410c", weight: 4, opacity: 0.85 }).addTo(map);
           map.fitBounds(line.getBounds(), { padding: [30, 30] });
 
+          setRouteInfo({
+            distanceKm: route.distance / 1000,
+            durationMin: route.duration / 60,
+          });
           setStatus("");
         } else {
           map.fitBounds(L.latLngBounds([oLat, oLng], [dLat, dLng]), { padding: [30, 30] });
@@ -128,7 +135,8 @@ export function RouteMap({ origin, destination }: RouteMapProps) {
         ref={mapContainerRef}
         className="h-[420px] w-full rounded-xl border border-slate-200 bg-slate-50"
       />
-      {status && <p className="text-sm text-slate-500">{status}</p>}
+            {status && <p className="text-sm text-slate-500">{status}</p>}
     </div>
   );
 }
+  

@@ -82,8 +82,8 @@ export function TripForm({ onSubmit, loading }: TripFormProps) {
   const [selectedFeet, setSelectedFeet] = useState<number | null>(null);
   const [selectedAxles, setSelectedAxles] = useState<number | null>(null);
   const [selectedModelId, setSelectedModelId] = useState<string>("");
-  const [origin, setOrigin] = useState("Delhi");
-  const [stops, setStops] = useState<string[]>(["Mumbai"]);
+  const [origin, setOrigin] = useState("");
+  const [stops, setStops] = useState<string[]>([""]);
 
   const addStop = () => {
     if (stops.length < MAX_STOPS) setStops((s) => [...s, ""]);
