@@ -42,30 +42,81 @@ interface TollGuruToll {
 // complete-polyline-from-mapping-service responses.
 function extractTollGuruCosts(
   route: Record<string, unknown>
-): { total_inr: number; plaza_count: number; plazas_detail: TollPlaza[] } | null {
+): {
+  total_inr: number;
+  plaza_count: number;
+  plazas_detail: TollPlaza[];
+} | null {
   const costs = (route.costs ?? route) as Record<string, unknown>;
 
-  // Prefer FASTag (tag) cost — mandatory in India
-  const total =
-    (costs.tag as number | undefined) ??
-    (costs.minimumTollCost as number | undefined) ??
-    (costs.tagAndCash as number | undefined) ??
-    (costs.cash as number | undefined);
-
-  if (typeof total !== "number" || total < 0) {
-    console.warn("[TollGuru] No usable toll cost in response. costs:", JSON.stringify(costs));
-    return null;
-  }
+  /*
+   * TollGuru may return 0 for one pricing field while another
+   * pricing field contains the actual toll.
+   *
+   * Prefer a positive value instead of treating 0 as the final answer.
+   */
+  const costCandidates = [
+    costs.tag,
+    costs.minimumTollCost,
+    costs.tagAndCash,
+    costs.cash,
+  ]
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value) && value > 0);
 
   const tollsRaw = (route.tolls ?? []) as TollGuruToll[];
+
+  /*
+   * Build plaza-level details.
+   */
   const plazas_detail: TollPlaza[] = tollsRaw
-    .map((t) => ({
-      name: t.name ?? t.start?.name ?? "Unnamed plaza",
-      tag_inr: Math.round(t.tagCost ?? t.cashCost ?? 0),
-      road: t.road ?? t.start?.road,
-      state: t.state ?? t.start?.state,
-    }))
+    .map((t) => {
+      const tagCost = Number(t.tagCost);
+      const cashCost = Number(t.cashCost);
+
+      const plazaCost =
+        Number.isFinite(tagCost) && tagCost > 0
+          ? tagCost
+          : Number.isFinite(cashCost) && cashCost > 0
+            ? cashCost
+            : 0;
+
+      return {
+        name: t.name ?? t.start?.name ?? "Unnamed plaza",
+        tag_inr: Math.round(plazaCost),
+        road: t.road ?? t.start?.road,
+        state: t.state ?? t.start?.state,
+      };
+    })
     .filter((p) => p.tag_inr > 0);
+
+  /*
+   * First preference:
+   * use TollGuru's route-level positive toll cost.
+   *
+   * If route-level cost is missing/zero but individual toll plazas
+   * contain positive costs, sum the plaza costs.
+   */
+  let total = costCandidates[0];
+
+  if (!Number.isFinite(total) || total <= 0) {
+    const plazaTotal = plazas_detail.reduce(
+      (sum, plaza) => sum + plaza.tag_inr,
+      0
+    );
+
+    if (plazaTotal > 0) {
+      total = plazaTotal;
+    }
+  }
+
+  /*
+   * If there is genuinely no toll cost, return 0.
+   * This can represent a genuinely toll-free route.
+   */
+  if (!Number.isFinite(total)) {
+    total = 0;
+  }
 
   return {
     total_inr: Math.round(total),

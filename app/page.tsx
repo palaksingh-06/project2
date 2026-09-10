@@ -110,7 +110,7 @@ export default function HomePage() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const [showContribution, setShowContribution] = useState(true);
-  const [showChart, setShowChart] = useState(false);
+  const [showChart, setShowChart] = useState(true);
 
   const [lastRequest, setLastRequest] =
     useState<CalculateRequest | null>(null);
@@ -437,7 +437,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <button
+            {/* <button
               onClick={downloadMethodology}
               className="inline-flex items-center gap-2 self-start rounded-xl border border-white/80 bg-white/85 px-4 py-2.5 text-[13px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all hover:bg-white hover:shadow-md sm:self-center"
             >
@@ -446,7 +446,7 @@ export default function HomePage() {
               <span className="text-xs font-bold text-slate-600">
                 ↓
               </span>
-            </button>
+            </button> */}
           </header>
 
           {/* ===================================================== */}
@@ -467,118 +467,75 @@ export default function HomePage() {
             {/* LEFT FORM */}
             {/* =================================================== */}
 
-            {!formMinimized ? (
-              <section
-                className="relative rounded-2xl p-5 sm:p-7 lg:col-span-5"
-                style={{
-                  backdropFilter: "blur(20px) saturate(190%)",
-                  background: "rgba(255,255,255,0.24)",
-                  border: "1px solid rgba(255,255,255,0.45)",
-                  boxShadow:
-                    "0 20px 50px rgba(0,0,0,.15), inset 0 1px 3px rgba(255,255,255,.35)",
-                }}
-                data-print="hide"
-              >
-                {/* Minimize */}
+            {formMinimized && (
+  <button
+    onClick={() => setFormMinimized(false)}
+    className="flex w-fit items-center gap-2 rounded-xl border border-white/60 bg-white/70 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-md transition-all hover:bg-white"
+    data-print="hide"
+  >
+    ▸ Show input form
+  </button>
+)}
+<section
+  className={`relative rounded-2xl p-5 sm:p-7 lg:col-span-5 ${
+    formMinimized ? "hidden" : ""
+  }`}
+  style={{
+    backdropFilter: "blur(20px) saturate(190%)",
+    background: "rgba(255,255,255,0.24)",
+    border: "1px solid rgba(255,255,255,0.45)",
+    boxShadow:
+      "0 20px 50px rgba(0,0,0,.15), inset 0 1px 3px rgba(255,255,255,.35)",
+  }}
+  data-print="hide"
+>
+  {/* TABS */}
+  <div className="mb-5 flex rounded-xl border border-white/50 bg-white/30 p-1">
+    <button
+      type="button"
+      onClick={() => setTab("single")}
+      className={`flex-1 rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
+        tab === "single"
+          ? "bg-white text-blue-900 shadow-sm"
+          : "text-slate-600 hover:text-slate-900"
+      }`}
+    >
+      Single Trip
+    </button>
 
-                <div className="mb-3 flex justify-end">
-                  <button
-                    onClick={() => setFormMinimized(true)}
-                    className="flex items-center gap-1 text-xs font-semibold text-white/80 transition-colors hover:text-white"
-                  >
-                    ◂ Minimize
-                  </button>
-                </div>
+    <button
+      type="button"
+      onClick={() => setTab("batch")}
+      className={`flex-1 rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
+        tab === "batch"
+          ? "bg-white text-blue-900 shadow-sm"
+          : "text-slate-600 hover:text-slate-900"
+      }`}
+    >
+      Batch Upload
+    </button>
+  </div>
 
-                {/* Tabs */}
+  {/* SINGLE TRIP FORM */}
+  {tab === "single" && (
+    <div className="glass-input-wrapper">
+      <TripForm
+        onSubmit={handleCalculate}
+        loading={loading}
+        truckRates={truckRates}
+      />
+    </div>
+  )}
 
-                <div className="mb-6 flex w-full gap-1 rounded-xl border border-white/30 bg-black/10 p-1.5 shadow-inner backdrop-blur-md">
-                  <button
-                    onClick={() => setTab("single")}
-                    className={`
-                      flex-1 rounded-lg py-2 px-3 text-center text-sm
-                      transition-all
-                      ${
-                        tab === "single"
-                          ? "bg-white/90 font-bold text-blue-900 shadow-md"
-                          : "font-medium text-white/90 hover:bg-white/15 hover:text-white"
-                      }
-                    `}
-                  >
-                    Single Trip
-                  </button>
-
-                  <button
-                    onClick={() => setTab("batch")}
-                    className={`
-                      flex-1 rounded-lg py-2 px-3 text-center text-sm
-                      transition-all
-                      ${
-                        tab === "batch"
-                          ? "bg-white/90 font-bold text-blue-900 shadow-md"
-                          : "font-medium text-white/90 hover:bg-white/15 hover:text-white"
-                      }
-                    `}
-                  >
-                    Batch Upload
-                  </button>
-                </div>
-
-                {/* ================================================= */}
-                {/* SINGLE TRIP */}
-                {/* ================================================= */}
-
-                {tab === "single" && (
-                  <>
-                    <div className="glass-input-wrapper">
-                      <TripForm
-                        onSubmit={handleCalculate}
-                        loading={loading}
-                        truckRates={truckRates}
-                      />
-                    </div>
-
-                    {error && (
-                      <div className="mt-4 rounded-xl border border-red-300/60 bg-red-100/80 p-3 text-sm font-medium text-red-900 backdrop-blur-md">
-                        {error}
-
-                        {suggestions.length > 0 && (
-                          <p className="mt-2">
-                            Did you mean:{" "}
-                            <strong>
-                              {suggestions.join(", ")}
-                            </strong>
-                            ?
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {/* ================================================= */}
-                {/* BATCH */}
-                {/* ================================================= */}
-
-                {tab === "batch" && (
-                  <div className="glass-input-wrapper">
-                    <BatchUpload
-                      onResults={(rows) =>
-                        setBatchResults(rows)
-                      }
-                    />
-                  </div>
-                )}
-              </section>
-            ) : (
-              <button
-                onClick={() => setFormMinimized(false)}
-                className="flex w-fit items-center gap-2 rounded-xl border border-white/60 bg-white/70 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-md transition-all hover:bg-white"
-                data-print="hide"
-              >
-                ▸ Show input form
-              </button>
-            )}
+  {/* BATCH UPLOAD */}
+  {tab === "batch" && (
+    <div className="glass-input-wrapper">
+      <BatchUpload
+        onResults={(rows) => setBatchResults(rows)}
+      />
+    </div>
+  )}
+</section>
 
             {/* =================================================== */}
             {/* RIGHT RESULTS */}
@@ -798,14 +755,14 @@ export default function HomePage() {
                         className="mt-4 flex justify-end"
                         data-print="hide"
                       >
-                        <button
+                        {/* <button
                           onClick={() =>
                             setProvenanceResult(result)
                           }
                           className="rounded-xl border border-white/70 bg-white/70 px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm transition-all hover:bg-white"
                         >
                           View data sources →
-                        </button>
+                        </button> */}
                       </div>
 
                       {/* ================================================= */}
@@ -1132,12 +1089,12 @@ export default function HomePage() {
                           ← Clear breakdown
                         </button>
 
-                        <button
+                        {/* <button
                           onClick={downloadMethodology}
                           className="rounded-xl border border-white/70 bg-white/75 px-4 py-2 text-xs font-bold text-blue-950 shadow-md transition-all hover:bg-white"
                         >
                           Export rate summary
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                   </div>
