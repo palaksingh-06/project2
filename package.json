@@ -13,6 +13,7 @@
     "populate-cities": "node scripts/populate-cities.mjs"
   },
   "dependencies": {
+    "@googleapis/gmail": "^22.0.2",
     "@headlessui/react": "^2.2.0",
     "bcryptjs": "^3.0.3",
     "googleapis": "^182.0.0",
